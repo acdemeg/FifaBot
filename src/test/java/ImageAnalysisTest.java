@@ -51,7 +51,7 @@ public class ImageAnalysisTest {
         BufferedImage bufferedImage = ImageIO.read(file);
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         GameInfo gameInfo = imageAnalysis.analyse();
-        Assertions.assertEquals(10, gameInfo.getPlaymates().size());
+        Assertions.assertEquals(11, gameInfo.getPlaymates().size());
         Assertions.assertEquals(11, gameInfo.getOpposites().size());
     }
 

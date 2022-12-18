@@ -14,10 +14,13 @@ public class GameInfo {
     public static final Color playmateColorUpper = new Color(220,50,55);
     public static final Color oppositeColorLower = new Color(35,40,70);
     public static final Color oppositeColorUpper = new Color(45,50,83);
+    public static final Color activePlayerLower = new Color(25,100,100);
+    public static final Color activePlayerUpper = new Color(0,210,210);
     public static final Color boundOfPlayerColor = new Color(235,235,235);
 
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
+    private final Point activePlayer;
 
     public SortedSet<Point> getPlaymates() {
         return playmates;
@@ -27,8 +30,9 @@ public class GameInfo {
         return opposites;
     }
 
-    public GameInfo(SortedSet<Point> playmates, SortedSet<Point> opposites) {
+    public GameInfo(SortedSet<Point> playmates, SortedSet<Point> opposites, Point activePlayer) {
         this.playmates = playmates;
         this.opposites = opposites;
+        this.activePlayer = activePlayer;
     }
 }

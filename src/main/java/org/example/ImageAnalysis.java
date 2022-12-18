@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -16,6 +17,7 @@ public class ImageAnalysis {
     private final BufferedImage bufferedImage;
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
+    private Point activePlayer;
 
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
@@ -47,19 +49,26 @@ public class ImageAnalysis {
                 if (isBoundPlayerColor(pixel)) {
 
                     if (isExistBottomRightNearPoint(x, y)) {
-                        x = getEndPlayerBound(x + 1, y);
+                        x = getEndPlayerBound(x + 1, y, this::isBoundPlayerColor);
                     }
                     else {
-                        int endPlayerBound = getEndPlayerBound(x + 1, y);
-                        int middlePlayerBound = endPlayerBound - ( (endPlayerBound - x) / 2);
-                        boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4);
-                        x = isAdd ? endPlayerBound : x;
+                        x = addPlayer(x, y, this::isBoundPlayerColor, false);
                     }
+                }
+                else if (activePlayer == null && isActivePlayerColor(pixel)) {
+                    x = addPlayer(x, y, this::isActivePlayerColor, true);
                 }
             }
         }
 
-        return new GameInfo(playmates, opposites);
+        return new GameInfo(playmates, opposites, activePlayer);
+    }
+
+    private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
+        int endPlayerBound = getEndPlayerBound(x + 1, y, isBoundColor);
+        int middlePlayerBound = endPlayerBound - ( (endPlayerBound - x) / 2);
+        boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4, isActivePlayer);
+        return isAdd ? endPlayerBound : x;
     }
 
     private boolean isExistBottomRightNearPoint(int x, int y) {
@@ -68,19 +77,25 @@ public class ImageAnalysis {
         return players.anyMatch(pointNear);
     }
 
-    private int getEndPlayerBound(int x, int y) {
+    private int getEndPlayerBound(int x, int y, Function<Integer, Boolean> isBoundColor) {
         if (x < width) {
             int pixel = bufferedImage.getRGB(x, y);
-            if (isBoundPlayerColor(pixel)) {
-                return getEndPlayerBound(x + 1, y);
+            if (isBoundColor.apply(pixel)) {
+                return getEndPlayerBound(x + 1, y, isBoundColor);
             }
             return x - 1;
         }
         return x - 1;
     }
 
-    private boolean setPlayerCoordinate(int x, int y) {
+    private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
         if (y < height) {
+
+            if (isActivePlayer) {
+                activePlayer = new Point(x, y);
+                return playmates.add(activePlayer);
+            }
+
             int pixel = bufferedImage.getRGB(x, y);
 
             if (isPlayerColor(pixel, true)) {
@@ -121,9 +136,18 @@ public class ImageAnalysis {
         return playerColorLower.getRed() < r && playerColorUpper.getRed() > r
                 && playerColorLower.getGreen() < g && playerColorUpper.getGreen() > g
                 && playerColorLower.getBlue() < b && playerColorUpper.getBlue() > b;
-
     }
 
+    private boolean isActivePlayerColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return activePlayerLower.getRed() > r && activePlayerUpper.getRed() < r
+                && activePlayerLower.getGreen() < g && activePlayerUpper.getGreen() > g
+                && activePlayerLower.getBlue() < b && activePlayerUpper.getBlue() > b
+                && Math.abs(g - b) < 11 && Math.abs(r - g) > 100;
+    }
 
     public void pixelLogging(int pixel, int x, int y, Color color) {
         System.out.println(
