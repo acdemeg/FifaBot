@@ -2,6 +2,8 @@ import org.example.GameInfo;
 import org.example.ImageAnalysis;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,15 +13,11 @@ import java.io.IOException;
 
 public class ImageAnalysisTest {
 
-    private final BufferedImage bufferedImage;
-
-    public ImageAnalysisTest() throws IOException {
-        File file = new File("screenshots", "1.jpg");
-        this.bufferedImage = ImageIO.read(file);
-    }
-
     @Test
-    void checkColorTest() {
+    void colorTest() throws IOException {
+        File file = new File("screenshots", "1.jpg");
+        BufferedImage bufferedImage = ImageIO.read(file);
+
         Color startPixel = new Color(bufferedImage.getRGB(0, 0));
         Color endPixel = new Color(bufferedImage.getRGB(257, 152));
         Color pixelDarkField = new Color(bufferedImage.getRGB(31, 58));
@@ -43,8 +41,11 @@ public class ImageAnalysisTest {
         Assertions.assertEquals(pixelCenterField.getRGB(), new Color(208,210,204).getRGB());
     }
 
-    @Test
-    void findPlayersTest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg"})
+    void analyseTest(String jpg) throws IOException {
+        File file = new File("screenshots", jpg);
+        BufferedImage bufferedImage = ImageIO.read(file);
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         GameInfo gameInfo = imageAnalysis.analyse();
         Assertions.assertEquals(10, gameInfo.getPlaymates().size());

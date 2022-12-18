@@ -83,11 +83,11 @@ public class ImageAnalysis {
         if (y < height) {
             int pixel = bufferedImage.getRGB(x, y);
 
-            if (pixel == playmateColor) {
+            if (isPlayerColor(pixel, true)) {
                 boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 8);
                 return isExistPoint || playmates.add(new Point(x, y));
             }
-            else if (pixel == oppositeColor) {
+            else if (isPlayerColor(pixel, false)) {
                 boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 8);
                 return isExistPoint || opposites.add(new Point(x, y));
             }
@@ -101,6 +101,29 @@ public class ImageAnalysis {
                 && boundOfPlayerColor.getGreen() < ((pixel >> 8) & 0xFF)
                 && boundOfPlayerColor.getBlue() < (pixel & 0xFF);
     }
+
+    private boolean isPlayerColor(int pixel, boolean isPlaymate) {
+        Color playerColorLower;
+        Color playerColorUpper;
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        if(isPlaymate){
+            playerColorLower = playmateColorLower;
+            playerColorUpper = playmateColorUpper;
+        }
+        else {
+            playerColorLower = oppositeColorLower;
+            playerColorUpper = oppositeColorUpper;
+        }
+
+        return playerColorLower.getRed() < r && playerColorUpper.getRed() > r
+                && playerColorLower.getGreen() < g && playerColorUpper.getGreen() > g
+                && playerColorLower.getBlue() < b && playerColorUpper.getBlue() > b;
+
+    }
+
 
     public void pixelLogging(int pixel, int x, int y, Color color) {
         System.out.println(
