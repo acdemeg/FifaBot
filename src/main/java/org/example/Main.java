@@ -21,17 +21,7 @@ public class Main {
         robot.setAutoWaitForIdle(true);
 
 //        gameProcessing(robot);
-//        makeScreenshot(robot);
-
-        robot.delay(3000);
-        Rectangle rectangle = new Rectangle(0,0,1,1);
-        BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
-        int rgb = bufferedImage.getRGB(0,0);
-        System.out.println(rgb);
-        Color color = new Color(rgb);
-        System.out.println(color.getRed());
-        System.out.println(color.getBlue());
-        System.out.println(color.getGreen());
+        makeScreenshot(robot);
 
     }
 
@@ -49,11 +39,12 @@ public class Main {
     }
 
     private static void makeScreenshot(Robot robot) throws IOException {
-        for (int i = 0; i < 10; i++){
-            robot.delay(1000);
+        robot.delay(5000);
+        for (int i = 9; i < 21; i++){
+            robot.delay(2000);
             Rectangle rectangle = new Rectangle(startX, startY, width, height);
             BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
-            File file = new File("screenshots", System.currentTimeMillis() + ".jpg");
+            File file = new File("screenshots", i + ".jpg");
             ImageIO.write(bufferedImage, "png", file);
         }
     }

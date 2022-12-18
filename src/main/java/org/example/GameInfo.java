@@ -7,7 +7,7 @@ import java.util.SortedSet;
 public class GameInfo {
 
     public static final int startX = 831;
-    public static final int startY = 831;
+    public static final int startY = 882;
     public static final int width = 258;
     public static final int height = 153;
     public static final Color playmateColorLower = new Color(126,35,24);
