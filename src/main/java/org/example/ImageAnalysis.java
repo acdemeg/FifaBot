@@ -105,9 +105,14 @@ public class ImageAnalysis {
     }
 
     private boolean isExistBottomRightNearPoint(int x, int y) {
-        Stream<Point> players = Stream.concat(playmates.stream(), opposites.stream());
-        Predicate<Point> pointNear = p -> (p.x >= x && p.x - x < 6) && (p.y >= y && p.y - y < 9);
-        return players.anyMatch(pointNear);
+        if (y + 4 < height) {
+            int pixel = bufferedImage.getRGB(x, y + 4);
+            boolean isPlaymate = isPlayerColor(pixel, true);
+            Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
+            Predicate<Point> pointNear = p -> (p.x >= x && p.x - x < 6) && (p.y >= y && p.y - y < 9);
+            return players.anyMatch(pointNear);
+        }
+        return false;
     }
 
     private int getEndPlayerBound(int x, int y, Function<Integer, Boolean> isBoundColor) {
@@ -210,13 +215,5 @@ public class ImageAnalysis {
         return overlayPlaymatePlayerColorLower.getRed() < r && overlayPlaymatePlayerColorUpper.getRed() > r
                 && overlayPlaymatePlayerColorLower.getGreen() < g && overlayPlaymatePlayerColorUpper.getGreen() > g
                 && overlayPlaymatePlayerColorLower.getBlue() > b && overlayPlaymatePlayerColorUpper.getBlue() < b;
-    }
-
-    public void pixelLogging(int pixel, int x, int y, Color color) {
-        System.out.println(
-                "Pixel RGB = " + pixel + ", " +
-                "Position = [" + x + "," + y + "], " +
-                "Color(r,g,b) = [" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + "]"
-        );
     }
 }

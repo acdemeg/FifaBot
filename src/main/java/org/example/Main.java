@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import static org.example.GameInfo.*;
 
-@SuppressWarnings("InfiniteLoopStatement")
 public class Main {
 
 
@@ -39,10 +38,10 @@ public class Main {
     }
 
     private static void makeScreenshot(Robot robot) throws IOException {
-        robot.delay(5000);
-        for (int i = 9; i < 21; i++){
+        robot.delay(10_000);
+        Rectangle rectangle = new Rectangle(startX, startY, width, height);
+        for (int i = 21; i < 101; i++){
             robot.delay(2000);
-            Rectangle rectangle = new Rectangle(startX, startY, width, height);
             BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
             File file = new File("screenshots", i + ".jpg");
             ImageIO.write(bufferedImage, "png", file);
