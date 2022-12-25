@@ -19,6 +19,7 @@ public class ImageAnalysis {
     private final SortedSet<Point> opposites;
     private Point activePlayer;
     private Point ball;
+    private final int[][] pixels;
 
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
@@ -26,6 +27,7 @@ public class ImageAnalysis {
                 .thenComparingDouble(Point::getX);
         this.playmates = new TreeSet<>(comparator);
         this.opposites = new TreeSet<>(comparator);
+        this.pixels = new int[width][height];
     }
 
     /**
@@ -46,6 +48,7 @@ public class ImageAnalysis {
             for (int x = 0; x < width; x++) {
 
                 int pixel = bufferedImage.getRGB(x, y);
+                pixels[x][y] = pixel;
 
                 if (isBoundPlayerColor(pixel)) {
 
@@ -65,7 +68,33 @@ public class ImageAnalysis {
             }
         }
 
-        return new GameInfo(playmates, opposites, activePlayer, ball);
+        if(opposites.size() < 11 || playmates.size() < 11) {
+            searchOverlayPlayers();
+        }
+
+        return new GameInfo(playmates, opposites, activePlayer, ball, pixels);
+    }
+
+    private void searchOverlayPlayers() {
+        // looking in the vicinity of the ball
+        Point leftTopScanPoint = new Point(ball.x - 5, ball.y - 5);
+        Point bottomRightScanPoint = new Point(ball.x + 5, ball.y + 5);
+
+        if(leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
+                && bottomRightScanPoint.x < width && bottomRightScanPoint.y < height) {
+
+            for (int y = leftTopScanPoint.y; y <= bottomRightScanPoint.y; y++) {
+                for (int x = leftTopScanPoint.x; x <= bottomRightScanPoint.x; x++) {
+
+                    if (isOverlayOppositePlayerColor(pixels[x][y]) && opposites.size() < 11) {
+                        opposites.add(new Point(x, y));
+                    }
+                    if (isOverlayPlaymatePlayerColor(pixels[x][y]) && playmates.size() < 11) {
+                        playmates.add(new Point(x, y));
+                    }
+                }
+            }
+        }
     }
 
     private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
@@ -161,6 +190,26 @@ public class ImageAnalysis {
         return ballColorLower.getRed() < r && ballColorUpper.getRed() > r
                 && ballColorLower.getGreen() < g && ballColorUpper.getGreen() > g
                 && ballColorLower.getBlue() >= b && ballColorUpper.getBlue() <= b;
+    }
+
+    private boolean isOverlayOppositePlayerColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return overlayOppositePlayerColorLower.getRed() < r && overlayOppositePlayerColorUpper.getRed() > r
+                && overlayOppositePlayerColorLower.getGreen() < g && overlayOppositePlayerColorUpper.getGreen() > g
+                && overlayOppositePlayerColorLower.getBlue() < b && overlayOppositePlayerColorUpper.getBlue() > b;
+    }
+
+    private boolean isOverlayPlaymatePlayerColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return overlayPlaymatePlayerColorLower.getRed() < r && overlayPlaymatePlayerColorUpper.getRed() > r
+                && overlayPlaymatePlayerColorLower.getGreen() < g && overlayPlaymatePlayerColorUpper.getGreen() > g
+                && overlayPlaymatePlayerColorLower.getBlue() > b && overlayPlaymatePlayerColorUpper.getBlue() < b;
     }
 
     public void pixelLogging(int pixel, int x, int y, Color color) {
