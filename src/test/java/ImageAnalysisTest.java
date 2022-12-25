@@ -43,11 +43,14 @@ public class ImageAnalysisTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg", "10.jpg",
-            "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg"
+            "1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23",
+            "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44",
+            "45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65",
+            "66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86",
+            "87","88","89","90","91","92","93","94","95","96","97","98","99","100"
     })
-    void analyseTest(String jpg) throws IOException {
-        File file = new File("screenshots", jpg);
+    void analyseTest(String number) throws IOException {
+        File file = new File("screenshots", number + ".jpg");
         BufferedImage bufferedImage = ImageIO.read(file);
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         GameInfo gameInfo = imageAnalysis.analyse();
