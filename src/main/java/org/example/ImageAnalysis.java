@@ -18,6 +18,7 @@ public class ImageAnalysis {
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
     private Point activePlayer;
+    private Point ball;
 
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
@@ -28,16 +29,16 @@ public class ImageAnalysis {
     }
 
     /**
-     * Concept:
+     * Concept:<p>
      * 1-Step: Iterating by {@code bufferedImage} rectangle top-down and left right straight
-     *  and get pixel integer color with x,y coordinates.
-     * 2-Step: Check whether pixel represent bound of player.
+     *  and get pixel integer color with x,y coordinates. <p>
+     * 2-Step: Check whether pixel represent bound of player.<p>
      * 3-Step: Check whether exist Point which can be center coordinates of Player
      *  and located below and to the right then given (x,y), if Yes - current {@code x} replace {@code  endPlayerBound}
-     *  and continue for cycle, if No - starting 4 Step.
-     * 4-Step: Find middle of bound Player and trying to add in Set new Player via {@code setPlayerCoordinate} method.
+     *  and continue for cycle, if No - starting 4 Step.<p>
+     * 4-Step: Find middle of bound Player and trying to add in Set new Player via {@code setPlayerCoordinate} method.<p>
      * 5-Step: If already exist point which locate in radius = 8 from given (x, y) point then set of players not modify,
-     *  else add new coordinate in corresponding Set in depend on player belong to.
+     *  else add new coordinate in corresponding Set in depend on player belong to.<p>
      */
     public GameInfo analyse() {
 
@@ -58,10 +59,13 @@ public class ImageAnalysis {
                 else if (activePlayer == null && isActivePlayerColor(pixel)) {
                     x = addPlayer(x, y, this::isActivePlayerColor, true);
                 }
+                else if (ball == null && isBallColor(pixel)) {
+                    ball = new Point(x + 1, y + 5);
+                }
             }
         }
 
-        return new GameInfo(playmates, opposites, activePlayer);
+        return new GameInfo(playmates, opposites, activePlayer, ball);
     }
 
     private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
@@ -147,6 +151,16 @@ public class ImageAnalysis {
                 && activePlayerLower.getGreen() < g && activePlayerUpper.getGreen() > g
                 && activePlayerLower.getBlue() < b && activePlayerUpper.getBlue() > b
                 && Math.abs(g - b) < 11 && Math.abs(r - g) > 100;
+    }
+
+    private boolean isBallColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return ballColorLower.getRed() < r && ballColorUpper.getRed() > r
+                && ballColorLower.getGreen() < g && ballColorUpper.getGreen() > g
+                && ballColorLower.getBlue() >= b && ballColorUpper.getBlue() <= b;
     }
 
     public void pixelLogging(int pixel, int x, int y, Color color) {

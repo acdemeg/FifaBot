@@ -53,6 +53,8 @@ public class ImageAnalysisTest {
         GameInfo gameInfo = imageAnalysis.analyse();
         Assertions.assertEquals(11, gameInfo.getPlaymates().size());
         Assertions.assertEquals(11, gameInfo.getOpposites().size());
+        Assertions.assertNotNull(gameInfo.getActivePlayer());
+        Assertions.assertNotNull(gameInfo.getBall());
     }
 
 }
