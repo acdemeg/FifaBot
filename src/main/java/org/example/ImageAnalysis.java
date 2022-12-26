@@ -67,30 +67,59 @@ public class ImageAnalysis {
                 }
             }
         }
-
-        if(opposites.size() < 11 || playmates.size() < 11) {
-            searchOverlayPlayers();
-        }
+        searchOverlayPlayers();
 
         return new GameInfo(playmates, opposites, activePlayer, ball, pixels);
     }
 
     private void searchOverlayPlayers() {
-        // looking in the vicinity of the ball
-        Point leftTopScanPoint = new Point(ball.x - 5, ball.y - 5);
-        Point bottomRightScanPoint = new Point(ball.x + 5, ball.y + 5);
+        boolean playersNotEnough = opposites.size() < 11 || playmates.size() < 11;
+
+        if (ball != null && playersNotEnough) {
+            // looking in the vicinity of the ball
+            searchOverlayPlayersBase(ball, true, false, false);
+        }
+        if (playersNotEnough) {
+            // if playmate on opposite or vice versa
+            searchOtherPlayerOverlay();
+        }
+
+    }
+
+    private void searchOtherPlayerOverlay() {
+        if (playmates.size() < 11) {
+            opposites.forEach(opponent -> searchOverlayPlayersBase(opponent, false, true, false));
+        }
+        else if (opposites.size() < 11) {
+            playmates.forEach(playmate -> searchOverlayPlayersBase(playmate, false, false, true));
+        }
+    }
+
+    private void searchOverlayPlayersBase(Point point, boolean isBall, boolean isPlaymate, boolean isOpposite) {
+        Point leftTopScanPoint = new Point(point.x - 5, point.y - 5);
+        Point bottomRightScanPoint = new Point(point.x + 5, point.y + 5);
 
         if(leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
                 && bottomRightScanPoint.x < width && bottomRightScanPoint.y < height) {
 
             for (int y = leftTopScanPoint.y; y <= bottomRightScanPoint.y; y++) {
                 for (int x = leftTopScanPoint.x; x <= bottomRightScanPoint.x; x++) {
-
-                    if (isOverlayOppositePlayerColor(pixels[x][y]) && opposites.size() < 11) {
-                        opposites.add(new Point(x, y));
+                    int pixel = pixels[x][y];
+                    int finalX = x;
+                    int finalY = y;
+                    if ( (isOpposite || isBall) && opposites.size() < 11 &&
+                            (isOverlayOppositePlayerColor(pixel) || isPlayerColor(pixel, false))) {
+                        boolean isExistPoint = opposites.stream().anyMatch(p -> p.distance(finalX, finalY) < 5);
+                        if (!isExistPoint) {
+                            opposites.add(new Point(x, y));
+                        }
                     }
-                    if (isOverlayPlaymatePlayerColor(pixels[x][y]) && playmates.size() < 11) {
-                        playmates.add(new Point(x, y));
+                    if ( (isPlaymate || isBall) && playmates.size() < 11 &&
+                            (isOverlayPlaymatePlayerColor(pixel) || isPlayerColor(pixel, true))) {
+                        boolean isExistPoint = playmates.stream().anyMatch(p -> p.distance(finalX, finalY) < 5);
+                        if (!isExistPoint) {
+                            playmates.add(new Point(x, y));
+                        }
                     }
                 }
             }
