@@ -56,6 +56,6 @@ public class ImageAnalysisTest {
     }
 
     private static Stream<Integer> provideImageNumbers() {
-        return Stream.iterate(1, x -> x + 1).limit(24);
+        return Stream.iterate(1, x -> x + 1).limit(100);
     }
 }

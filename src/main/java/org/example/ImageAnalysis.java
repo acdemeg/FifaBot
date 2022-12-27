@@ -129,6 +129,10 @@ public class ImageAnalysis {
     private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
         int endPlayerBound = getEndPlayerBound(x + 1, y, isBoundColor);
         int middlePlayerBound = endPlayerBound - ( (endPlayerBound - x) / 2);
+        // fix double-crossing bound
+        if (checkDoubleCrossingBound(middlePlayerBound, y + 4, y - 4, isActivePlayer)) {
+            return x;
+        }
         boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4, isActivePlayer)
                         || setPlayerCoordinate(middlePlayerBound, y - 4, isActivePlayer)
                         || setPlayerCoordinate(middlePlayerBound, y + 3, isActivePlayer)
@@ -137,7 +141,20 @@ public class ImageAnalysis {
                         || setPlayerCoordinate(middlePlayerBound, y - 2, isActivePlayer)
                         || setPlayerCoordinate(middlePlayerBound, y + 1, isActivePlayer)
                         || setPlayerCoordinate(middlePlayerBound, y - 1, isActivePlayer);
+
         return isAdd ? endPlayerBound : x;
+    }
+
+    private boolean checkDoubleCrossingBound(int x, int topRange, int bottomRange, boolean isActivePlayer) {
+        if (bottomRange > 0 && topRange < height) {
+            for(int y = bottomRange; y <= topRange; y++) {
+                int pixel = bufferedImage.getRGB(x, y);
+                if (!isActivePlayer && isActivePlayerColor(pixel)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isExistBottomRightNearPoint(int x, int y) {
@@ -164,14 +181,12 @@ public class ImageAnalysis {
 
     private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
         if (y > 0 && y < height) {
+            int pixel = bufferedImage.getRGB(x, y);
 
             if (isActivePlayer) {
                 activePlayer = new Point(x, y);
                 return playmates.add(activePlayer);
             }
-
-            int pixel = bufferedImage.getRGB(x, y);
-
             if (isPlayerColor(pixel, true)) {
                 boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 8);
                 return isExistPoint || playmates.add(new Point(x, y));
