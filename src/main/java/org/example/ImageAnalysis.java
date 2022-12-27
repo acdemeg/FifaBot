@@ -129,7 +129,14 @@ public class ImageAnalysis {
     private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
         int endPlayerBound = getEndPlayerBound(x + 1, y, isBoundColor);
         int middlePlayerBound = endPlayerBound - ( (endPlayerBound - x) / 2);
-        boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4, isActivePlayer);
+        boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y - 4, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y + 3, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y - 3, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y + 2, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y - 2, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y + 1, isActivePlayer)
+                        || setPlayerCoordinate(middlePlayerBound, y - 1, isActivePlayer);
         return isAdd ? endPlayerBound : x;
     }
 
@@ -156,7 +163,7 @@ public class ImageAnalysis {
     }
 
     private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
-        if (y < height) {
+        if (y > 0 && y < height) {
 
             if (isActivePlayer) {
                 activePlayer = new Point(x, y);
