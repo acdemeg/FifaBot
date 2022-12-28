@@ -20,6 +20,7 @@ public class GameInfo {
     public static final Color activePlayerLower = new Color(25,100,100);
     public static final Color activePlayerUpper = new Color(0,210,210);
     public static final Color boundOfPlayerColor = new Color(222,222,222);
+    public static final Color overlayBoundOfPlayerColor = new Color(130,130,130);
     public static final Color ballColorLower = new Color(180,135,1);
     public static final Color ballColorUpper = new Color(255,186,0);
     public static final Color overlayOppositePlayerColorLower = new Color(21,25,40);

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -88,30 +89,40 @@ public class ImageAnalysis {
 
         if (ball != null && playersNotEnough) {
             // looking in the vicinity of the ball
-            searchOverlayPlayersBase(new SearchConditions(ball, true, false, false));
+            searchOverlayPlayersBase(
+                    new SearchConditions(ball, true, false, false),
+                    this::addOverlayPlayersBase
+            );
         }
         if (playersNotEnough) {
             // if playmate on opposite or vice versa
             searchOtherPlayerOverlay();
         }
-
+        // if ball completely hiding of opposite
+        if (ball != null) {
+            searchOverlayPlayersBase(
+                    new SearchConditions(ball, true, false, false),
+                    this::addFullOverlayBallPlayer
+            );
+        }
     }
 
     private void searchOtherPlayerOverlay() {
         if (playmates.size() < 11) {
             opposites.forEach(opponent -> searchOverlayPlayersBase(
-                    new SearchConditions(opponent, false, true, false)
+                    new SearchConditions(opponent, false, true, false),
+                    this::addOverlayPlayersBase
             ));
         }
         if (opposites.size() < 11) {
             playmates.forEach(playmate -> searchOverlayPlayersBase(
-                    new SearchConditions(playmate, false, false, true)
+                    new SearchConditions(playmate, false, false, true),
+                    this::addOverlayPlayersBase
             ));
         }
-        //searchOverlayPlayersBase();
     }
 
-    private void searchOverlayPlayersBase(SearchConditions search) {
+    private void searchOverlayPlayersBase(SearchConditions search, Consumer<SearchConditions> addOverlayPlayer) {
         Point leftTopScanPoint = new Point(search.point.x - 5, search.point.y - 5);
         Point bottomRightScanPoint = new Point(search.point.x + 5, search.point.y + 5);
 
@@ -122,7 +133,7 @@ public class ImageAnalysis {
                 for (int x = leftTopScanPoint.x; x <= bottomRightScanPoint.x; x++) {
                     int pixel = pixels[x][y];
                     search.baseData = new SearchConditions.BaseData(x, y, pixel);
-                    addOverlayPlayersBase(search);
+                    addOverlayPlayer.accept(search);
                 }
             }
         }
@@ -145,6 +156,17 @@ public class ImageAnalysis {
                     .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
             if (!isExistPoint) {
                 playmates.add(new Point(search.baseData.x, search.baseData.y));
+            }
+        }
+    }
+
+    private void addFullOverlayBallPlayer(SearchConditions search) {
+        if (opposites.size() < 11 && search.isBall
+                && (isBoundPlayerColor(search.baseData.pixel) || isOverlayBoundPlayerColor(search.baseData.pixel))) {
+            boolean isExistPoint = opposites.stream()
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+            if (!isExistPoint) {
+                opposites.add(new Point(search.baseData.x, search.baseData.y));
             }
         }
     }
@@ -293,5 +315,16 @@ public class ImageAnalysis {
         return overlayPlaymatePlayerColorLower.getRed() < r && overlayPlaymatePlayerColorUpper.getRed() > r
                 && overlayPlaymatePlayerColorLower.getGreen() < g && overlayPlaymatePlayerColorUpper.getGreen() > g
                 && overlayPlaymatePlayerColorLower.getBlue() > b && overlayPlaymatePlayerColorUpper.getBlue() < b;
+    }
+
+    private boolean isOverlayBoundPlayerColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return overlayBoundOfPlayerColor.getRed() < r && boundOfPlayerColor.getRed() > r
+                && overlayBoundOfPlayerColor.getGreen() < g && boundOfPlayerColor.getGreen() > g
+                && overlayBoundOfPlayerColor.getBlue() < b && boundOfPlayerColor.getBlue() > b
+                && Math.abs(g - b) < 10 && Math.abs(r - g) < 10 && Math.abs(r - b) < 10;
     }
 }
