@@ -128,7 +128,11 @@ public class ImageAnalysis {
 
     private int addPlayer(int x, int y, Function<Integer, Boolean> isBoundColor, boolean isActivePlayer) {
         int endPlayerBound = getEndPlayerBound(x + 1, y, isBoundColor);
-        int middlePlayerBound = endPlayerBound - ( (endPlayerBound - x) / 2);
+        // if players stick together
+        if (endPlayerBound - x > 7) {
+            endPlayerBound = endPlayerBound - (endPlayerBound - x) / 2;
+        }
+        int middlePlayerBound = endPlayerBound - (endPlayerBound - x) / 2;
         // fix double-crossing bound
         if (checkDoubleCrossingBound(middlePlayerBound, y + 4, y - 4, isActivePlayer)) {
             return x;
@@ -189,11 +193,11 @@ public class ImageAnalysis {
             }
             if (isPlayerColor(pixel, true)) {
                 boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 8);
-                return isExistPoint || playmates.add(new Point(x, y));
+                return !isExistPoint && playmates.add(new Point(x, y));
             }
             else if (isPlayerColor(pixel, false)) {
                 boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 8);
-                return isExistPoint || opposites.add(new Point(x, y));
+                return !isExistPoint && opposites.add(new Point(x, y));
             }
             return false;
         }
