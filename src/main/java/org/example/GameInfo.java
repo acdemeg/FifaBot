@@ -1,8 +1,11 @@
 package org.example;
 
+import lombok.Data;
+
 import java.awt.*;
 import java.util.SortedSet;
 
+@Data
 public class GameInfo {
 
     public static final int startX = 831;
@@ -30,31 +33,4 @@ public class GameInfo {
     private final Point activePlayer;
     private final Point ball;
     private final int[][] pixels;
-
-    public GameInfo(SortedSet<Point> playmates, SortedSet<Point> opposites, Point activePlayer, Point ball, int[][] pixels) {
-        this.playmates = playmates;
-        this.opposites = opposites;
-        this.activePlayer = activePlayer;
-        this.ball = ball;
-        this.pixels = pixels;
-    }
-    public SortedSet<Point> getPlaymates() {
-        return playmates;
-    }
-
-    public SortedSet<Point> getOpposites() {
-        return opposites;
-    }
-
-    public Point getActivePlayer() {
-        return activePlayer;
-    }
-
-    public Point getBall() {
-        return ball;
-    }
-
-    public int[][] getPixels() {
-        return pixels;
-    }
 }
