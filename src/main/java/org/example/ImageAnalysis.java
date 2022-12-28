@@ -1,5 +1,7 @@
 package org.example;
 
+import lombok.RequiredArgsConstructor;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
@@ -20,7 +22,16 @@ public class ImageAnalysis {
     private Point activePlayer;
     private Point ball;
     private final int[][] pixels;
-
+    @RequiredArgsConstructor
+    private static final class SearchConditions {
+        final Point point;
+        final boolean isBall, isPlaymate, isOpposite;
+        BaseData baseData;
+        @RequiredArgsConstructor
+        private static final class BaseData {
+            final int x, y, pixel;
+        }
+    }
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
         Comparator<Point> comparator = Comparator.comparingDouble(Point::getY)
@@ -77,7 +88,7 @@ public class ImageAnalysis {
 
         if (ball != null && playersNotEnough) {
             // looking in the vicinity of the ball
-            searchOverlayPlayersBase(ball, true, false, false);
+            searchOverlayPlayersBase(new SearchConditions(ball, true, false, false));
         }
         if (playersNotEnough) {
             // if playmate on opposite or vice versa
@@ -88,16 +99,21 @@ public class ImageAnalysis {
 
     private void searchOtherPlayerOverlay() {
         if (playmates.size() < 11) {
-            opposites.forEach(opponent -> searchOverlayPlayersBase(opponent, false, true, false));
+            opposites.forEach(opponent -> searchOverlayPlayersBase(
+                    new SearchConditions(opponent, false, true, false)
+            ));
         }
-        else if (opposites.size() < 11) {
-            playmates.forEach(playmate -> searchOverlayPlayersBase(playmate, false, false, true));
+        if (opposites.size() < 11) {
+            playmates.forEach(playmate -> searchOverlayPlayersBase(
+                    new SearchConditions(playmate, false, false, true)
+            ));
         }
+        //searchOverlayPlayersBase();
     }
 
-    private void searchOverlayPlayersBase(Point point, boolean isBall, boolean isPlaymate, boolean isOpposite) {
-        Point leftTopScanPoint = new Point(point.x - 5, point.y - 5);
-        Point bottomRightScanPoint = new Point(point.x + 5, point.y + 5);
+    private void searchOverlayPlayersBase(SearchConditions search) {
+        Point leftTopScanPoint = new Point(search.point.x - 5, search.point.y - 5);
+        Point bottomRightScanPoint = new Point(search.point.x + 5, search.point.y + 5);
 
         if(leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
                 && bottomRightScanPoint.x < width && bottomRightScanPoint.y < height) {
@@ -105,23 +121,30 @@ public class ImageAnalysis {
             for (int y = leftTopScanPoint.y; y <= bottomRightScanPoint.y; y++) {
                 for (int x = leftTopScanPoint.x; x <= bottomRightScanPoint.x; x++) {
                     int pixel = pixels[x][y];
-                    int finalX = x;
-                    int finalY = y;
-                    if ( (isOpposite || isBall) && opposites.size() < 11 &&
-                            (isOverlayOppositePlayerColor(pixel) || isPlayerColor(pixel, false))) {
-                        boolean isExistPoint = opposites.stream().anyMatch(p -> p.distance(finalX, finalY) < 5);
-                        if (!isExistPoint) {
-                            opposites.add(new Point(x, y));
-                        }
-                    }
-                    if ( (isPlaymate || isBall) && playmates.size() < 11 &&
-                            (isOverlayPlaymatePlayerColor(pixel) || isPlayerColor(pixel, true))) {
-                        boolean isExistPoint = playmates.stream().anyMatch(p -> p.distance(finalX, finalY) < 5);
-                        if (!isExistPoint) {
-                            playmates.add(new Point(x, y));
-                        }
-                    }
+                    search.baseData = new SearchConditions.BaseData(x, y, pixel);
+                    addOverlayPlayersBase(search);
                 }
+            }
+        }
+    }
+
+    private void addOverlayPlayersBase(SearchConditions search) {
+        if ( (search.isOpposite || search.isBall) && opposites.size() < 11
+                && (isOverlayOppositePlayerColor(search.baseData.pixel)
+                || isPlayerColor(search.baseData.pixel, false))) {
+            boolean isExistPoint = opposites.stream()
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+            if (!isExistPoint) {
+                opposites.add(new Point(search.baseData.x, search.baseData.y));
+            }
+        }
+        if ( (search.isPlaymate || search.isBall) && playmates.size() < 11
+                && (isOverlayPlaymatePlayerColor(search.baseData.pixel)
+                || isPlayerColor(search.baseData.pixel, true))) {
+            boolean isExistPoint = playmates.stream()
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+            if (!isExistPoint) {
+                playmates.add(new Point(search.baseData.x, search.baseData.y));
             }
         }
     }
@@ -192,11 +215,11 @@ public class ImageAnalysis {
                 return playmates.add(activePlayer);
             }
             if (isPlayerColor(pixel, true)) {
-                boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 8);
+                boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && playmates.add(new Point(x, y));
             }
             else if (isPlayerColor(pixel, false)) {
-                boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 8);
+                boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && opposites.add(new Point(x, y));
             }
             return false;
