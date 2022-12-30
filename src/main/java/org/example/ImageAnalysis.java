@@ -26,11 +26,15 @@ public class ImageAnalysis {
     @RequiredArgsConstructor
     private static final class SearchConditions {
         final Point point;
-        final boolean isBall, isPlaymate, isOpposite;
+        final boolean isBall;
+        final boolean isPlaymate;
+        final boolean isOpposite;
         BaseData baseData;
         @RequiredArgsConstructor
         private static final class BaseData {
-            final int x, y, pixel;
+            final int x;
+            final int y;
+            final int pixel;
         }
     }
     public ImageAnalysis(BufferedImage bufferedImage) {
@@ -221,7 +225,7 @@ public class ImageAnalysis {
     private int getEndPlayerBound(int x, int y, Function<Integer, Boolean> isBoundColor) {
         if (x < width) {
             int pixel = bufferedImage.getRGB(x, y);
-            if (isBoundColor.apply(pixel)) {
+            if (Boolean.TRUE.equals(isBoundColor.apply(pixel))) {
                 return getEndPlayerBound(x + 1, y, isBoundColor);
             }
             return x - 1;

@@ -14,23 +14,23 @@ public class Main {
 
     public static void main(String[] args) throws AWTException, IOException {
 
-//        BotStateSwitcher.createSwitcher();
+        BotStateSwitcher switcher = BotStateSwitcher.createSwitcher();
         Robot robot = new Robot();
         robot.setAutoDelay(5);
         robot.setAutoWaitForIdle(true);
 
-//        gameProcessing(robot);
+        gameProcessing(robot, switcher);
         makeScreenshot(robot);
 
     }
 
-    private static void gameProcessing(Robot robot) {
+    private static void gameProcessing(Robot robot, BotStateSwitcher switcher) {
         while (true) {
-            System.out.println(BotStateSwitcher.IS_ACTIVE);
+            System.out.println(switcher.isActive());
             robot.delay(2000);
-            if(BotStateSwitcher.IS_ACTIVE){
+            if(switcher.isActive()){
                 robot.delay(2000);
-                System.out.println(BotStateSwitcher.IS_ACTIVE);
+                System.out.println(switcher.isActive());
                 //robot.keyPress(KeyEvent.VK_D);
                 //robot.keyRelease(KeyEvent.VK_D);
             }
