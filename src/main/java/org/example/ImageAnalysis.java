@@ -198,7 +198,8 @@ public class ImageAnalysis {
         if (bottomRange > 0 && topRange < height) {
             for(int y = bottomRange; y <= topRange; y++) {
                 int pixel = bufferedImage.getRGB(x, y);
-                if (!isActivePlayer && isActivePlayerColor(pixel)) {
+                if ((!isActivePlayer && isActivePlayerColor(pixel))
+                    || (isActivePlayer && isBoundPlayerColor(pixel))) {
                     return true;
                 }
             }
