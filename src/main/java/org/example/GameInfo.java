@@ -8,12 +8,12 @@ import java.util.SortedSet;
 @Data
 public class GameInfo {
 
-    public static final int startX = 831;
-    public static final int startY = 869;
-    public static final int width = 258;
-    public static final int height = 153;
+    public static final int START_X = 831;
+    public static final int START_Y = 869;
+    public static final int WIDTH = 258;
+    public static final int HEIGHT = 153;
 
-    public static final Color playmateColorLower = new Color(126,35,24);
+    public static final Color playmateColorLower = new Color(100,20,20);
     public static final Color playmateColorUpper = new Color(220,50,55);
     public static final Color oppositeColorLower = new Color(35,40,70);
     public static final Color oppositeColorUpper = new Color(45,50,83);

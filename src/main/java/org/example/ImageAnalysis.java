@@ -43,7 +43,7 @@ public class ImageAnalysis {
                 .thenComparingDouble(Point::getX);
         this.playmates = new TreeSet<>(comparator);
         this.opposites = new TreeSet<>(comparator);
-        this.pixels = new int[width][height];
+        this.pixels = new int[WIDTH][HEIGHT];
     }
 
     /**
@@ -60,8 +60,8 @@ public class ImageAnalysis {
      */
     public GameInfo analyse() {
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
 
                 int pixel = bufferedImage.getRGB(x, y);
                 pixels[x][y] = pixel;
@@ -131,7 +131,7 @@ public class ImageAnalysis {
         Point bottomRightScanPoint = new Point(search.point.x + 5, search.point.y + 5);
 
         if(leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
-                && bottomRightScanPoint.x < width && bottomRightScanPoint.y < height) {
+                && bottomRightScanPoint.x < WIDTH && bottomRightScanPoint.y < HEIGHT) {
 
             for (int y = leftTopScanPoint.y; y <= bottomRightScanPoint.y; y++) {
                 for (int x = leftTopScanPoint.x; x <= bottomRightScanPoint.x; x++) {
@@ -199,7 +199,7 @@ public class ImageAnalysis {
     }
 
     private boolean checkDoubleCrossingBound(int x, int topRange, int bottomRange, boolean isActivePlayer) {
-        if (bottomRange > 0 && topRange < height) {
+        if (bottomRange > 0 && topRange < HEIGHT) {
             for(int y = bottomRange; y <= topRange; y++) {
                 int pixel = bufferedImage.getRGB(x, y);
                 if ((!isActivePlayer && isActivePlayerColor(pixel))
@@ -212,7 +212,7 @@ public class ImageAnalysis {
     }
 
     private boolean isExistBottomRightNearPoint(int x, int y) {
-        if (y + 4 < height) {
+        if (y + 4 < HEIGHT) {
             int pixel = bufferedImage.getRGB(x, y + 4);
             boolean isPlaymate = isPlayerColor(pixel, true);
             Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
@@ -223,7 +223,7 @@ public class ImageAnalysis {
     }
 
     private int getEndPlayerBound(int x, int y, Function<Integer, Boolean> isBoundColor) {
-        if (x < width) {
+        if (x < WIDTH) {
             int pixel = bufferedImage.getRGB(x, y);
             if (Boolean.TRUE.equals(isBoundColor.apply(pixel))) {
                 return getEndPlayerBound(x + 1, y, isBoundColor);
@@ -234,7 +234,7 @@ public class ImageAnalysis {
     }
 
     private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
-        if (y > 0 && y < height) {
+        if (y > 0 && y < HEIGHT) {
             int pixel = bufferedImage.getRGB(x, y);
 
             if (isActivePlayer) {
@@ -286,7 +286,7 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return activePlayerLower.getRed() > r && activePlayerUpper.getRed() < r
+        return activePlayerLower.getRed() > r && activePlayerUpper.getRed() <= r
                 && activePlayerLower.getGreen() < g && activePlayerUpper.getGreen() > g
                 && activePlayerLower.getBlue() < b && activePlayerUpper.getBlue() > b
                 && Math.abs(g - b) < 11 && Math.abs(r - g) > 100;

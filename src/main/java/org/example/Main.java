@@ -39,7 +39,7 @@ public class Main {
 
     private static void makeScreenshot(Robot robot) throws IOException {
         robot.delay(10_000);
-        Rectangle rectangle = new Rectangle(startX, startY, width, height);
+        Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
         for (int i = 21; i < 101; i++){
             robot.delay(2000);
             BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
