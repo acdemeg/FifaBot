@@ -2,6 +2,7 @@ package org.example;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +10,6 @@ import java.io.IOException;
 import static org.example.GameInfo.*;
 
 public class Main {
-
-
 
     public static void main(String[] args) throws AWTException, IOException {
 
@@ -26,14 +25,13 @@ public class Main {
 
     private static void gameProcessing(Robot robot, BotStateSwitcher switcher) {
         while (true) {
-            System.out.println(switcher.isActive());
-            robot.delay(2000);
-            if(switcher.isActive()){
-                robot.delay(2000);
-                System.out.println(switcher.isActive());
-                //robot.keyPress(KeyEvent.VK_D);
-                //robot.keyRelease(KeyEvent.VK_D);
-            }
+            Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
+            BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
+            ImageAnalysis analysis = new ImageAnalysis(bufferedImage);
+            GameInfo gameInfo = analysis.analyse();
+            DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
+            ActionProducer actionProducer = decisionMaker.getActionProducer();
+            robot.keyPress(KeyEvent.VK_D);
         }
     }
 

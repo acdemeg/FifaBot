@@ -37,6 +37,7 @@ public class ImageAnalysis {
             final int pixel;
         }
     }
+
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
         Comparator<Point> comparator = Comparator.comparingDouble(Point::getY)
