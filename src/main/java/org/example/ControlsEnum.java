@@ -1,5 +1,54 @@
 package org.example;
 
+/**
+ * This enum represent game actions controls
+ * for 'Keyboard only' control type.
+ * Here list for Attack and Defence actions
+ */
 public enum ControlsEnum {
+    // One key actions
+    SPRINT,
+    MOVE_UP,
+    MOVE_DOWN,
+    MOVE_LEFT,
+    MOVE_RIGHT,
+    MOVE_UP_PAD,
+    MOVE_DOWN_PAD,
+    MOVE_LEFT_PAD,
+    MOVE_RIGHT_PAD,
+    TACTICS,
+    MENTALITY_LEFT,
+    MENTALITY_RIGHT,
+    CUSTOM_TACTICS,
+    SWITCH_FROM_GK,
+    ATTACK_THROUGH_BALL,
+    ATTACK_LOB_PASS_CROSS_HEADER,
+    ATTACK_SHOOT_VOLLEY_HEADER,
+    ATTACK_SHORT_PASS_HEADER,
+    ATTACK_PLAYER_RUN_MODIFIER,
+    ATTACK_FINESSE_SHOT_MODIFIER,
+    ATTACK_PROTECT_BALL,
+    DEFENCE_RUSH_GK,
+    DEFENCE_SLIDING_TACKLE,
+    DEFENCE_TACKLE_PUSH_OR_PULL,
+    DEFENCE_CONTAIN,
+    DEFENCE_CHANGE_PLAYER,
+    DEFENCE_TEAMMATE_CONTAIN,
+    DEFENCE_JOCKEY,
+    // multi-key actions
+    CHIP_SHOT,
+    FINESSE_SHOT,
+    LOW_SHOT,
+    THREADED_THROUGH_PASS,
+    LOBBED_THROUGH_PASS,
+    DRIVEN_LOB_PASS_CROSS,
+    HIGH_LOB_CROSS,
+    LOW_CROSS,
+    SCOOP_LOB,
+    CANCEL,
+    FLAIR_PASS,
+    FLAIR_SHOOT,
+    DRIVEN_GROUND_PASS,
+    RUNNING_JOCKEY
 
 }
