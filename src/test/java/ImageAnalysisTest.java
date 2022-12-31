@@ -13,9 +13,10 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class ImageAnalysisTest {
+class ImageAnalysisTest {
 
-    Set<Integer> notValidImageSet = Set.of(38,39,40,41,42,43,51,59,60,64,65,83);
+    Set<Integer> notValidImageSet = Set.of(38, 39, 40, 41, 42, 43, 51, 59, 60, 64, 65, 83);
+    Set<Integer> notFullSetPlayers = Set.of(45, 84, 85, 86, 87, 91, 92);
 
     @Test
     void colorTest() throws IOException {
@@ -52,7 +53,14 @@ public class ImageAnalysisTest {
         BufferedImage bufferedImage = ImageIO.read(file);
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         GameInfo gameInfo = imageAnalysis.analyse();
-        if (notValidImageSet.contains(number)) return;
+        if (notValidImageSet.contains(number)) {
+            return;
+        }
+        if (notFullSetPlayers.contains(number)) {
+            Assertions.assertTrue(gameInfo.getPlaymates().size() >= 10);
+            Assertions.assertTrue(gameInfo.getOpposites().size() >= 10);
+            return;
+        }
         Assertions.assertEquals(11, gameInfo.getPlaymates().size());
         Assertions.assertEquals(11, gameInfo.getOpposites().size());
         Assertions.assertNotNull(gameInfo.getActivePlayer());
