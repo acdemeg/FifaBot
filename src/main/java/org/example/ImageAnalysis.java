@@ -22,6 +22,8 @@ public class ImageAnalysis {
     private final SortedSet<Point> opposites;
     private Point activePlayer;
     private Point ball;
+    private boolean isPlaymateBallPossession;
+    private boolean isNobodyBallPossession;
     private final int[][] pixels;
     @RequiredArgsConstructor
     private static final class SearchConditions {
@@ -85,8 +87,29 @@ public class ImageAnalysis {
             }
         }
         searchOverlayPlayers();
+        setPlayerPossessionOfBall();
 
-        return new GameInfo(playmates, opposites, activePlayer, ball, pixels);
+        return new GameInfo(playmates, opposites, activePlayer, ball,
+                isPlaymateBallPossession, isNobodyBallPossession, pixels);
+    }
+
+    private void setPlayerPossessionOfBall() {
+        if (ball == null) {
+            isNobodyBallPossession = true;
+            return;
+        }
+        Comparator<Point> closestToBall = Comparator.comparing(point -> point.distance(ball));
+        Point playmate = playmates.stream().min(closestToBall).orElse(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        Point opposite = opposites.stream().min(closestToBall).orElse(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        double playmateDistance = playmate.distance(ball);
+        double oppositeDistance = opposite.distance(ball);
+        if (Math.abs(playmateDistance - oppositeDistance) <= 1 || (playmateDistance > 10 && oppositeDistance > 10)) {
+            isNobodyBallPossession = true;
+        }
+        else if (playmateDistance < oppositeDistance) {
+            isPlaymateBallPossession = true;
+        }
+
     }
 
     private void searchOverlayPlayers() {
