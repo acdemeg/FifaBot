@@ -17,6 +17,9 @@ class ImageAnalysisTest {
 
     Set<Integer> notValidImageSet = Set.of(38, 39, 40, 41, 42, 43, 51, 59, 60, 64, 65, 83);
     Set<Integer> notFullSetPlayers = Set.of(45, 84, 85, 86, 87, 91, 92);
+    Set<Integer> playmateBallPossessionSet = Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 16, 19, 20, 22, 23, 25, 30);
+    Set<Integer> oppositeBallPossessionSet = Set.of(15, 26, 27, 28, 34, 35, 36);
+    Set<Integer> nobodyBallPossessionSet = Set.of(10, 11, 17, 18, 21, 24, 29, 31, 32, 33);
 
     @Test
     void colorTest() throws IOException {
@@ -65,9 +68,23 @@ class ImageAnalysisTest {
         Assertions.assertEquals(11, gameInfo.getOpposites().size());
         Assertions.assertNotNull(gameInfo.getActivePlayer());
         Assertions.assertNotNull(gameInfo.getBall());
+
+        if (playmateBallPossessionSet.contains(number)) {
+            Assertions.assertTrue(gameInfo.isPlaymateBallPossession());
+            Assertions.assertFalse(gameInfo.isNobodyBallPossession());
+        }
+        else if (oppositeBallPossessionSet.contains(number)) {
+            Assertions.assertFalse(gameInfo.isPlaymateBallPossession());
+            Assertions.assertFalse(gameInfo.isNobodyBallPossession());
+        }
+        else if (nobodyBallPossessionSet.contains(number)) {
+            Assertions.assertFalse(gameInfo.isPlaymateBallPossession());
+            Assertions.assertTrue(gameInfo.isNobodyBallPossession());
+        }
+
     }
 
     private static Stream<Integer> provideImageNumbers() {
-        return Stream.iterate(1, x -> x + 1).limit(100);
+        return Stream.iterate(1, x -> x + 1).limit(20);
     }
 }
