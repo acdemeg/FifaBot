@@ -35,5 +35,6 @@ public class GameInfo {
     private final Point ball;
     private final boolean isPlaymateBallPossession;
     private final boolean isNobodyBallPossession;
+    private final GameConstantsEnum playmateSide;
     private final int[][] pixels;
 }

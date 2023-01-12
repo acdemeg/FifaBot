@@ -24,6 +24,7 @@ public class ImageAnalysis {
     private Point ball;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
+    private GameConstantsEnum playmateSide;
     private final int[][] pixels;
     @RequiredArgsConstructor
     private static final class SearchConditions {
@@ -88,9 +89,21 @@ public class ImageAnalysis {
         }
         searchOverlayPlayers();
         setPlayerPossessionOfBall();
+        setPlaymateSide();
 
-        return new GameInfo(playmates, opposites, activePlayer, ball,
-                isPlaymateBallPossession, isNobodyBallPossession, pixels);
+        return new GameInfo(playmates, opposites, activePlayer, ball, isPlaymateBallPossession, isNobodyBallPossession,
+                playmateSide, pixels);
+    }
+
+    private void setPlaymateSide() {
+        Stream<Point> players = Stream.concat(playmates.stream(), opposites.stream());
+        Point mostLeftPlayer = players.min(Comparator.comparing(Point::getX)).orElse(null);
+        if (playmates.contains(mostLeftPlayer)) {
+            playmateSide = GameConstantsEnum.LEFT_PLAYMATE_SIDE;
+        }
+        else if (opposites.contains(mostLeftPlayer)) {
+            playmateSide = GameConstantsEnum.RIGHT_PLAYMATE_SIDE;
+        }
     }
 
     private void setPlayerPossessionOfBall() {
