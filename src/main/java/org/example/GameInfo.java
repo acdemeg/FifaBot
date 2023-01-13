@@ -13,6 +13,18 @@ public class GameInfo {
     public static final int WIDTH = 258;
     public static final int HEIGHT = 153;
 
+    public static final Point CENTER_FIELD_POINT = new Point(START_X + 129, START_Y + 77);
+    public static final Point LEFT_PENALTY_POINT = new Point(START_X + 33, START_Y + 77);
+    public static final Point RIGHT_PENALTY_POINT = new Point(START_X + 225, START_Y + 77);
+    public static final Point LEFT_PENALTY_AREA_TOP_POINT = new Point(START_X + 48, START_Y + 31);
+    public static final Point LEFT_PENALTY_AREA_BOTTOM_POINT = new Point(START_X + 48, START_Y + 124);
+    public static final Point RIGHT_PENALTY_AREA_TOP_POINT = new Point(START_X + 208, START_Y + 31);
+    public static final Point RIGHT_PENALTY_AREA_BOTTOM_POINT = new Point(START_X + 208, START_Y + 124);
+    public static final Point LEFT_GOALKEEPER_AREA_TOP_POINT = new Point(START_X + 16, START_Y + 55);
+    public static final Point LEFT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(START_X + 16, START_Y + 99);
+    public static final Point RIGHT_GOALKEEPER_AREA_TOP_POINT = new Point(START_X + 40, START_Y + 55);
+    public static final Point RIGHT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(START_X + 240, START_Y + 99);
+
     public static final Color playmateColorLower = new Color(100,20,20);
     public static final Color playmateColorUpper = new Color(220,50,55);
     public static final Color oppositeColorLower = new Color(35,40,70);
