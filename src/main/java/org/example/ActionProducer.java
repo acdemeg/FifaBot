@@ -1,8 +1,13 @@
 package org.example;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class ActionProducer {
 
-    public GameAction releaseGameAction() {
-        return null;
+    private final GameAction gameAction;
+
+    public void releaseGameAction() {
+        // here will handle gameAction
     }
 }

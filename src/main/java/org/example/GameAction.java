@@ -1,14 +1,20 @@
 package org.example;
 
+import lombok.RequiredArgsConstructor;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static java.awt.event.KeyEvent.*;
 import static org.example.ControlsEnum.*;
 
+@RequiredArgsConstructor
 public class GameAction {
 
     public static final Map<ControlsEnum, List<Integer>> CONTROLS_ENUM_KEY_CODE_MAP;
+    private final ControlsEnum control;
+    private final int delay;
 
     static {
 
@@ -54,16 +60,8 @@ public class GameAction {
                 Map.entry(FLAIR_PASS, List.of(VK_SHIFT, VK_D)),
                 Map.entry(FLAIR_SHOOT, List.of(VK_SHIFT, VK_W)),
                 Map.entry(DRIVEN_GROUND_PASS, List.of(VK_Q, VK_D)),
-                Map.entry(RUNNING_JOCKEY, List.of(VK_SHIFT, VK_E)));
-    }
-
-    private final int delay;
-
-    private final ControlsEnum control;
-
-    public GameAction(int delay, ControlsEnum control) {
-        this.delay = delay;
-        this.control = control;
+                Map.entry(RUNNING_JOCKEY, List.of(VK_SHIFT, VK_E)),
+                Map.entry(NONE, Collections.emptyList()));
     }
 
 }

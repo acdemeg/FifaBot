@@ -49,6 +49,8 @@ public enum ControlsEnum {
     FLAIR_PASS,
     FLAIR_SHOOT,
     DRIVEN_GROUND_PASS,
-    RUNNING_JOCKEY
+    RUNNING_JOCKEY,
+    // if impossible decide
+    NONE
 
 }
