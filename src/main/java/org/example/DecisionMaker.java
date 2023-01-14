@@ -42,19 +42,7 @@ public class DecisionMaker {
 
         gameInfo.getPlaymates().forEach(playmate -> {
 
-            Point upperLeft = new Point(
-                    Math.min(playmate.x, gameInfo.getActivePlayer().x),
-                    Math.min(playmate.y, gameInfo.getActivePlayer().y)
-            );
-            Point bottomRight = new Point(
-                    Math.max(playmate.x, gameInfo.getActivePlayer().x),
-                    Math.max(playmate.y, gameInfo.getActivePlayer().y)
-            );
-            Dimension squareDimension = new Dimension(
-                    bottomRight.x - upperLeft.x,
-                    bottomRight.y - upperLeft.y
-            );
-            Rectangle squareBetweenPlayers = new Rectangle(upperLeft, squareDimension);
+            Rectangle squareBetweenPlayers = GeometryUtils.getSquareBetweenPlayers(playmate, gameInfo.getActivePlayer());
 
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
 
