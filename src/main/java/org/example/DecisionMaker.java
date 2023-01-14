@@ -9,6 +9,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.example.GeometryUtils.calculateTriangleHeight;
+import static org.example.GeometryUtils.getRectangleBetweenPlayers;
+
 @RequiredArgsConstructor
 public class DecisionMaker {
 
@@ -42,12 +45,12 @@ public class DecisionMaker {
 
         gameInfo.getPlaymates().forEach(playmate -> {
 
-            Rectangle squareBetweenPlayers = GeometryUtils.getSquareBetweenPlayers(playmate, gameInfo.getActivePlayer());
+            Rectangle rectangleBetweenPlayers = getRectangleBetweenPlayers(playmate, gameInfo.getActivePlayer());
 
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
 
             Set<Point> threateningOppositesIntoSquare = gameInfo.getOpposites().stream()
-                    .filter(squareBetweenPlayers::contains)
+                    .filter(rectangleBetweenPlayers::contains)
                     .filter(opposite -> existThreatInterceptionOfBall(
                             lowShotDistance, gameInfo.getActivePlayer(), playmate, opposite)
                     )
@@ -64,8 +67,7 @@ public class DecisionMaker {
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
                                                   Point playmate, Point opposite) {
         // find height of triangle(distance to opposite from low shot vector)
-
-
-        return false;
+        double height = calculateTriangleHeight(activePlayer, playmate, opposite);
+        return (height / lowShotDistance) < 0.2;
     }
 }
