@@ -38,4 +38,45 @@ public class GeometryUtils {
         double semiPerimeter = (a + b + c) / 2;
         return (2 / a) * Math.sqrt(semiPerimeter * (semiPerimeter - a) * (semiPerimeter - b) * (semiPerimeter - c));
     }
+
+    /**
+     * This method define shot direction
+     * @param shotCandidate shot target player
+     * @param activePlayer  active player
+     * @param playmateSide  field side of playmates
+     * @return shot direction as {@code GeomEnum}
+     */
+    public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, GameConstantsEnum playmateSide,
+                                               double adjacentSide, double hypotenuse) {
+        GeomEnum direction;
+        double angle = Math.acos(adjacentSide / hypotenuse);
+        if ((activePlayer.x < shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
+            direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_RIGHT);
+        }
+        else if ((activePlayer.x < shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+            direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.TOP, GeomEnum.TOP_RIGHT);
+        }
+        else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+            direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.TOP, GeomEnum.TOP_LEFT);
+        }
+        else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
+            direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_LEFT);
+        }
+        else {
+            direction = playmateSide.equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE) ? GeomEnum.LEFT : GeomEnum.RIGHT;
+        }
+
+        return direction;
+    }
+
+    private static GeomEnum getDirection(double angle, GeomEnum horizontalDirection,
+                                         GeomEnum verticalDirection, GeomEnum direction2D) {
+        if (angle < Math.PI / 12) {
+            return horizontalDirection;
+        }
+        else if (angle > (5 * Math.PI) / 12) {
+            return verticalDirection;
+        }
+        return direction2D;
+    }
 }

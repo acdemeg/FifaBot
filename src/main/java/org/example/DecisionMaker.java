@@ -5,12 +5,11 @@ import lombok.RequiredArgsConstructor;
 import java.awt.*;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import static org.example.GeometryUtils.calculateTriangleHeight;
-import static org.example.GeometryUtils.getRectangleBetweenPlayers;
+import static org.example.GeometryUtils.*;
 
 /**
  * This class take response of deciding by creating best {@code GameAction} based on {@code GameInfo} data
@@ -44,7 +43,8 @@ public class DecisionMaker {
         else {
             comparator = Comparator.comparingDouble(Point::getX);
         }
-        SortedSet<Point> lowShotCandidates = new TreeSet<>(comparator);
+        SortedMap<Point, Rectangle> lowShotCandidateAreaMap = new TreeMap<>(comparator);
+        SortedMap<Point, Double> lowShotCandidateDistanceMap = new TreeMap<>(comparator);
 
         gameInfo.getPlaymates().forEach(playmate -> {
 
@@ -58,14 +58,24 @@ public class DecisionMaker {
                     .collect(Collectors.toSet());
 
             if (threateningOppositesIntoSquare.isEmpty()) {
-                lowShotCandidates.add(playmate);
+                lowShotCandidateAreaMap.put(playmate, rectangleBetweenPlayers);
+                lowShotCandidateDistanceMap.put(playmate, lowShotDistance);
             }
 
         });
 
-        // define pass direction ...
-        // make test
+        getLowShotDirection(lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
         return null;
+    }
+
+    private void getLowShotDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
+                                     SortedMap<Point, Double> lowShotCandidateDistanceMap) {
+        Point shotCandidate = lowShotCandidateAreaMap.firstKey();
+        Rectangle rectangleBetweenPlayers = lowShotCandidateAreaMap.get(shotCandidate);
+        double lowShotDistance = lowShotCandidateDistanceMap.get(shotCandidate);
+
+        GeomEnum direction = defineShotDirection(shotCandidate, gameInfo.getActivePlayer(), gameInfo.getPlaymateSide(),
+                rectangleBetweenPlayers.getWidth(), lowShotDistance);
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
