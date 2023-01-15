@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import static org.example.GeometryUtils.calculateTriangleHeight;
 import static org.example.GeometryUtils.getRectangleBetweenPlayers;
 
+/**
+ * This class take response of deciding by creating best {@code GameAction} based on {@code GameInfo} data
+ */
 @RequiredArgsConstructor
 public class DecisionMaker {
 
@@ -26,14 +29,14 @@ public class DecisionMaker {
         }
         if (gameInfo.isPlaymateBallPossession()) {
             // find available playmates for low pass
-            searchAvailablePlaymatesForLowShot();
+            GameAction lowShotAction = searchAvailablePlaymatesForLowShot();
 
-            return new ActionProducer(new GameAction(ControlsEnum.NONE, 0));
+            return new ActionProducer(lowShotAction);
         }
         return new ActionProducer(new GameAction(ControlsEnum.NONE, 0));
     }
 
-    private void searchAvailablePlaymatesForLowShot() {
+    private GameAction searchAvailablePlaymatesForLowShot() {
         final Comparator<Point> comparator;
         if (gameInfo.getPlaymateSide().equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE)) {
             comparator = Comparator.comparingDouble(Point::getX).reversed();
@@ -46,9 +49,7 @@ public class DecisionMaker {
         gameInfo.getPlaymates().forEach(playmate -> {
 
             Rectangle rectangleBetweenPlayers = getRectangleBetweenPlayers(playmate, gameInfo.getActivePlayer());
-
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
-
             Set<Point> threateningOppositesIntoSquare = gameInfo.getOpposites().stream()
                     .filter(rectangleBetweenPlayers::contains)
                     .filter(opposite -> existThreatInterceptionOfBall(
@@ -62,6 +63,9 @@ public class DecisionMaker {
 
         });
 
+        // define pass direction ...
+        // make test
+        return null;
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,

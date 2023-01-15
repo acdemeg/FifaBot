@@ -14,7 +14,9 @@ import java.util.stream.Stream;
 
 import static org.example.GameInfo.*;
 
-
+/**
+ * This class performing base analysis of football field scheme image
+ */
 public class ImageAnalysis {
 
     private final BufferedImage bufferedImage;

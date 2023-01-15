@@ -9,6 +9,9 @@ import java.util.Map;
 import static java.awt.event.KeyEvent.*;
 import static org.example.ControlsEnum.*;
 
+/**
+ * This class represent in-game control actions
+ */
 @RequiredArgsConstructor
 public class GameAction {
 

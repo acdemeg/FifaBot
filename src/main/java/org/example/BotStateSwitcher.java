@@ -8,6 +8,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
+/**
+ * This class provided 'Switcher' for on/off bot in game
+ */
 public class BotStateSwitcher extends JPanel {
     private boolean active = false;
     private final Color switchColor = new Color(200, 200, 200);
