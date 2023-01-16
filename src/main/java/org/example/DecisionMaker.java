@@ -66,7 +66,6 @@ public class DecisionMaker {
 
         List<ControlsEnum> lowShotControls = getControlsForLowShotByDirection(
                 lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
-
         return new GameAction(lowShotControls, 0);
     }
 
@@ -78,8 +77,14 @@ public class DecisionMaker {
 
         GeomEnum direction = defineShotDirection(shotCandidate, gameInfo.getActivePlayer(), gameInfo.getPlaymateSide(),
                 rectangleBetweenPlayers.getWidth(), lowShotDistance);
+        int delay = getDelayByDistanceValue(lowShotDistance);
+        ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
         direction.getControlsList().add(ATTACK_SHORT_PASS_HEADER);
         return direction.getControlsList();
+    }
+
+    private int getDelayByDistanceValue(double distance) {
+        return (int) (distance * 10);
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
