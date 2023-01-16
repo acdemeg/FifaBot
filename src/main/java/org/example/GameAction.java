@@ -16,7 +16,7 @@ import static org.example.ControlsEnum.*;
 public class GameAction {
 
     public static final Map<ControlsEnum, List<Integer>> CONTROLS_ENUM_KEY_CODE_MAP;
-    private final ControlsEnum control;
+    private final List<ControlsEnum> controls;
     private final int delay;
 
     static {

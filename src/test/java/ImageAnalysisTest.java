@@ -1,3 +1,4 @@
+import org.example.DecisionMaker;
 import org.example.GameInfo;
 import org.example.ImageAnalysis;
 import org.junit.jupiter.api.Assertions;
@@ -82,6 +83,8 @@ class ImageAnalysisTest {
             Assertions.assertTrue(gameInfo.isNobodyBallPossession());
         }
 
+        DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
+        decisionMaker.getActionProducer();
     }
 
     private static Stream<Integer> provideImageNumbers() {

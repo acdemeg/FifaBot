@@ -3,12 +3,11 @@ package org.example;
 import lombok.RequiredArgsConstructor;
 
 import java.awt.*;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.example.ControlsEnum.ATTACK_SHORT_PASS_HEADER;
 import static org.example.GeometryUtils.*;
 
 /**
@@ -17,14 +16,15 @@ import static org.example.GeometryUtils.*;
 @RequiredArgsConstructor
 public class DecisionMaker {
 
+    public static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private final GameInfo gameInfo;
 
     public ActionProducer getActionProducer() {
         if (gameInfo.getPlaymates().isEmpty()) {
-            return new ActionProducer(new GameAction(ControlsEnum.NONE, 0));
+            return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE), 0));
         }
         if (gameInfo.isNobodyBallPossession()) {
-            return new ActionProducer(new GameAction(ControlsEnum.ATTACK_PROTECT_BALL, 0));
+            return new ActionProducer(new GameAction(List.of(ControlsEnum.ATTACK_PROTECT_BALL), 0));
         }
         if (gameInfo.isPlaymateBallPossession()) {
             // find available playmates for low pass
@@ -32,16 +32,16 @@ public class DecisionMaker {
 
             return new ActionProducer(lowShotAction);
         }
-        return new ActionProducer(new GameAction(ControlsEnum.NONE, 0));
+        return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE), 0));
     }
 
     private GameAction searchAvailablePlaymatesForLowShot() {
         final Comparator<Point> comparator;
         if (gameInfo.getPlaymateSide().equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE)) {
-            comparator = Comparator.comparingDouble(Point::getX).reversed();
+            comparator = Comparator.comparingDouble(Point::getX).reversed().thenComparing(Point::getY);
         }
         else {
-            comparator = Comparator.comparingDouble(Point::getX);
+            comparator = Comparator.comparingDouble(Point::getX).thenComparing(Point::getY);
         }
         SortedMap<Point, Rectangle> lowShotCandidateAreaMap = new TreeMap<>(comparator);
         SortedMap<Point, Double> lowShotCandidateDistanceMap = new TreeMap<>(comparator);
@@ -64,24 +64,28 @@ public class DecisionMaker {
 
         });
 
-        getLowShotDirection(lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
-        return null;
+        List<ControlsEnum> lowShotControls = getControlsForLowShotByDirection(
+                lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
+
+        return new GameAction(lowShotControls, 0);
     }
 
-    private void getLowShotDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
-                                     SortedMap<Point, Double> lowShotCandidateDistanceMap) {
+    private List<ControlsEnum> getControlsForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
+                                                                SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         Point shotCandidate = lowShotCandidateAreaMap.firstKey();
         Rectangle rectangleBetweenPlayers = lowShotCandidateAreaMap.get(shotCandidate);
         double lowShotDistance = lowShotCandidateDistanceMap.get(shotCandidate);
 
         GeomEnum direction = defineShotDirection(shotCandidate, gameInfo.getActivePlayer(), gameInfo.getPlaymateSide(),
                 rectangleBetweenPlayers.getWidth(), lowShotDistance);
+        direction.getControlsList().add(ATTACK_SHORT_PASS_HEADER);
+        return direction.getControlsList();
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
                                                   Point playmate, Point opposite) {
         // find height of triangle(distance to opposite from low shot vector)
         double height = calculateTriangleHeight(activePlayer, playmate, opposite);
-        return (height / lowShotDistance) < 0.2;
+        return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;
     }
 }
