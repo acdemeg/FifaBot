@@ -1,5 +1,6 @@
 package org.example;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
@@ -12,12 +13,12 @@ import static org.example.ControlsEnum.*;
 /**
  * This class represent in-game control actions
  */
+@Getter
 @RequiredArgsConstructor
 public class GameAction {
 
     public static final Map<ControlsEnum, List<Integer>> CONTROLS_ENUM_KEY_CODE_MAP;
     private final List<ControlsEnum> controls;
-    private final int delay;
 
     static {
 

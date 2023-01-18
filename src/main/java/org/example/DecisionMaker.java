@@ -21,10 +21,10 @@ public class DecisionMaker {
 
     public ActionProducer getActionProducer() {
         if (gameInfo.getPlaymates().isEmpty()) {
-            return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE), 0));
+            return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE)));
         }
         if (gameInfo.isNobodyBallPossession()) {
-            return new ActionProducer(new GameAction(List.of(ControlsEnum.ATTACK_PROTECT_BALL), 0));
+            return new ActionProducer(new GameAction(List.of(ControlsEnum.ATTACK_PROTECT_BALL)));
         }
         if (gameInfo.isPlaymateBallPossession()) {
             // find available playmates for low pass
@@ -32,7 +32,7 @@ public class DecisionMaker {
 
             return new ActionProducer(lowShotAction);
         }
-        return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE), 0));
+        return new ActionProducer(new GameAction(List.of(ControlsEnum.NONE)));
     }
 
     private GameAction searchAvailablePlaymatesForLowShot() {
@@ -63,10 +63,10 @@ public class DecisionMaker {
             }
 
         });
-
         List<ControlsEnum> lowShotControls = getControlsForLowShotByDirection(
                 lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
-        return new GameAction(lowShotControls, 0);
+
+        return new GameAction(lowShotControls);
     }
 
     private List<ControlsEnum> getControlsForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,

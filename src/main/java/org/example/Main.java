@@ -1,8 +1,9 @@
 package org.example;
 
+import lombok.SneakyThrows;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -11,36 +12,41 @@ import static org.example.GameInfo.*;
 
 public class Main {
 
-    public static void main(String[] args) throws AWTException, IOException {
+    private static final BotStateSwitcher switcher = BotStateSwitcher.createSwitcher();
+    public static final Robot ROBOT = createRobot();
+    @SneakyThrows
+    private static Robot createRobot() {
+        return new Robot();
+    }
 
-        BotStateSwitcher switcher = BotStateSwitcher.createSwitcher();
-        Robot robot = new Robot();
-        robot.setAutoDelay(5);
-        robot.setAutoWaitForIdle(true);
+    public static void main(String[] args) throws IOException {
 
-        gameProcessing(robot, switcher);
-        makeScreenshot(robot);
+        ROBOT.setAutoDelay(5);
+        ROBOT.setAutoWaitForIdle(true);
+
+        gameProcessing();
+        makeScreenshot();
 
     }
 
-    private static void gameProcessing(Robot robot, BotStateSwitcher switcher) {
+    private static void gameProcessing() {
         while (true) {
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
-            BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
+            BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
             ImageAnalysis analysis = new ImageAnalysis(bufferedImage);
             GameInfo gameInfo = analysis.analyse();
             DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
             ActionProducer actionProducer = decisionMaker.getActionProducer();
-            robot.keyPress(KeyEvent.VK_D);
+            actionProducer.makeGameAction();
         }
     }
 
-    private static void makeScreenshot(Robot robot) throws IOException {
-        robot.delay(10_000);
+    private static void makeScreenshot() throws IOException {
+        Main.ROBOT.delay(10_000);
         Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
         for (int i = 21; i < 101; i++){
-            robot.delay(2000);
-            BufferedImage bufferedImage = robot.createScreenCapture(rectangle);
+            Main.ROBOT.delay(2000);
+            BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
             File file = new File("screenshots", i + ".jpg");
             ImageIO.write(bufferedImage, "png", file);
         }
