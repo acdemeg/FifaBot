@@ -13,17 +13,17 @@ public class GameInfo {
     public static final int WIDTH = 258;
     public static final int HEIGHT = 153;
 
-    public static final Point CENTER_FIELD_POINT = new Point(START_X + 129, START_Y + 77);
-    public static final Point LEFT_PENALTY_POINT = new Point(START_X + 33, START_Y + 77);
-    public static final Point RIGHT_PENALTY_POINT = new Point(START_X + 225, START_Y + 77);
-    public static final Point LEFT_PENALTY_AREA_TOP_POINT = new Point(START_X + 48, START_Y + 31);
-    public static final Point LEFT_PENALTY_AREA_BOTTOM_POINT = new Point(START_X + 48, START_Y + 124);
-    public static final Point RIGHT_PENALTY_AREA_TOP_POINT = new Point(START_X + 208, START_Y + 31);
-    public static final Point RIGHT_PENALTY_AREA_BOTTOM_POINT = new Point(START_X + 208, START_Y + 124);
-    public static final Point LEFT_GOALKEEPER_AREA_TOP_POINT = new Point(START_X + 16, START_Y + 55);
-    public static final Point LEFT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(START_X + 16, START_Y + 99);
-    public static final Point RIGHT_GOALKEEPER_AREA_TOP_POINT = new Point(START_X + 40, START_Y + 55);
-    public static final Point RIGHT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(START_X + 240, START_Y + 99);
+    public static final Point CENTER_FIELD_POINT = new Point(129, 77);
+    public static final Point LEFT_PENALTY_POINT = new Point(33, 77);
+    public static final Point RIGHT_PENALTY_POINT = new Point(225, 77);
+    public static final Point LEFT_PENALTY_AREA_TOP_POINT = new Point(48, 31);
+    public static final Point LEFT_PENALTY_AREA_BOTTOM_POINT = new Point(48, 124);
+    public static final Point RIGHT_PENALTY_AREA_TOP_POINT = new Point(208, 31);
+    public static final Point RIGHT_PENALTY_AREA_BOTTOM_POINT = new Point(208, 124);
+    public static final Point LEFT_GOALKEEPER_AREA_TOP_POINT = new Point(16, 55);
+    public static final Point LEFT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(16, 99);
+    public static final Point RIGHT_GOALKEEPER_AREA_TOP_POINT = new Point(40, 55);
+    public static final Point RIGHT_GOALKEEPER_AREA_BOTTOM_POINT = new Point(240, 99);
 
     public static final Color playmateColorLower = new Color(100,20,20);
     public static final Color playmateColorUpper = new Color(220,50,55);
@@ -39,6 +39,8 @@ public class GameInfo {
     public static final Color overlayOppositePlayerColorUpper = new Color(36,45,60);
     public static final Color overlayPlaymatePlayerColorLower = new Color(100,45,16);
     public static final Color overlayPlaymatePlayerColorUpper = new Color(115,60,8);
+    public static final Color shadingFieldColorLower = new Color(60,100,20);
+    public static final Color shadingFieldColorUpper = new Color(110,140,80);
 
 
     private final SortedSet<Point> playmates;
@@ -47,6 +49,7 @@ public class GameInfo {
     private final Point ball;
     private final boolean isPlaymateBallPossession;
     private final boolean isNobodyBallPossession;
+    private final boolean isShadingField;
     private final GameConstantsEnum playmateSide;
     private final int[][] pixels;
 }

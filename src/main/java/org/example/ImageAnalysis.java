@@ -26,6 +26,7 @@ public class ImageAnalysis {
     private Point ball;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
+    private boolean isShadingField;
     private GameConstantsEnum playmateSide;
     private final int[][] pixels;
     @RequiredArgsConstructor
@@ -92,9 +93,18 @@ public class ImageAnalysis {
         searchOverlayPlayers();
         setPlayerPossessionOfBall();
         setPlaymateSide();
+        setShadingField();
 
         return new GameInfo(playmates, opposites, activePlayer, ball, isPlaymateBallPossession, isNobodyBallPossession,
-                playmateSide, pixels);
+                isShadingField, playmateSide, pixels);
+    }
+
+    private void setShadingField() {
+        isShadingField = playmates.isEmpty()
+                && isShadingFieldColor(pixels[10][10])
+                || isShadingFieldColor(pixels[WIDTH - 10][10])
+                || isShadingFieldColor(pixels[10][HEIGHT - 10])
+                || isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]);
     }
 
     private void setPlaymateSide() {
@@ -370,5 +380,16 @@ public class ImageAnalysis {
                 && overlayBoundOfPlayerColor.getGreen() < g && boundOfPlayerColor.getGreen() > g
                 && overlayBoundOfPlayerColor.getBlue() < b && boundOfPlayerColor.getBlue() > b
                 && Math.abs(g - b) < 10 && Math.abs(r - g) < 10 && Math.abs(r - b) < 10;
+    }
+
+    private boolean isShadingFieldColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return shadingFieldColorLower.getRed() < r && shadingFieldColorUpper.getRed() > r
+                && shadingFieldColorLower.getGreen() < g && shadingFieldColorUpper.getGreen() > g
+                && shadingFieldColorLower.getBlue() < b && shadingFieldColorUpper.getBlue() > b
+                && r < g && r > b && g - r < 45 && g - b < 90 && r - b < 50;
     }
 }
