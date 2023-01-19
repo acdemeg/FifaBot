@@ -14,15 +14,17 @@ public class ActionProducer {
     private final GameAction gameAction;
 
     public void makeGameAction() {
-        handleControls(ROBOT::keyPress);
-        handleControls(ROBOT::keyRelease);
+        handleControls(ROBOT::keyPress, true);
+        handleControls(ROBOT::keyRelease, false);
     }
 
-    private void handleControls(IntConsumer keyAction) {
+    private void handleControls(IntConsumer keyAction, boolean needDelay) {
         gameAction.getControls().forEach(control -> {
             List<Integer> keyEvents = CONTROLS_ENUM_KEY_CODE_MAP.get(control);
             keyEvents.forEach(keyAction::accept);
-            ROBOT.delay(control.getDelay().get());
+            if (needDelay) {
+                ROBOT.delay(control.getDelay().get());
+            }
         });
     }
 }

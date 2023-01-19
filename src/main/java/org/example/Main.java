@@ -12,7 +12,7 @@ import static org.example.GameInfo.*;
 
 public class Main {
 
-    private static final BotStateSwitcher switcher = BotStateSwitcher.createSwitcher();
+    //private static final BotStateSwitcher SWITCHER = BotStateSwitcher.createSwitcher();
     public static final Robot ROBOT = createRobot();
     @SneakyThrows
     private static Robot createRobot() {
@@ -20,24 +20,23 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-
-        ROBOT.setAutoDelay(5);
-        ROBOT.setAutoWaitForIdle(true);
-
         gameProcessing();
-        makeScreenshot();
+        //makeScreenshot();
 
     }
 
     private static void gameProcessing() {
-        while (true) {
+        long start = System.currentTimeMillis();
+        long year = 31104000000L;
+        while (System.currentTimeMillis() - start < year) {
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
             BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
             ImageAnalysis analysis = new ImageAnalysis(bufferedImage);
             GameInfo gameInfo = analysis.analyse();
             DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
-            ActionProducer actionProducer = decisionMaker.getActionProducer();
-            actionProducer.makeGameAction();
+            ActionProducer keyboardProducer = decisionMaker.getActionProducer();
+            keyboardProducer.makeGameAction();
+
         }
     }
 

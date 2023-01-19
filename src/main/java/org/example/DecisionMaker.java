@@ -79,8 +79,9 @@ public class DecisionMaker {
                 rectangleBetweenPlayers.getWidth(), lowShotDistance);
         int delay = getDelayByDistanceValue(lowShotDistance);
         ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
-        direction.getControlsList().add(ATTACK_SHORT_PASS_HEADER);
-        return direction.getControlsList();
+        ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());
+        controls.add(ATTACK_SHORT_PASS_HEADER);
+        return controls;
     }
 
     private int getDelayByDistanceValue(double distance) {

@@ -1,3 +1,4 @@
+import org.example.ActionProducer;
 import org.example.DecisionMaker;
 import org.example.GameInfo;
 import org.example.ImageAnalysis;
@@ -65,7 +66,7 @@ class ImageAnalysisTest {
             Assertions.assertTrue(gameInfo.getOpposites().size() >= 10);
             return;
         }
-        Assertions.assertEquals(11, gameInfo.getPlaymates().size());
+       Assertions.assertEquals(11, gameInfo.getPlaymates().size());
         Assertions.assertEquals(11, gameInfo.getOpposites().size());
         Assertions.assertNotNull(gameInfo.getActivePlayer());
         Assertions.assertNotNull(gameInfo.getBall());
@@ -84,7 +85,8 @@ class ImageAnalysisTest {
         }
 
         DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
-        decisionMaker.getActionProducer();
+        ActionProducer keyboardProducer = decisionMaker.getActionProducer();
+        keyboardProducer.makeGameAction();
     }
 
     private static Stream<Integer> provideImageNumbers() {
