@@ -14,7 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.example.GeometryUtils.*;
-import static org.example.enums.ControlsEnum.ATTACK_SHORT_PASS_HEADER;
+import static org.example.enums.ControlsEnum.*;
+import static org.example.enums.GameConstantsEnum.*;
 
 /**
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data
@@ -30,25 +31,34 @@ public class DecisionMaker {
 
     public ActionProducer getActionProducer() {
         log.info(gameInfo.toString());
-        ActionProducer keyboard = new ActionProducer(new GameAction(List.of(ControlsEnum.NONE)));
+        ActionProducer keyboard = new ActionProducer(new GameAction(List.of(NONE)));
         shadingFieldHandle();
 
         if (gameInfo.getPlaymates().isEmpty() || gameInfo.getActivePlayer() == null) {
-            keyboard = new ActionProducer(new GameAction(List.of(ControlsEnum.NONE)));
+            keyboard = new ActionProducer(new GameAction(List.of(NONE)));
         } else if (gameInfo.isNobodyBallPossession()) {
             actionTargetPlayer = gameInfo.getActivePlayer();
-            keyboard = new ActionProducer(new GameAction(List.of(ControlsEnum.ATTACK_PROTECT_BALL)));
+            keyboard = new ActionProducer(new GameAction(List.of(ATTACK_PROTECT_BALL)));
         } else if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
-            // find available playmates for low pass
-            GameAction lowShotAction = searchAvailablePlaymatesForLowShot();
-
-            keyboard = new ActionProducer(lowShotAction);
+            if (canAttackShoot()) {
+                keyboard = new ActionProducer(new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER)));
+            } else {
+                // find available playmates for low pass
+                GameAction lowShotAction = searchAvailablePlaymatesForLowShot();
+                keyboard = new ActionProducer(lowShotAction);
+            }
         }
 
         setGameHistory();
         log.info(keyboard.getGameAction().toString());
 
         return keyboard;
+    }
+
+    private boolean canAttackShoot() {
+        GameConstantsEnum penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
+                ? RIGHT_PENALTY_AREA : LEFT_PENALTY_AREA;
+        return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer());
     }
 
     private void shadingFieldHandle() {
@@ -69,7 +79,7 @@ public class DecisionMaker {
 
     private GameAction searchAvailablePlaymatesForLowShot() {
         final Comparator<Point> comparator;
-        if (gameInfo.getPlaymateSide().equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE)) {
+        if (gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)) {
             comparator = Comparator.comparingDouble(Point::getX).reversed().thenComparing(Point::getY);
         } else {
             comparator = Comparator.comparingDouble(Point::getX).thenComparing(Point::getY);
@@ -98,7 +108,7 @@ public class DecisionMaker {
         if (lowShotCandidateAreaMap.isEmpty()) {
             // TODO if no candidates add logic
             actionTargetPlayer = gameInfo.getActivePlayer();
-            return new GameAction(List.of(ControlsEnum.ATTACK_PROTECT_BALL));
+            return new GameAction(List.of(ATTACK_PROTECT_BALL));
         }
 
         List<ControlsEnum> lowShotControls = getControlsForLowShotByDirection(
