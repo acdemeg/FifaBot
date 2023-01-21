@@ -24,35 +24,50 @@ import static org.example.enums.GameConstantsEnum.*;
 @RequiredArgsConstructor
 public class DecisionMaker {
 
-    public static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
+    private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
+    private static final double DISTANCE_DELAY_MULTIPLICATION_FACTOR = 10;
+
     @NonNull
     private GameInfo gameInfo;
     private Point actionTargetPlayer;
 
     public ActionProducer getActionProducer() {
         log.info(gameInfo.toString());
-        ActionProducer keyboard = new ActionProducer(new GameAction(List.of(NONE)));
         shadingFieldHandle();
-
-        if (gameInfo.getPlaymates().isEmpty() || gameInfo.getActivePlayer() == null) {
-            keyboard = new ActionProducer(new GameAction(List.of(NONE)));
-        } else if (gameInfo.isNobodyBallPossession()) {
-            actionTargetPlayer = gameInfo.getActivePlayer();
-            keyboard = new ActionProducer(new GameAction(List.of(ATTACK_PROTECT_BALL)));
-        } else if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
-            if (canAttackShoot()) {
-                keyboard = new ActionProducer(new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER)));
-            } else {
-                // find available playmates for low pass
-                GameAction lowShotAction = searchAvailablePlaymatesForLowShot();
-                keyboard = new ActionProducer(lowShotAction);
-            }
+        Set<GameAction> gameActions = new HashSet<>();
+        gameActions.add(new GameAction(List.of(NONE)));
+        gameActions.add(protectBallOrDefenceAction());
+        if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
+            gameActions.add(attackShootAction());
+            gameActions.add(searchAvailablePlaymatesForLowShot());
         }
-
         setGameHistory();
-        log.info(keyboard.getGameAction().toString());
+        GameAction gameAction = pickActionWithBestPriority(gameActions);
+        log.info(gameAction.toString());
 
-        return keyboard;
+        return new ActionProducer(gameAction);
+    }
+
+    private GameAction pickActionWithBestPriority(Set<GameAction> gameActions) {
+        return gameActions.stream().min(
+                        Comparator.comparing(action -> action.getControls().stream().min(
+                                Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
+                .orElse(new GameAction(List.of(NONE)));
+    }
+
+    private GameAction attackShootAction() {
+        if (canAttackShoot()) {
+            return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER));
+        }
+        return new GameAction(List.of(NONE));
+    }
+
+    private GameAction protectBallOrDefenceAction() {
+        if (gameInfo.isNobodyBallPossession()) {
+            actionTargetPlayer = gameInfo.getActivePlayer();
+            return new GameAction(List.of(ATTACK_PROTECT_BALL));
+        }
+        return new GameAction(List.of(NONE));
     }
 
     private boolean canAttackShoot() {
@@ -77,6 +92,7 @@ public class DecisionMaker {
         }
     }
 
+    // find available playmates for low pass
     private GameAction searchAvailablePlaymatesForLowShot() {
         final Comparator<Point> comparator;
         if (gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)) {
@@ -134,7 +150,7 @@ public class DecisionMaker {
     }
 
     private int getDelayByDistanceValue(double distance) {
-        return (int) (distance * 10);
+        return (int) (distance * DISTANCE_DELAY_MULTIPLICATION_FACTOR);
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,

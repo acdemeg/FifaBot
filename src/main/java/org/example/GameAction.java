@@ -1,6 +1,7 @@
 package org.example;
 
-import lombok.Getter;
+
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.example.enums.ControlsEnum;
@@ -15,7 +16,7 @@ import static org.example.enums.ControlsEnum.*;
 /**
  * This class represent in-game control actions
  */
-@Getter
+@Data
 @ToString
 @RequiredArgsConstructor
 public class GameAction {
