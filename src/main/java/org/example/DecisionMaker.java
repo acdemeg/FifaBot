@@ -3,6 +3,7 @@ package org.example;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 
 import java.awt.*;
 import java.util.List;
@@ -15,6 +16,7 @@ import static org.example.GeometryUtils.*;
 /**
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data
  */
+@Log
 @RequiredArgsConstructor
 public class DecisionMaker {
 
@@ -24,8 +26,8 @@ public class DecisionMaker {
     private Point actionTargetPlayer;
 
     public ActionProducer getActionProducer() {
+        log.info(gameInfo.toString());
         ActionProducer keyboard = new ActionProducer(new GameAction(List.of(ControlsEnum.NONE)));
-
         shadingFieldHandle();
 
         if (gameInfo.getPlaymates().isEmpty() || gameInfo.getActivePlayer() == null) {
@@ -41,6 +43,7 @@ public class DecisionMaker {
         }
 
         setGameHistory();
+        log.info(keyboard.getGameAction().toString());
 
         return keyboard;
     }
@@ -49,6 +52,7 @@ public class DecisionMaker {
         if (gameInfo.isShadingField() && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
+            log.info("#shadingFieldHandle -> set values complete");
         }
     }
 
@@ -56,6 +60,7 @@ public class DecisionMaker {
         if (actionTargetPlayer != null) {
             GameHistory.setPrevGameInfo(gameInfo);
             GameHistory.setPrevActionTarget(actionTargetPlayer);
+            log.info("#setGameHistory -> Set values complete");
         }
     }
 

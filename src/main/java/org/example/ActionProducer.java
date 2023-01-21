@@ -1,5 +1,6 @@
 package org.example;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import static org.example.Main.ROBOT;
  * This class take responsible for events generation.
  * Now is available only keyboard actions
  */
+@Data
 @RequiredArgsConstructor
 public class ActionProducer {
 

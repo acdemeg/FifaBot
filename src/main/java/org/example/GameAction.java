@@ -2,6 +2,7 @@ package org.example;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +15,7 @@ import static org.example.ControlsEnum.*;
  * This class represent in-game control actions
  */
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class GameAction {
 

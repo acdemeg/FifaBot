@@ -1,6 +1,7 @@
 package org.example;
 
 import lombok.SneakyThrows;
+import lombok.extern.java.Log;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -10,9 +11,9 @@ import java.io.IOException;
 
 import static org.example.GameInfo.*;
 
+@Log
 public class Main {
 
-    //private static final BotStateSwitcher SWITCHER = BotStateSwitcher.createSwitcher();
     public static final Robot ROBOT = createRobot();
 
     @SneakyThrows
@@ -27,7 +28,7 @@ public class Main {
     }
 
     private static void gameProcessing() {
-        System.out.println("Game start");
+        log.info("GAME START!");
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {

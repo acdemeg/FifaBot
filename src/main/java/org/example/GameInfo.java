@@ -2,6 +2,7 @@ package org.example;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.ToString;
 
 import java.awt.*;
 import java.util.SortedSet;
@@ -11,6 +12,7 @@ import java.util.SortedSet;
  * and dynamic data which are actually for one image screenshot
  */
 @Data
+@ToString
 @AllArgsConstructor
 public class GameInfo {
 
@@ -56,5 +58,6 @@ public class GameInfo {
     private final boolean isNobodyBallPossession;
     private final boolean isShadingField;
     private final GameConstantsEnum playmateSide;
+    @ToString.Exclude
     private final int[][] pixels;
 }
