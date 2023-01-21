@@ -2,6 +2,8 @@ package org.example;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.example.enums.GameConstantsEnum;
+import org.example.enums.GeomEnum;
 
 import java.awt.*;
 

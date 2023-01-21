@@ -4,14 +4,17 @@ package org.example;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.example.enums.ControlsEnum;
+import org.example.enums.GameConstantsEnum;
+import org.example.enums.GeomEnum;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.example.ControlsEnum.ATTACK_SHORT_PASS_HEADER;
 import static org.example.GeometryUtils.*;
+import static org.example.enums.ControlsEnum.ATTACK_SHORT_PASS_HEADER;
 
 /**
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data

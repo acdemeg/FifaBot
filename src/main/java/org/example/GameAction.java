@@ -3,13 +3,14 @@ package org.example;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.example.enums.ControlsEnum;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static java.awt.event.KeyEvent.*;
-import static org.example.ControlsEnum.*;
+import static org.example.enums.ControlsEnum.*;
 
 /**
  * This class represent in-game control actions
