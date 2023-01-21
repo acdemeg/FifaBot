@@ -29,6 +29,7 @@ public class ImageAnalysis {
     private boolean isShadingField;
     private GameConstantsEnum playmateSide;
     private final int[][] pixels;
+
     @RequiredArgsConstructor
     private static final class SearchConditions {
         final Point point;
@@ -36,6 +37,7 @@ public class ImageAnalysis {
         final boolean isPlaymate;
         final boolean isOpposite;
         BaseData baseData;
+
         @RequiredArgsConstructor
         private static final class BaseData {
             final int x;
@@ -56,14 +58,14 @@ public class ImageAnalysis {
     /**
      * Concept:<p>
      * 1-Step: Iterating by {@code bufferedImage} rectangle top-down and left right straight
-     *  and get pixel integer color with x,y coordinates. <p>
+     * and get pixel integer color with x,y coordinates. <p>
      * 2-Step: Check whether pixel represent bound of player.<p>
      * 3-Step: Check whether exist Point which can be center coordinates of Player
-     *  and located below and to the right then given (x,y), if Yes - current {@code x} replace {@code  endPlayerBound}
-     *  and continue for cycle, if No - starting 4 Step.<p>
+     * and located below and to the right then given (x,y), if Yes - current {@code x} replace {@code  endPlayerBound}
+     * and continue for cycle, if No - starting 4 Step.<p>
      * 4-Step: Find middle of bound Player and trying to add in Set new Player via {@code setPlayerCoordinate} method.<p>
      * 5-Step: If already exist point which locate in radius = 8 from given (x, y) point then set of players not modify,
-     *  else add new coordinate in corresponding Set in depend on player belong to.<p>
+     * else add new coordinate in corresponding Set in depend on player belong to.<p>
      */
     public GameInfo analyse() {
 
@@ -77,15 +79,12 @@ public class ImageAnalysis {
 
                     if (isExistBottomRightNearPoint(x, y)) {
                         x = getEndPlayerBound(x + 1, y, this::isBoundPlayerColor);
-                    }
-                    else {
+                    } else {
                         x = addPlayer(x, y, this::isBoundPlayerColor, false);
                     }
-                }
-                else if (activePlayer == null && isActivePlayerColor(pixel)) {
+                } else if (activePlayer == null && isActivePlayerColor(pixel)) {
                     x = addPlayer(x, y, this::isActivePlayerColor, true);
-                }
-                else if (ball == null && isBallColor(pixel)) {
+                } else if (ball == null && isBallColor(pixel)) {
                     ball = new Point(x + 1, y + 5);
                 }
             }
@@ -95,16 +94,16 @@ public class ImageAnalysis {
         setPlaymateSide();
         setShadingField();
 
-        return new GameInfo(playmates, opposites, activePlayer, ball, isPlaymateBallPossession, isNobodyBallPossession,
-                isShadingField, playmateSide, pixels);
+        return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
+                isNobodyBallPossession, isShadingField, playmateSide, pixels);
     }
 
     private void setShadingField() {
         isShadingField = playmates.isEmpty()
                 && isShadingFieldColor(pixels[10][10])
-                || isShadingFieldColor(pixels[WIDTH - 10][10])
-                || isShadingFieldColor(pixels[10][HEIGHT - 10])
-                || isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]);
+                && isShadingFieldColor(pixels[WIDTH - 10][10])
+                && isShadingFieldColor(pixels[10][HEIGHT - 10])
+                && isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]);
     }
 
     private void setPlaymateSide() {
@@ -112,8 +111,7 @@ public class ImageAnalysis {
         Point mostLeftPlayer = players.min(Comparator.comparing(Point::getX)).orElse(null);
         if (playmates.contains(mostLeftPlayer)) {
             playmateSide = GameConstantsEnum.LEFT_PLAYMATE_SIDE;
-        }
-        else if (opposites.contains(mostLeftPlayer)) {
+        } else if (opposites.contains(mostLeftPlayer)) {
             playmateSide = GameConstantsEnum.RIGHT_PLAYMATE_SIDE;
         }
     }
@@ -130,8 +128,7 @@ public class ImageAnalysis {
         double oppositeDistance = opposite.distance(ball);
         if (Math.abs(playmateDistance - oppositeDistance) <= 1 || (playmateDistance > 10 && oppositeDistance > 10)) {
             isNobodyBallPossession = true;
-        }
-        else if (playmateDistance < oppositeDistance) {
+        } else if (playmateDistance < oppositeDistance) {
             isPlaymateBallPossession = true;
         }
 
@@ -179,7 +176,7 @@ public class ImageAnalysis {
         Point leftTopScanPoint = new Point(search.point.x - 5, search.point.y - 5);
         Point bottomRightScanPoint = new Point(search.point.x + 5, search.point.y + 5);
 
-        if(leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
+        if (leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
                 && bottomRightScanPoint.x < WIDTH && bottomRightScanPoint.y < HEIGHT) {
 
             for (int y = leftTopScanPoint.y; y <= bottomRightScanPoint.y; y++) {
@@ -193,7 +190,7 @@ public class ImageAnalysis {
     }
 
     private void addOverlayPlayersBase(SearchConditions search) {
-        if ( (search.isOpposite || search.isBall) && opposites.size() < 11
+        if ((search.isOpposite || search.isBall) && opposites.size() < 11
                 && (isOverlayOppositePlayerColor(search.baseData.pixel)
                 || isPlayerColor(search.baseData.pixel, false))) {
             boolean isExistPoint = opposites.stream()
@@ -202,7 +199,7 @@ public class ImageAnalysis {
                 opposites.add(new Point(search.baseData.x, search.baseData.y));
             }
         }
-        if ( (search.isPlaymate || search.isBall) && playmates.size() < 11
+        if ((search.isPlaymate || search.isBall) && playmates.size() < 11
                 && (isOverlayPlaymatePlayerColor(search.baseData.pixel)
                 || isPlayerColor(search.baseData.pixel, true))) {
             boolean isExistPoint = playmates.stream()
@@ -236,23 +233,23 @@ public class ImageAnalysis {
             return x;
         }
         boolean isAdd = setPlayerCoordinate(middlePlayerBound, y + 4, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y - 4, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y + 3, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y - 3, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y + 2, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y - 2, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y + 1, isActivePlayer)
-                        || setPlayerCoordinate(middlePlayerBound, y - 1, isActivePlayer);
+                || setPlayerCoordinate(middlePlayerBound, y - 4, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y + 3, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y - 3, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y + 2, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y - 2, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y + 1, isActivePlayer)
+                || setPlayerCoordinate(middlePlayerBound, y - 1, isActivePlayer);
 
         return isAdd ? endPlayerBound : x;
     }
 
     private boolean checkDoubleCrossingBound(int x, int topRange, int bottomRange, boolean isActivePlayer) {
         if (bottomRange > 0 && topRange < HEIGHT) {
-            for(int y = bottomRange; y <= topRange; y++) {
+            for (int y = bottomRange; y <= topRange; y++) {
                 int pixel = bufferedImage.getRGB(x, y);
                 if ((!isActivePlayer && isActivePlayerColor(pixel))
-                    || (isActivePlayer && isBoundPlayerColor(pixel))) {
+                        || (isActivePlayer && isBoundPlayerColor(pixel))) {
                     return true;
                 }
             }
@@ -293,8 +290,7 @@ public class ImageAnalysis {
             if (isPlayerColor(pixel, true)) {
                 boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && playmates.add(new Point(x, y));
-            }
-            else if (isPlayerColor(pixel, false)) {
+            } else if (isPlayerColor(pixel, false)) {
                 boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && opposites.add(new Point(x, y));
             }
@@ -316,11 +312,10 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        if(isPlaymate){
+        if (isPlaymate) {
             playerColorLower = playmateColorLower;
             playerColorUpper = playmateColorUpper;
-        }
-        else {
+        } else {
             playerColorLower = oppositeColorLower;
             playerColorUpper = oppositeColorUpper;
         }

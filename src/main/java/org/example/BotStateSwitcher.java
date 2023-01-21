@@ -16,7 +16,7 @@ public class BotStateSwitcher extends JPanel {
     private final Color switchColor = new Color(200, 200, 200);
     private final Color buttonColor = new Color(255, 255, 255);
     private final Color borderColor = new Color(50, 50, 50);
-    private final Color activeSwitch = new Color(50,205,50);
+    private final Color activeSwitch = new Color(50, 205, 50);
     private transient BufferedImage puffer;
     private transient Graphics2D g;
 
@@ -33,11 +33,12 @@ public class BotStateSwitcher extends JPanel {
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setBounds(0, 0, 41, 21);
     }
+
     @Override
     public void paint(Graphics gr) {
-        if(g == null || puffer.getWidth() != getWidth() || puffer.getHeight() != getHeight()) {
+        if (g == null || puffer.getWidth() != getWidth() || puffer.getHeight() != getHeight()) {
             puffer = (BufferedImage) createImage(getWidth(), getHeight());
-            g = (Graphics2D)puffer.getGraphics();
+            g = (Graphics2D) puffer.getGraphics();
             RenderingHints rh = new RenderingHints(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
@@ -45,19 +46,18 @@ public class BotStateSwitcher extends JPanel {
         }
         g.setColor(active ? activeSwitch : switchColor);
         int borderRadius = 10;
-        g.fillRoundRect(0, 0, this.getWidth()-1,getHeight()-1, 5, borderRadius);
+        g.fillRoundRect(0, 0, this.getWidth() - 1, getHeight() - 1, 5, borderRadius);
         g.setColor(borderColor);
-        g.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 5, borderRadius);
+        g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 5, borderRadius);
         g.setColor(buttonColor);
-        if(active) {
-            g.fillRoundRect(getWidth()/2, 1,  (getWidth()-1)/2 -2, (getHeight()-1) - 2, borderRadius, borderRadius);
+        if (active) {
+            g.fillRoundRect(getWidth() / 2, 1, (getWidth() - 1) / 2 - 2, (getHeight() - 1) - 2, borderRadius, borderRadius);
             g.setColor(borderColor);
-            g.drawRoundRect((getWidth()-1)/2, 0, (getWidth()-1)/2, (getHeight()-1), borderRadius, borderRadius);
-        }
-        else {
-            g.fillRoundRect(1, 1, (getWidth()-1)/2 -2, (getHeight()-1) - 2, borderRadius, borderRadius);
+            g.drawRoundRect((getWidth() - 1) / 2, 0, (getWidth() - 1) / 2, (getHeight() - 1), borderRadius, borderRadius);
+        } else {
+            g.fillRoundRect(1, 1, (getWidth() - 1) / 2 - 2, (getHeight() - 1) - 2, borderRadius, borderRadius);
             g.setColor(borderColor);
-            g.drawRoundRect(0, 0, (getWidth()-1)/2, (getHeight()-1), borderRadius, borderRadius);
+            g.drawRoundRect(0, 0, (getWidth() - 1) / 2, (getHeight() - 1), borderRadius, borderRadius);
         }
 
         gr.drawImage(puffer, 0, 0, null);

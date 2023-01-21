@@ -59,7 +59,7 @@ public enum ControlsEnum {
 
     @Getter
     private final AtomicInteger delay;
-    
+
     ControlsEnum(AtomicInteger delay) {
         this.delay = delay;
     }

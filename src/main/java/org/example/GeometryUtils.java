@@ -13,19 +13,21 @@ public class GeometryUtils {
 
     /**
      * This method build {@code Rectangle} by two {@code Point}
+     *
      * @param player1 first player
      * @param player2 second player
      * @return Rectangle area which bases on two points
      */
     public static Rectangle getRectangleBetweenPlayers(Point player1, Point player2) {
         Point upperLeft = new Point(Math.min(player1.x, player2.x), Math.min(player1.y, player2.y));
-        Point bottomRight = new Point(Math.max(player1.x, player2.x),Math.max(player1.y, player2.y));
-        Dimension dimension = new Dimension(bottomRight.x - upperLeft.x,bottomRight.y - upperLeft.y);
+        Point bottomRight = new Point(Math.max(player1.x, player2.x), Math.max(player1.y, player2.y));
+        Dimension dimension = new Dimension(bottomRight.x - upperLeft.x, bottomRight.y - upperLeft.y);
         return new Rectangle(upperLeft, dimension);
     }
 
     /**
      * This method calculate height for random triangle
+     *
      * @param player1 first player
      * @param player2 second player
      * @param player3 third player
@@ -41,6 +43,7 @@ public class GeometryUtils {
 
     /**
      * This method define shot direction
+     *
      * @param shotCandidate shot target player
      * @param activePlayer  active player
      * @param playmateSide  field side of playmates
@@ -52,17 +55,13 @@ public class GeometryUtils {
         double angle = Math.acos(adjacentSide / hypotenuse);
         if ((activePlayer.x < shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_RIGHT);
-        }
-        else if ((activePlayer.x < shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+        } else if ((activePlayer.x < shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.TOP, GeomEnum.TOP_RIGHT);
-        }
-        else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+        } else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.TOP, GeomEnum.TOP_LEFT);
-        }
-        else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
+        } else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_LEFT);
-        }
-        else {
+        } else {
             direction = playmateSide.equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE) ? GeomEnum.LEFT : GeomEnum.RIGHT;
         }
 
@@ -73,8 +72,7 @@ public class GeometryUtils {
                                          GeomEnum verticalDirection, GeomEnum direction2D) {
         if (angle < Math.PI / 12) {
             return horizontalDirection;
-        }
-        else if (angle > (5 * Math.PI) / 12) {
+        } else if (angle > (5 * Math.PI) / 12) {
             return verticalDirection;
         }
         return direction2D;

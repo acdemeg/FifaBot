@@ -8,6 +8,10 @@ import java.util.function.IntConsumer;
 import static org.example.GameAction.CONTROLS_ENUM_KEY_CODE_MAP;
 import static org.example.Main.ROBOT;
 
+/**
+ * This class take responsible for events generation.
+ * Now is available only keyboard actions
+ */
 @RequiredArgsConstructor
 public class ActionProducer {
 
