@@ -29,45 +29,47 @@ public class DecisionMaker {
 
     @NonNull
     private GameInfo gameInfo;
-    private Point actionTargetPlayer;
 
     public ActionProducer getActionProducer() {
         log.info(gameInfo.toString());
         shadingFieldHandle();
         Set<GameAction> gameActions = new HashSet<>();
-        gameActions.add(new GameAction(List.of(NONE)));
+        gameActionsFilling(gameActions);
+        GameAction gameAction = pickActionWithBestPriority(gameActions);
+        log.info(gameAction.toString());
+        setGameHistory(gameAction.getActionTargetPlayer());
+
+        return new ActionProducer(gameAction);
+    }
+
+    private void gameActionsFilling(Set<GameAction> gameActions) {
+        gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
         gameActions.add(protectBallOrDefenceAction());
         if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
             gameActions.add(attackShootAction());
             gameActions.add(searchAvailablePlaymatesForLowShot());
         }
-        setGameHistory();
-        GameAction gameAction = pickActionWithBestPriority(gameActions);
-        log.info(gameAction.toString());
-
-        return new ActionProducer(gameAction);
     }
 
     private GameAction pickActionWithBestPriority(Set<GameAction> gameActions) {
         return gameActions.stream().min(
                         Comparator.comparing(action -> action.getControls().stream().min(
                                 Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
-                .orElse(new GameAction(List.of(NONE)));
+                .orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
     }
 
     private GameAction attackShootAction() {
         if (canAttackShoot()) {
-            return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER));
+            return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER), gameInfo.getActivePlayer());
         }
-        return new GameAction(List.of(NONE));
+        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
     }
 
     private GameAction protectBallOrDefenceAction() {
         if (gameInfo.isNobodyBallPossession()) {
-            actionTargetPlayer = gameInfo.getActivePlayer();
-            return new GameAction(List.of(ATTACK_PROTECT_BALL));
+            return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
         }
-        return new GameAction(List.of(NONE));
+        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
     }
 
     private boolean canAttackShoot() {
@@ -84,14 +86,6 @@ public class DecisionMaker {
         }
     }
 
-    private void setGameHistory() {
-        if (actionTargetPlayer != null) {
-            GameHistory.setPrevGameInfo(gameInfo);
-            GameHistory.setPrevActionTarget(actionTargetPlayer);
-            log.info("#setGameHistory -> Set values complete");
-        }
-    }
-
     // find available playmates for low pass
     private GameAction searchAvailablePlaymatesForLowShot() {
         final Comparator<Point> comparator;
@@ -102,9 +96,19 @@ public class DecisionMaker {
         }
         SortedMap<Point, Rectangle> lowShotCandidateAreaMap = new TreeMap<>(comparator);
         SortedMap<Point, Double> lowShotCandidateDistanceMap = new TreeMap<>(comparator);
+        lowShotMapsFilling(lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
 
+        if (lowShotCandidateAreaMap.isEmpty()) {
+            return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
+        }
+
+        return getGameActionForLowShotByDirection(
+                lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
+    }
+
+    private void lowShotMapsFilling(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
+                                    SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         gameInfo.getPlaymates().forEach(playmate -> {
-
             Rectangle rectangleBetweenPlayers = getRectangleBetweenPlayers(playmate, gameInfo.getActivePlayer());
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
             Set<Point> threateningOppositesIntoSquare = gameInfo.getOpposites().stream()
@@ -113,29 +117,16 @@ public class DecisionMaker {
                             lowShotDistance, gameInfo.getActivePlayer(), playmate, opposite)
                     )
                     .collect(Collectors.toSet());
-
             if (threateningOppositesIntoSquare.isEmpty()) {
                 lowShotCandidateAreaMap.put(playmate, rectangleBetweenPlayers);
                 lowShotCandidateDistanceMap.put(playmate, lowShotDistance);
             }
-
         });
-
-        if (lowShotCandidateAreaMap.isEmpty()) {
-            // TODO if no candidates add logic
-            actionTargetPlayer = gameInfo.getActivePlayer();
-            return new GameAction(List.of(ATTACK_PROTECT_BALL));
-        }
-
-        List<ControlsEnum> lowShotControls = getControlsForLowShotByDirection(
-                lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
-
-        return new GameAction(lowShotControls);
     }
 
-    private List<ControlsEnum> getControlsForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
-                                                                SortedMap<Point, Double> lowShotCandidateDistanceMap) {
-        actionTargetPlayer = lowShotCandidateAreaMap.firstKey();
+    private GameAction getGameActionForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
+                                                          SortedMap<Point, Double> lowShotCandidateDistanceMap) {
+        Point actionTargetPlayer = lowShotCandidateAreaMap.firstKey();
         Rectangle rectangleBetweenPlayers = lowShotCandidateAreaMap.get(actionTargetPlayer);
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
 
@@ -146,7 +137,8 @@ public class DecisionMaker {
         ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());
         controls.add(ATTACK_SHORT_PASS_HEADER);
-        return controls;
+
+        return new GameAction(controls, actionTargetPlayer);
     }
 
     private int getDelayByDistanceValue(double distance) {
@@ -158,5 +150,11 @@ public class DecisionMaker {
         // find height of triangle(distance to opposite from low shot vector)
         double height = calculateTriangleHeight(activePlayer, playmate, opposite);
         return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;
+    }
+
+    private void setGameHistory(Point actionTargetPlayer) {
+        GameHistory.setPrevGameInfo(gameInfo);
+        GameHistory.setPrevActionTarget(actionTargetPlayer);
+        log.info("#setGameHistory -> Set values complete");
     }
 }

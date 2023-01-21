@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.example.enums.ControlsEnum;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class GameAction {
 
     public static final Map<ControlsEnum, List<Integer>> CONTROLS_ENUM_KEY_CODE_MAP;
     private final List<ControlsEnum> controls;
+    private final Point actionTargetPlayer;
 
     static {
 
