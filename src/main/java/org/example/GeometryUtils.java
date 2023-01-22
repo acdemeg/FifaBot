@@ -14,6 +14,23 @@ import java.awt.*;
 public class GeometryUtils {
 
     /**
+     * This method test that is triangle contain concrete point
+     *
+     * @param v1    vertex one
+     * @param v2    vertex two
+     * @param v3    vertex three
+     * @param point point which locate inside or outside of triangle
+     * @return true if triangle contain of the point else return false
+     */
+    public static boolean triangleContainPoint(Point v1, Point v2, Point v3, Point point) {
+        double totalArea = calculateTriangleArea(v1, v2, v3);
+        double area1 = calculateTriangleArea(point, v2, v3);
+        double area2 = calculateTriangleArea(point, v1, v3);
+        double area3 = calculateTriangleArea(point, v1, v2);
+        return (area1 + area2 + area3) - totalArea < 0.5;
+    }
+
+    /**
      * This method build {@code Rectangle} by two {@code Point}
      *
      * @param player1 first player
@@ -29,7 +46,6 @@ public class GeometryUtils {
 
     /**
      * This method calculate height for random triangle
-     *
      * @param player1 first player
      * @param player2 second player
      * @param player3 third player
@@ -45,7 +61,6 @@ public class GeometryUtils {
 
     /**
      * This method define shot direction
-     *
      * @param shotCandidate shot target player
      * @param activePlayer  active player
      * @param playmateSide  field side of playmates
@@ -70,6 +85,7 @@ public class GeometryUtils {
         return direction;
     }
 
+    // if angle less than 15 degree -> horizontal direction, if angle great than 75 degree -> vertical direction
     private static GeomEnum getDirection(double angle, GeomEnum horizontalDirection,
                                          GeomEnum verticalDirection, GeomEnum direction2D) {
         if (angle < Math.PI / 12) {
@@ -78,5 +94,11 @@ public class GeometryUtils {
             return verticalDirection;
         }
         return direction2D;
+    }
+
+    // find triangle area with help determinant of two order
+    private static double calculateTriangleArea(Point v1, Point v2, Point v3) {
+        double det = Math.abs((v1.x - v3.x) * (v2.y - v3.y) - (v1.y - v3.y) * (v2.x - v3.x));
+        return det / 2;
     }
 }
