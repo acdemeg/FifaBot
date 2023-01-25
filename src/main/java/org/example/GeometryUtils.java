@@ -27,7 +27,7 @@ public class GeometryUtils {
         double area1 = calculateTriangleArea(point, v2, v3);
         double area2 = calculateTriangleArea(point, v1, v3);
         double area3 = calculateTriangleArea(point, v1, v2);
-        return (area1 + area2 + area3) - totalArea < 0.5;
+        return (area1 + area2 + area3) - totalArea < 0.1;
     }
 
     /**

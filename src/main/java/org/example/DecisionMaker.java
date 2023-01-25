@@ -11,6 +11,8 @@ import org.example.enums.GeomEnum;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 
 import static org.example.GeometryUtils.*;
@@ -25,7 +27,8 @@ import static org.example.enums.GameConstantsEnum.*;
 public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
-    private static final double DISTANCE_DELAY_MULTIPLICATION_FACTOR = 10;
+    private static final int DISTANCE_DELAY_MULTIPLICATION_FACTOR = 10;
+    private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
 
     @NonNull
     private GameInfo gameInfo;
@@ -42,12 +45,79 @@ public class DecisionMaker {
         return new ActionProducer(gameAction);
     }
 
+    // find free part of field(no opposites in front of the playmate) for moving
+    private GameAction getMovingAction() {
+
+        boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
+        GeomEnum direction = isLeft ? GeomEnum.RIGHT : GeomEnum.LEFT;
+        GeomEnum bottomDirection = isLeft ? GeomEnum.BOTTOM_RIGHT : GeomEnum.BOTTOM_LEFT;
+        GeomEnum topDirection = isLeft ? GeomEnum.TOP_RIGHT : GeomEnum.TOP_LEFT;
+
+        Collection<Double> angles = getAngles(isLeft);
+
+        return toDefineDirectionAndGetAction(direction, bottomDirection, topDirection, angles);
+    }
+
+    private GameAction toDefineDirectionAndGetAction(GeomEnum direction, GeomEnum bottomDirection,
+                                                     GeomEnum topDirection, Collection<Double> angles) {
+
+        boolean canRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 6 && angle > -Math.PI / 6);
+        boolean canBottomRightOrLeftMove = angles.stream().noneMatch(angle -> angle < -Math.PI / 6 && angle > -Math.PI / 2);
+        boolean canTopRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 2 && angle > Math.PI / 6);
+
+        if (canRightOrLeftMove) {
+            return new GameAction(direction.getControlsList(), gameInfo.getActivePlayer());
+        }
+        if (gameInfo.getActivePlayer().y < CENTER_FIELD_POINT.getPoint().y) {
+            if (canBottomRightOrLeftMove) {
+                return new GameAction(bottomDirection.getControlsList(), gameInfo.getActivePlayer());
+            }
+            if (canTopRightOrLeftMove) {
+                return new GameAction(topDirection.getControlsList(), gameInfo.getActivePlayer());
+            }
+        } else {
+            if (canTopRightOrLeftMove) {
+                return new GameAction(topDirection.getControlsList(), gameInfo.getActivePlayer());
+            }
+            if (canBottomRightOrLeftMove) {
+                return new GameAction(bottomDirection.getControlsList(), gameInfo.getActivePlayer());
+            }
+        }
+        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+    }
+
+    private Collection<Double> getAngles(boolean isLeft) {
+        IntBinaryOperator compare = (x1, x2) -> {
+            if (isLeft)
+                return x1 > x2 ? 0 : 1;
+            return x1 < x2 ? 0 : 1;
+        };
+        // find all opposites in right(left) rectangle
+        Set<Point> opposites = gameInfo.getOpposites().stream().filter(
+                point -> compare.applyAsInt(point.x, gameInfo.getActivePlayer().x) == 0
+                        && Math.abs(gameInfo.getActivePlayer().x - point.x) < FREE_FIELD_PART_SCAN_DISTANCE
+                        && Math.abs(gameInfo.getActivePlayer().y - point.y) < FREE_FIELD_PART_SCAN_DISTANCE
+        ).collect(Collectors.toSet());
+        // find all opposites in right(left) crescent
+        Map<Point, Double> mapOppositesDistanceValue = opposites.stream().collect(
+                Collectors.toMap(Function.identity(), point -> point.distance(gameInfo.getActivePlayer()))
+        ).entrySet().stream().filter(entry -> entry.getValue() < FREE_FIELD_PART_SCAN_DISTANCE).collect(
+                Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        // find all angles between Ox axis and hypotenuse(angle between active player and opposite)
+        return mapOppositesDistanceValue.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> Math.asin(
+                                Math.abs(entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue())
+                )).values();
+    }
+
     private void gameActionsFilling(Set<GameAction> gameActions) {
         gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
         gameActions.add(protectBallOrDefenceAction());
         if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
             gameActions.add(attackShootAction());
             gameActions.add(searchAvailablePlaymatesForLowShot());
+            gameActions.add(getMovingAction());
         }
     }
 
