@@ -1,8 +1,8 @@
 package org.example;
 
 
+import lombok.Data;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.example.enums.ControlsEnum;
 import org.example.enums.GameConstantsEnum;
@@ -23,22 +23,21 @@ import static org.example.enums.GameConstantsEnum.*;
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data
  */
 @Log
-@RequiredArgsConstructor
+@Data
 public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private static final int DISTANCE_DELAY_MULTIPLICATION_FACTOR = 10;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
-
+    private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
 
-    public ActionProducer getActionProducer() {
+    public ActionProducer decide() {
         log.info(gameInfo.toString());
         shadingFieldHandle();
-        Set<GameAction> gameActions = new HashSet<>();
-        gameActionsFilling(gameActions);
-        GameAction gameAction = pickActionWithBestPriority(gameActions);
+        gameActionsFilling();
+        GameAction gameAction = pickActionWithBestPriority();
         log.info(gameAction.toString());
         setGameHistory(gameAction.getActionTargetPlayer());
 
@@ -107,11 +106,11 @@ public class DecisionMaker {
         return mapOppositesDistanceValue.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         entry -> Math.asin(
-                                Math.abs(entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue())
+                                (double) entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue()
                 )).values();
     }
 
-    private void gameActionsFilling(Set<GameAction> gameActions) {
+    private void gameActionsFilling() {
         gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
         gameActions.add(protectBallOrDefenceAction());
         if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
@@ -121,7 +120,7 @@ public class DecisionMaker {
         }
     }
 
-    private GameAction pickActionWithBestPriority(Set<GameAction> gameActions) {
+    private GameAction pickActionWithBestPriority() {
         return gameActions.stream().min(
                         Comparator.comparing(action -> action.getControls().stream().min(
                                 Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))

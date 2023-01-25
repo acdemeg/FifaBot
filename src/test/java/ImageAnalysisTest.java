@@ -1,7 +1,4 @@
-import org.example.ActionProducer;
-import org.example.DecisionMaker;
 import org.example.GameInfo;
-import org.example.ImageAnalysis;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,8 +16,8 @@ class ImageAnalysisTest {
 
     Set<Integer> notValidImageSet = Set.of(38, 39, 40, 41, 42, 43, 51, 59, 60, 64, 65, 83);
     Set<Integer> notFullSetPlayers = Set.of(45, 84, 85, 86, 87, 91, 92);
-    Set<Integer> playmateBallPossessionSet = Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 16, 19, 20, 22, 23, 25, 30);
-    Set<Integer> oppositeBallPossessionSet = Set.of(15, 26, 27, 28, 34, 35, 36);
+    Set<Integer> playmateBallPossessionSet = Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 16, 19, 20, 22, 23, 25, 26, 30);
+    Set<Integer> oppositeBallPossessionSet = Set.of(15, 27, 28, 34, 35, 36);
     Set<Integer> nobodyBallPossessionSet = Set.of(10, 11, 17, 18, 21, 24, 29, 31, 32, 33);
 
     @Test
@@ -54,10 +51,7 @@ class ImageAnalysisTest {
     @ParameterizedTest
     @MethodSource("provideImageNumbers")
     void analyseTest(Integer number) throws IOException {
-        File file = new File("screenshots", number + ".jpg");
-        BufferedImage bufferedImage = ImageIO.read(file);
-        ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
-        GameInfo gameInfo = imageAnalysis.analyse();
+        GameInfo gameInfo = TestUtils.getGameInfo(number);
         if (notValidImageSet.contains(number)) {
             return;
         }
@@ -83,13 +77,9 @@ class ImageAnalysisTest {
             Assertions.assertFalse(gameInfo.isPlaymateBallPossession());
             Assertions.assertTrue(gameInfo.isNobodyBallPossession());
         }
-
-        DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
-        ActionProducer keyboardProducer = decisionMaker.getActionProducer();
-        keyboardProducer.makeGameAction();
     }
 
     private static Stream<Integer> provideImageNumbers() {
-        return Stream.iterate(1, x -> x + 1).limit(20);
+        return Stream.iterate(1, x -> x + 1).limit(25);
     }
 }

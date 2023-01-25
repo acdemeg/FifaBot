@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public enum ControlsEnum {
     // One key actions
-    SPRINT(new AtomicInteger(5), 0),
-    MOVE_UP(new AtomicInteger(5), 0),
-    MOVE_DOWN(new AtomicInteger(5), 0),
-    MOVE_LEFT(new AtomicInteger(5), 0),
-    MOVE_RIGHT(new AtomicInteger(5), 0),
+    SPRINT(new AtomicInteger(5), 40),
+    MOVE_UP(new AtomicInteger(5), 50),
+    MOVE_DOWN(new AtomicInteger(5), 50),
+    MOVE_LEFT(new AtomicInteger(5), 50),
+    MOVE_RIGHT(new AtomicInteger(5), 50),
     MOVE_UP_PAD(new AtomicInteger(5), 0),
     MOVE_DOWN_PAD(new AtomicInteger(5), 0),
     MOVE_LEFT_PAD(new AtomicInteger(5), 0),

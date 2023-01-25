@@ -35,7 +35,7 @@ public class Main {
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
             BufferedImage bufferedImage = ROBOT.createScreenCapture(rectangle);
             GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();
-            ActionProducer keyboardProducer = new DecisionMaker(gameInfo).getActionProducer();
+            ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
             keyboardProducer.makeGameAction();
         }
     }
