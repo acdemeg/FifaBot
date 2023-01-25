@@ -1,7 +1,6 @@
 package org.example;
 
 import lombok.RequiredArgsConstructor;
-import org.example.enums.ColorsEnum;
 import org.example.enums.GameConstantsEnum;
 
 import java.awt.*;
@@ -196,7 +195,7 @@ public class ImageAnalysis {
     private void addOverlayPlayersBase(SearchConditions search) {
         if ((search.isOpposite || search.isBall) && opposites.size() < 11
                 && (isOverlayOppositePlayerColor(search.baseData.pixel)
-                || isPlayerColor(search.baseData.pixel, false))) {
+                || isOppositeColor(search.baseData.pixel))) {
             boolean isExistPoint = opposites.stream()
                     .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
             if (!isExistPoint) {
@@ -205,7 +204,7 @@ public class ImageAnalysis {
         }
         if ((search.isPlaymate || search.isBall) && playmates.size() < 11
                 && (isOverlayPlaymatePlayerColor(search.baseData.pixel)
-                || isPlayerColor(search.baseData.pixel, true))) {
+                || isPlaymateColor(search.baseData.pixel))) {
             boolean isExistPoint = playmates.stream()
                     .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
             if (!isExistPoint) {
@@ -264,7 +263,7 @@ public class ImageAnalysis {
     private boolean isExistBottomRightNearPoint(int x, int y) {
         if (y + 4 < HEIGHT) {
             int pixel = bufferedImage.getRGB(x, y + 4);
-            boolean isPlaymate = isPlayerColor(pixel, true);
+            boolean isPlaymate = isPlaymateColor(pixel);
             Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
             Predicate<Point> pointNear = p -> (p.x >= x && p.x - x < 6) && (p.y >= y && p.y - y < 9);
             return players.anyMatch(pointNear);
@@ -291,10 +290,10 @@ public class ImageAnalysis {
                 activePlayer = new Point(x, y);
                 return playmates.add(activePlayer);
             }
-            if (isPlayerColor(pixel, true)) {
+            if (isPlaymateColor(pixel)) {
                 boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && playmates.add(new Point(x, y));
-            } else if (isPlayerColor(pixel, false)) {
+            } else if (isOppositeColor(pixel)) {
                 boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 7);
                 return !isExistPoint && opposites.add(new Point(x, y));
             }
@@ -309,24 +308,24 @@ public class ImageAnalysis {
                 && BOUND_OF_PLAYER_COLOR.getColor().getBlue() < (pixel & 0xFF);
     }
 
-    private boolean isPlayerColor(int pixel, boolean isPlaymate) {
-        ColorsEnum playerColorLower;
-        ColorsEnum playerColorUpper;
+    private boolean isPlaymateColor(int pixel) {
         int r = (pixel >> 16) & 0xFF;
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        if (isPlaymate) {
-            playerColorLower = PLAYMATE_COLOR_LOWER;
-            playerColorUpper = PLAYMATE_COLOR_UPPER;
-        } else {
-            playerColorLower = OPPOSITE_COLOR_LOWER;
-            playerColorUpper = OPPOSITE_COLOR_UPPER;
-        }
+        return PLAYMATE_COLOR_LOWER.getColor().getRed() < r && PLAYMATE_COLOR_UPPER.getColor().getRed() > r
+                && PLAYMATE_COLOR_LOWER.getColor().getGreen() > g && PLAYMATE_COLOR_UPPER.getColor().getGreen() < g
+                && PLAYMATE_COLOR_LOWER.getColor().getBlue() > b && PLAYMATE_COLOR_UPPER.getColor().getBlue() < b;
+    }
 
-        return playerColorLower.getColor().getRed() < r && playerColorUpper.getColor().getRed() > r
-                && playerColorLower.getColor().getGreen() < g && playerColorUpper.getColor().getGreen() > g
-                && playerColorLower.getColor().getBlue() < b && playerColorUpper.getColor().getBlue() > b;
+    private boolean isOppositeColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return OPPOSITE_COLOR_LOWER.getColor().getRed() > r && OPPOSITE_COLOR_UPPER.getColor().getRed() < r
+                && OPPOSITE_COLOR_LOWER.getColor().getGreen() > g && OPPOSITE_COLOR_UPPER.getColor().getGreen() < g
+                && OPPOSITE_COLOR_LOWER.getColor().getBlue() < b && OPPOSITE_COLOR_UPPER.getColor().getBlue() > b;
     }
 
     private boolean isActivePlayerColor(int pixel) {

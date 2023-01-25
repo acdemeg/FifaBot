@@ -9,9 +9,9 @@ import java.awt.*;
  */
 public enum ColorsEnum {
     PLAYMATE_COLOR_LOWER(new Color(100, 20, 20)),
-    PLAYMATE_COLOR_UPPER(new Color(220, 50, 55)),
-    OPPOSITE_COLOR_LOWER(new Color(35, 40, 70)),
-    OPPOSITE_COLOR_UPPER(new Color(45, 50, 83)),
+    PLAYMATE_COLOR_UPPER(new Color(255, 0, 0)),
+    OPPOSITE_COLOR_LOWER(new Color(35, 109, 170)),
+    OPPOSITE_COLOR_UPPER(new Color(0, 0, 255)),
     ACTIVE_PLAYER_LOWER(new Color(25, 100, 100)),
     ACTIVE_PLAYER_UPPER(new Color(0, 210, 210)),
     BOUND_OF_PLAYER_COLOR(new Color(222, 222, 222)),
