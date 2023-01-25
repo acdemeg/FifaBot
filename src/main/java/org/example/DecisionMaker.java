@@ -44,6 +44,23 @@ public class DecisionMaker {
         return new ActionProducer(gameAction);
     }
 
+    private void gameActionsFilling() {
+        gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+        gameActions.add(protectBallOrDefenceAction());
+        if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
+            gameActions.add(attackShootAction());
+            gameActions.add(getLowShotAction());
+            gameActions.add(getMovingAction());
+        }
+    }
+
+    private GameAction pickActionWithBestPriority() {
+        return gameActions.stream().min(
+                        Comparator.comparing(action -> action.getControls().stream().min(
+                                Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
+                .orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+    }
+
     // find free part of field(no opposites in front of the playmate) for moving
     private GameAction getMovingAction() {
 
@@ -110,23 +127,6 @@ public class DecisionMaker {
                 )).values();
     }
 
-    private void gameActionsFilling() {
-        gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
-        gameActions.add(protectBallOrDefenceAction());
-        if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
-            gameActions.add(attackShootAction());
-            gameActions.add(searchAvailablePlaymatesForLowShot());
-            gameActions.add(getMovingAction());
-        }
-    }
-
-    private GameAction pickActionWithBestPriority() {
-        return gameActions.stream().min(
-                        Comparator.comparing(action -> action.getControls().stream().min(
-                                Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
-                .orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
-    }
-
     private GameAction attackShootAction() {
         if (canAttackShoot()) {
             return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER), gameInfo.getActivePlayer());
@@ -135,7 +135,7 @@ public class DecisionMaker {
     }
 
     private GameAction protectBallOrDefenceAction() {
-        if (gameInfo.isNobodyBallPossession()) {
+        if (gameInfo.isNobodyBallPossession() && gameInfo.getActivePlayer() != null) {
             return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
         }
         return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
@@ -155,8 +155,8 @@ public class DecisionMaker {
         }
     }
 
-    // find available playmates for low pass
-    private GameAction searchAvailablePlaymatesForLowShot() {
+    // find available playmates for low shot pass
+    private GameAction getLowShotAction() {
         final Comparator<Point> comparator;
         if (gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)) {
             comparator = Comparator.comparingDouble(Point::getX).reversed().thenComparing(Point::getY);
