@@ -22,6 +22,11 @@ import static org.example.enums.ColorsEnum.*;
  */
 public class ImageAnalysis {
 
+    private static final double SEARCH_RADIUS_NEARLY_PLAYER = 7.5;
+    private static final int X_DISTANCE_NEARLY_PLAYER = 6;
+    private static final int Y_DISTANCE_NEARLY_PLAYER = 9;
+    private static final int OVERLAY_PLAYER_BASE_DISTANCE = 5;
+
     private final BufferedImage bufferedImage;
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
@@ -71,7 +76,16 @@ public class ImageAnalysis {
      * else add new coordinate in corresponding Set in depend on player belong to.<p>
      */
     public GameInfo analyse() {
+        baseAnalyseRun();
+        searchOverlayPlayers();
+        setPlayerPossessionOfBall();
+        setPlaymateSide();
+        setShadingField();
+        return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
+                isNobodyBallPossession, isShadingField, playmateSide, pixels);
+    }
 
+    private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
 
@@ -92,21 +106,15 @@ public class ImageAnalysis {
                 }
             }
         }
-        searchOverlayPlayers();
-        setPlayerPossessionOfBall();
-        setPlaymateSide();
-        setShadingField();
-
-        return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
-                isNobodyBallPossession, isShadingField, playmateSide, pixels);
     }
 
     private void setShadingField() {
-        isShadingField = playmates.isEmpty()
-                && isShadingFieldColor(pixels[10][10])
-                && isShadingFieldColor(pixels[WIDTH - 10][10])
-                && isShadingFieldColor(pixels[10][HEIGHT - 10])
-                && isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]);
+        int shades = 0;
+        shades = isShadingFieldColor(pixels[10][10]) ? shades + 1 : shades;
+        shades = isShadingFieldColor(pixels[WIDTH - 10][10]) ? shades + 1 : shades;
+        shades = isShadingFieldColor(pixels[10][HEIGHT - 10]) ? shades + 1 : shades;
+        shades = isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]) ? shades + 1 : shades;
+        isShadingField = playmates.isEmpty() && shades >= 2;
     }
 
     private void setPlaymateSide() {
@@ -176,8 +184,10 @@ public class ImageAnalysis {
     }
 
     private void searchOverlayPlayersBase(SearchConditions search, Consumer<SearchConditions> addOverlayPlayer) {
-        Point leftTopScanPoint = new Point(search.point.x - 5, search.point.y - 5);
-        Point bottomRightScanPoint = new Point(search.point.x + 5, search.point.y + 5);
+        Point leftTopScanPoint = new Point(
+                search.point.x - OVERLAY_PLAYER_BASE_DISTANCE, search.point.y - OVERLAY_PLAYER_BASE_DISTANCE);
+        Point bottomRightScanPoint = new Point(
+                search.point.x + OVERLAY_PLAYER_BASE_DISTANCE, search.point.y + OVERLAY_PLAYER_BASE_DISTANCE);
 
         if (leftTopScanPoint.x >= 0 && leftTopScanPoint.y >= 0
                 && bottomRightScanPoint.x < WIDTH && bottomRightScanPoint.y < HEIGHT) {
@@ -197,7 +207,7 @@ public class ImageAnalysis {
                 && (isOverlayOppositePlayerColor(search.baseData.pixel)
                 || isOppositeColor(search.baseData.pixel))) {
             boolean isExistPoint = opposites.stream()
-                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < OVERLAY_PLAYER_BASE_DISTANCE);
             if (!isExistPoint) {
                 opposites.add(new Point(search.baseData.x, search.baseData.y));
             }
@@ -206,7 +216,7 @@ public class ImageAnalysis {
                 && (isOverlayPlaymatePlayerColor(search.baseData.pixel)
                 || isPlaymateColor(search.baseData.pixel))) {
             boolean isExistPoint = playmates.stream()
-                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < OVERLAY_PLAYER_BASE_DISTANCE);
             if (!isExistPoint) {
                 playmates.add(new Point(search.baseData.x, search.baseData.y));
             }
@@ -217,7 +227,7 @@ public class ImageAnalysis {
         if (opposites.size() < 11 && search.isBall
                 && (isBoundPlayerColor(search.baseData.pixel) || isOverlayBoundPlayerColor(search.baseData.pixel))) {
             boolean isExistPoint = opposites.stream()
-                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < 5);
+                    .anyMatch(p -> p.distance(search.baseData.x, search.baseData.y) < OVERLAY_PLAYER_BASE_DISTANCE);
             if (!isExistPoint) {
                 opposites.add(new Point(search.baseData.x, search.baseData.y));
             }
@@ -265,8 +275,8 @@ public class ImageAnalysis {
             int pixel = bufferedImage.getRGB(x, y + 4);
             boolean isPlaymate = isPlaymateColor(pixel);
             Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
-            Predicate<Point> pointNear = p -> (p.x >= x && p.x - x < 6) && (p.y >= y && p.y - y < 9);
-            return players.anyMatch(pointNear);
+            return players.anyMatch(p -> (p.x >= x && p.x - x < X_DISTANCE_NEARLY_PLAYER)
+                    && (p.y >= y && p.y - y < Y_DISTANCE_NEARLY_PLAYER));
         }
         return false;
     }
@@ -285,17 +295,17 @@ public class ImageAnalysis {
     private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
         if (y > 0 && y < HEIGHT) {
             int pixel = bufferedImage.getRGB(x, y);
+            Predicate<SortedSet<Point>> isExistPoint = players -> players.stream()
+                    .anyMatch(point -> point.distance(x, y) < SEARCH_RADIUS_NEARLY_PLAYER);
 
             if (isActivePlayer) {
                 activePlayer = new Point(x, y);
                 return playmates.add(activePlayer);
             }
             if (isPlaymateColor(pixel)) {
-                boolean isExistPoint = playmates.stream().anyMatch(point -> point.distance(x, y) < 7);
-                return !isExistPoint && playmates.add(new Point(x, y));
+                return !isExistPoint.test(playmates) && playmates.add(new Point(x, y));
             } else if (isOppositeColor(pixel)) {
-                boolean isExistPoint = opposites.stream().anyMatch(point -> point.distance(x, y) < 7);
-                return !isExistPoint && opposites.add(new Point(x, y));
+                return !isExistPoint.test(opposites) && opposites.add(new Point(x, y));
             }
             return false;
         }
@@ -303,9 +313,13 @@ public class ImageAnalysis {
     }
 
     private boolean isBoundPlayerColor(int pixel) {
-        return BOUND_OF_PLAYER_COLOR.getColor().getRed() < ((pixel >> 16) & 0xFF)
-                && BOUND_OF_PLAYER_COLOR.getColor().getGreen() < ((pixel >> 8) & 0xFF)
-                && BOUND_OF_PLAYER_COLOR.getColor().getBlue() < (pixel & 0xFF);
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() < r && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getRed() > r
+                && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() < g && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getGreen() > g
+                && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() < b && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getBlue() > b;
     }
 
     private boolean isPlaymateColor(int pixel) {
@@ -374,9 +388,9 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getRed() < r && BOUND_OF_PLAYER_COLOR.getColor().getRed() > r
-                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getGreen() < g && BOUND_OF_PLAYER_COLOR.getColor().getGreen() > g
-                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getBlue() < b && BOUND_OF_PLAYER_COLOR.getColor().getBlue() > b
+        return OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getRed() < r && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() > r
+                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getGreen() < g && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() > g
+                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getBlue() < b && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() > b
                 && Math.abs(g - b) < 10 && Math.abs(r - g) < 10 && Math.abs(r - b) < 10;
     }
 

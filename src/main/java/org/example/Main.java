@@ -21,10 +21,8 @@ public class Main {
         return new Robot();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         gameProcessing();
-        //makeScreenshot();
-
     }
 
     private static void gameProcessing() {
@@ -40,14 +38,15 @@ public class Main {
         }
     }
 
+    @SuppressWarnings("unused")
     private static void makeScreenshot() throws IOException {
         Main.ROBOT.delay(10_000);
         Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
-        //for (int i = 21; i < 101; i++) {
-        Main.ROBOT.delay(2000);
-        BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
-        File file = new File("screenshots", "test" + ".jpg");
-        ImageIO.write(bufferedImage, "png", file);
-        //}
+        for (int i = 1; i < 101; i++) {
+            Main.ROBOT.delay(2000);
+            BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
+            File file = new File("src/test/resources/screenshots", i + ".jpg");
+            ImageIO.write(bufferedImage, "png", file);
+        }
     }
 }
