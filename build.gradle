@@ -1,9 +1,16 @@
 plugins {
-    id 'java'
+    id 'application'
+    id 'java-library'
 }
 
 group 'org.example'
 version '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -19,4 +26,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+application {
+    mainClass = 'org.example.Main'
+    applicationDefaultJvmArgs = ["-Djava.util.logging.config.file=.\\src\\main\\resources\\logging.properties"]
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
 }

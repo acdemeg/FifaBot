@@ -1,2 +1,3 @@
 rootProject.name = 'Fifa19Bot'
+include('Fifa19Bot')
 
