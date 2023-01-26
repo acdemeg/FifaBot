@@ -9,7 +9,7 @@ import java.io.IOException;
 public class TestUtils {
 
     public static GameInfo getGameInfo(Integer number) throws IOException {
-        File file = new File("screenshots", number + ".jpg");
+        File file = new File("src/test/resources/screenshots", number + ".jpg");
         BufferedImage bufferedImage = ImageIO.read(file);
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         return imageAnalysis.analyse();

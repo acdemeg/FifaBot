@@ -3,20 +3,19 @@ import org.example.GameAction;
 import org.example.GameInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.example.enums.ControlsEnum.*;
 
 class DecisionMakerTest {
 
     @ParameterizedTest
-    @MethodSource("provideImageNumbers")
+    @ValueSource(ints = {3, 4, 5, 6, 7})
     void decideTest(Integer number) throws IOException {
         GameInfo gameInfo = TestUtils.getGameInfo(number);
         DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
@@ -24,31 +23,39 @@ class DecisionMakerTest {
         Set<GameAction> gameActions = decisionMaker.getGameActions();
 
         switch (number) {
-            case 1: {
+            case 3: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_UP, MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(98, 10));
-                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(75, 35));
+                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(135, 76));
+                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(104, 78));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
                 break;
             }
-            case 3: {
+            case 4: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(129, 60));
-                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(81, 54));
+                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(151, 93));
+                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(105, 86));
+                Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
+                break;
+            }
+            case 5: {
+                GameAction attackProtectBall = new GameAction(List.of(ATTACK_PROTECT_BALL), new Point(68, 51));
+                Assertions.assertTrue(gameActions.contains(attackProtectBall));
+                break;
+            }
+            case 6: {
+                GameAction attackShortPass = new GameAction(
+                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(110, 16));
+                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(76, 15));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
                 break;
             }
             case 7: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_DOWN, MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(125, 123));
-                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(65, 101));
+                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(121, 16));
+                GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(91, 18));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
             }
         }
 
-    }
-
-    private static Stream<Integer> provideImageNumbers() {
-        return Stream.of(1, 3, 7);
     }
 }
