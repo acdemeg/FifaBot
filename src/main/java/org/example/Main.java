@@ -26,7 +26,7 @@ public class Main {
     }
 
     private static void gameProcessing() throws IOException {
-        log.fine("GAME START!");
+        log.info("GAME START!");
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {
