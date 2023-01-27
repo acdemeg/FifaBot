@@ -34,11 +34,11 @@ public class DecisionMaker {
     private GameInfo gameInfo;
 
     public ActionProducer decide() {
-        log.info(gameInfo.toString());
+        log.info(gameInfo.toString()); // order 1
         shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority();
-        log.info(gameAction.toString());
+        log.info(gameAction.toString()); // order 3
         setGameHistory(gameAction.getActionTargetPlayer());
 
         return new ActionProducer(gameAction);
@@ -55,6 +55,7 @@ public class DecisionMaker {
     }
 
     private GameAction pickActionWithBestPriority() {
+        log.info(gameActions.toString()); // order 2
         return gameActions.stream().min(
                         Comparator.comparing(action -> action.getControls().stream().min(
                                 Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
@@ -151,7 +152,7 @@ public class DecisionMaker {
         if (gameInfo.isShadingField() && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
-            log.info("#shadingFieldHandle -> set values complete");
+            log.fine("#shadingFieldHandle -> set values complete");
         }
     }
 
@@ -224,6 +225,6 @@ public class DecisionMaker {
     private void setGameHistory(Point actionTargetPlayer) {
         GameHistory.setPrevGameInfo(gameInfo);
         GameHistory.setPrevActionTarget(actionTargetPlayer);
-        log.info("#setGameHistory -> Set values complete");
+        log.fine("#setGameHistory -> Set values complete");
     }
 }
