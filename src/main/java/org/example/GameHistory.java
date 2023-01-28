@@ -18,4 +18,10 @@ public class GameHistory {
     @Getter
     @Setter
     private static Point prevActionTarget;
+    @Getter
+    @Setter
+    private static GameAction prevGameAction;
+    @Getter
+    @Setter
+    private static int actionRepeats;
 }

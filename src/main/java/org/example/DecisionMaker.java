@@ -35,11 +35,12 @@ public class DecisionMaker {
 
     public ActionProducer decide() {
         log.info(gameInfo.toString()); // order 1
+        fixRepeatableAction();
         shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority();
         log.info(gameAction.toString()); // order 3
-        setGameHistory(gameAction.getActionTargetPlayer());
+        setGameHistory(gameAction.getActionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
     }
@@ -148,6 +149,12 @@ public class DecisionMaker {
         return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer());
     }
 
+    private void fixRepeatableAction() {
+        if (GameHistory.getActionRepeats() > 3 && gameInfo.isShadingField()) {
+            gameInfo.setPlaymateBallPossession(!gameInfo.isPlaymateBallPossession());
+        }
+    }
+
     private void shadingFieldHandle() {
         if (gameInfo.isShadingField() && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
@@ -222,9 +229,12 @@ public class DecisionMaker {
         return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;
     }
 
-    private void setGameHistory(Point actionTargetPlayer) {
+    private void setGameHistory(Point actionTargetPlayer, GameAction gameAction) {
         GameHistory.setPrevGameInfo(gameInfo);
         GameHistory.setPrevActionTarget(actionTargetPlayer);
+        GameHistory.setPrevGameAction(gameAction);
+        int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
+        GameHistory.setActionRepeats(counter);
         log.fine("#setGameHistory -> Set values complete");
     }
 }

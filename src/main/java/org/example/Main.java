@@ -21,27 +21,30 @@ public class Main {
         return new Robot();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         gameProcessing();
     }
 
-    private static void gameProcessing() throws IOException {
+    private static void gameProcessing() throws IOException, InterruptedException {
         log.info("GAME START!");
+        ROBOT.waitForIdle();
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
             BufferedImage bufferedImage = ROBOT.createScreenCapture(rectangle);
+            GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();
+            ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
+            keyboardProducer.makeGameAction();
             /*
              * For logging
+             *
+             *
              */
             String imageId = String.valueOf(System.nanoTime());
             log.info("ImageId: " + imageId);
             saveImage(bufferedImage, "logs/screenshots", imageId + ".jpg");
-
-            GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();
-            ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
-            keyboardProducer.makeGameAction();
+            Thread.sleep(500);
         }
     }
 

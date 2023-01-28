@@ -26,7 +26,7 @@ public class GameInfo {
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
     private final Point ball;
-    private final boolean isPlaymateBallPossession;
+    private boolean isPlaymateBallPossession;
     private final boolean isNobodyBallPossession;
     private final boolean isShadingField;
     private final GameConstantsEnum playmateSide;
