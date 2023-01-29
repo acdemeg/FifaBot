@@ -37,6 +37,11 @@ public class ImageUtils {
         ImageIO.write(image, IMAGE_FORMAT, file);
     }
 
+    public static String pinchLogs(String line, int beginIndex) {
+        return line.substring(beginIndex).replace("java.awt.Point", "")
+                .replace("x=", "").replace("y=", "");
+    }
+
     @SneakyThrows
     private static BufferedImage readImage(File file) {
         return ImageIO.read(file);

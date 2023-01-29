@@ -33,7 +33,7 @@ public class ImageLogProducer {
     }
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
-    private static final int HEIGHT_INFO_BLOCK = 400;
+    private static final int HEIGHT_INFO_BLOCK = 320;
     private static final int SCALE_FACTOR = 5;
     private static final int SCALE_SIZE = SCALE_FACTOR * 258;
     private static final Map<String, LogObject> fileNameLogObjetMap = readLogs(
@@ -82,7 +82,7 @@ public class ImageLogProducer {
         g2d.setColor(Color.RED);
         addLogField(logs.getGameActions(), g2d, x, y);
         g2d.setColor(Color.GREEN);
-        y += FONT_SIZE * 6;
+        y += FONT_SIZE * 4;
         addLogField(logs.getDecision(), g2d, x, y);
         g2d.setColor(Color.ORANGE);
         y += FONT_SIZE * 2;
@@ -144,11 +144,11 @@ public class ImageLogProducer {
                     if (line.contains("ImageId")) {
                         imageId = line.substring(15);
                     } else if (line.contains("GameInfo")) {
-                        gameInfo = line.substring(6);
+                        gameInfo = ImageUtils.pinchLogs(line, 6);
                     } else if (line.contains("[GameAction")) {
-                        gameActions = line.substring(6);
+                        gameActions = ImageUtils.pinchLogs(line, 6);
                     } else if (line.contains("GameAction")) {
-                        decision = line.substring(6);
+                        decision = ImageUtils.pinchLogs(line, 6);
                     }
 
                     if (gameInfo != null && gameActions != null && decision != null) {

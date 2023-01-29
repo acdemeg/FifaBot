@@ -114,7 +114,7 @@ public class ImageAnalysis {
         shades = isShadingFieldColor(pixels[WIDTH - 10][10]) ? shades + 1 : shades;
         shades = isShadingFieldColor(pixels[10][HEIGHT - 10]) ? shades + 1 : shades;
         shades = isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]) ? shades + 1 : shades;
-        isShadingField = playmates.isEmpty() && shades >= 2;
+        isShadingField = playmates.size() < 5 && shades > 1;
     }
 
     private void setPlaymateSide() {

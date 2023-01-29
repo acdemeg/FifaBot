@@ -12,7 +12,7 @@ public enum ColorsEnum {
     PLAYMATE_COLOR_UPPER(new Color(255, 0, 0)),
     OPPOSITE_COLOR_LOWER(new Color(35, 109, 170)),
     OPPOSITE_COLOR_UPPER(new Color(0, 0, 255)),
-    ACTIVE_PLAYER_LOWER(new Color(25, 100, 100)),
+    ACTIVE_PLAYER_LOWER(new Color(50, 100, 100)),
     ACTIVE_PLAYER_UPPER(new Color(0, 210, 210)),
     BOUND_OF_PLAYER_COLOR_LOWER(new Color(170, 170, 170)),
     BOUND_OF_PLAYER_COLOR_UPPER(new Color(255, 255, 255)),
