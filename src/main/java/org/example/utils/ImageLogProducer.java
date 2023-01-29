@@ -2,6 +2,7 @@ package org.example.utils;
 
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.example.enums.GeomEnum;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,7 +17,8 @@ import java.io.FileReader;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static org.example.Main.IMAGE_FORMAT;
 
 public class ImageLogProducer {
     @Data
@@ -28,7 +30,7 @@ public class ImageLogProducer {
 
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
-    private static final int HEIGHT_INFO_BLOCK = 220;
+    private static final int HEIGHT_INFO_BLOCK = 400;
     private static final int SCALE_FACTOR = 5;
     private static final int SCALE_SIZE = SCALE_FACTOR * 258;
     private static final File logActions = new File("logs/fifa19bot.log");
@@ -38,22 +40,20 @@ public class ImageLogProducer {
 
     @SneakyThrows
     public static void main(String[] args) {
-        Map<String, BufferedImage> fileNameImageMap = Arrays.stream(Objects.requireNonNull(logImages.listFiles()))
-                .collect(Collectors.toMap(
-                        file -> file.getName().substring(0, file.getName().length() - 4), ImageLogProducer::getImage));
+        SortedMap<String, BufferedImage> fileNameImageMap = new TreeMap<>();
+        Arrays.stream(Objects.requireNonNull(logImages.listFiles())).forEach(file ->
+                fileNameImageMap.put(file.getName().substring(0, file.getName().length() - 4), getImage(file))
+        );
         fileNameImageMap.forEach(ImageLogProducer::processImage);
         // save full image
-        String imageName = "logs/log_images/full.jpg";
-        ImageIO.write(combinedImage, "jpg", new File(imageName));
+        String imageName = "logs/log_images/game_history_log." + IMAGE_FORMAT;
+        ImageIO.write(combinedImage, IMAGE_FORMAT, new File(imageName));
     }
 
     @SneakyThrows
     private static void processImage(String imageId, BufferedImage image) {
         LogObject logObject = Optional.ofNullable(fileNameLogObjetMap.get(imageId))
-                .orElse(new LogObject(
-                        "GameInfo(activePlayer=[x=74,y=72], playmates=[[x=138,y=26], [x=97,y=40], [x=78,y=62], [x=147,y=68], [x=76,y=70], [x=106,y=70], [x=74,y=72], [x=25,y=78], [x=137,y=83], [x=115,y=84], [x=134,y=103], [x=141,y=106]], opposites=[[x=92,y=27], [x=133,y=32], [x=165,y=59], [x=80,y=63], [x=129,y=65], [x=77,y=67], [x=132,y=77], [x=234,y=78], [x=155,y=105], [x=121,y=107], [x=129,y=109]], ball=[x=99,y=90], isPlaymateBallPossession=false, isNobodyBallPossession=true, isShadingField=false, playmateSide=LEFT_PLAYMATE_SIDE)",
-                        "[GameAction(controls=[NONE], actionTargetPlayer=[x=74,y=72]), GameAction(controls=[ATTACK_PROTECT_BALL], actionTargetPlayer=[x=74,y=72])]",
-                        "GameAction(controls=[ATTACK_PROTECT_BALL], actionTargetPlayer=[x=74,y=72])"));
+                .orElse(new LogObject("No", "present", "data"));
         // Step 1: Upscale image to 500%
         int newWidth = image.getWidth() * SCALE_FACTOR;
         int newHeight = image.getHeight() * SCALE_FACTOR;
@@ -62,18 +62,14 @@ public class ImageLogProducer {
         g2d.drawImage(image, 0, 0, newWidth, newHeight, null);
         g2d.dispose();
 
-        BufferedImage logInfo = addLogInfo(logObject);
+        BufferedImage logInfo = addLogInfo(logObject, imageId);
 
         // Step 4: Combine image with all previous images
-        if (combinedImage == null) {
-            combinedImage = combineImages(newImage, logInfo);
-        } else {
-            combinedImage = combineImages(combinedImage, newImage);
-            combinedImage = combineImages(combinedImage, logInfo);
-        }
+        BufferedImage temp = combineImages(newImage, logInfo, GeomEnum.BOTTOM);
+        combinedImage = combineImages(combinedImage, temp, GeomEnum.RIGHT);
     }
 
-    private static BufferedImage addLogInfo(LogObject logs) {
+    private static BufferedImage addLogInfo(LogObject logs, String imageId) {
         // Initialize image with specified height and width
         BufferedImage image = new BufferedImage(SCALE_SIZE, HEIGHT_INFO_BLOCK, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
@@ -89,7 +85,11 @@ public class ImageLogProducer {
         g2d.setColor(Color.RED);
         addLogField(logs.getGameActions(), g2d, x, y);
         g2d.setColor(Color.GREEN);
-        addLogField(logs.getDecision(), g2d, x, y + FONT_SIZE * 3);
+        y += FONT_SIZE * 6;
+        addLogField(logs.getDecision(), g2d, x, y);
+        g2d.setColor(Color.ORANGE);
+        y += FONT_SIZE * 2;
+        addLogField("ImageId: " + imageId, g2d, x, y);
         g2d.dispose();
         return image;
     }
@@ -110,13 +110,24 @@ public class ImageLogProducer {
         return y;
     }
 
-    private static BufferedImage combineImages(BufferedImage img1, BufferedImage img2) {
+    private static BufferedImage combineImages(BufferedImage img1, BufferedImage img2, GeomEnum direction) {
+        if (img1 == null) {
+            return img2;
+        }
         int width = Math.max(img1.getWidth(), img2.getWidth());
         int height = img1.getHeight() + img2.getHeight();
+        int x = 0;
+        int y = img1.getHeight();
+        if (direction.equals(GeomEnum.RIGHT)) {
+            width = img1.getWidth() + img2.getWidth();
+            height = Math.max(img1.getHeight(), img2.getHeight());
+            x = img1.getWidth();
+            y = 0;
+        }
         BufferedImage combinedImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = combinedImg.createGraphics();
         g2d.drawImage(img1, 0, 0, null);
-        g2d.drawImage(img2, 0, img1.getHeight(), null);
+        g2d.drawImage(img2, x, y, null);
         g2d.dispose();
         return combinedImg;
     }

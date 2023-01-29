@@ -14,6 +14,7 @@ import static org.example.GameInfo.*;
 @Log
 public class Main {
 
+    public static final String IMAGE_FORMAT = "png";
     public static final Robot ROBOT = createRobot();
 
     @SneakyThrows
@@ -38,12 +39,10 @@ public class Main {
             keyboardProducer.makeGameAction();
             /*
              * For logging
-             *
-             *
              */
             String imageId = String.valueOf(System.nanoTime());
             log.info("ImageId: " + imageId);
-            saveImage(bufferedImage, "logs/screenshots", imageId + ".jpg");
+            saveImage(bufferedImage, "logs/screenshots", imageId + "." + IMAGE_FORMAT);
             Thread.sleep(500);
         }
     }
@@ -55,12 +54,12 @@ public class Main {
         for (int i = 1; i < 101; i++) {
             Main.ROBOT.delay(2000);
             BufferedImage bufferedImage = Main.ROBOT.createScreenCapture(rectangle);
-            saveImage(bufferedImage, "src/test/resources/screenshots", i + ".jpg");
+            saveImage(bufferedImage, "src/test/resources/screenshots", i + "." + IMAGE_FORMAT);
         }
     }
 
     public static void saveImage(BufferedImage image, String dir, String name) throws IOException {
         File file = new File(dir, name);
-        ImageIO.write(image, "jpg", file);
+        ImageIO.write(image, IMAGE_FORMAT, file);
     }
 }

@@ -30,7 +30,12 @@ test {
 
 application {
     mainClass = 'org.example.Main'
-    applicationDefaultJvmArgs = ["-Djava.util.logging.config.file=.\\src\\main\\resources\\logging.properties"]
+    applicationDefaultJvmArgs = ["-Djava.util.logging.config.file=.\\src\\main\\resources\\logging.properties", "-Xmx6g"]
+    task runImageLogProducer(type: JavaExec) {
+        classpath sourceSets.main.runtimeClasspath
+        mainClass = "org.example.utils.ImageLogProducer"
+        jvmArgs = ["-Xmx8g"]
+    }
 }
 
 jar {
