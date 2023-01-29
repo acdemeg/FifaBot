@@ -1,8 +1,9 @@
-package org.example.utils;
+package org.bot.debug;
 
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.example.enums.GeomEnum;
+import org.bot.enums.GeomEnum;
+import org.bot.utils.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,9 +17,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-import static org.example.Main.IMAGE_FORMAT;
+import static org.bot.Main.*;
 
 public class ImageLogProducer {
     @Data
@@ -27,24 +31,17 @@ public class ImageLogProducer {
         private final String gameActions;
         private final String decision;
     }
-
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
     private static final int HEIGHT_INFO_BLOCK = 400;
     private static final int SCALE_FACTOR = 5;
     private static final int SCALE_SIZE = SCALE_FACTOR * 258;
-    private static final File logActions = new File("logs/fifa19bot.log");
-    private static final File logImages = new File("logs/screenshots");
     private static final Map<String, LogObject> fileNameLogObjetMap = readLogs(
-            Objects.requireNonNull(logImages.list()).length);
+            Objects.requireNonNull(LOG_IMAGES.list()).length);
 
     @SneakyThrows
     public static void main(String[] args) {
-        SortedMap<String, BufferedImage> fileNameImageMap = new TreeMap<>();
-        Arrays.stream(Objects.requireNonNull(logImages.listFiles())).forEach(file ->
-                fileNameImageMap.put(file.getName().substring(0, file.getName().length() - 4), getImage(file))
-        );
-        fileNameImageMap.forEach(ImageLogProducer::processImage);
+        ImageUtils.getStringBufferedImageSortedMap().forEach(ImageLogProducer::processImage);
         // save full image
         String imageName = "logs/log_images/game_history_log." + IMAGE_FORMAT;
         ImageIO.write(combinedImage, IMAGE_FORMAT, new File(imageName));
@@ -132,7 +129,6 @@ public class ImageLogProducer {
         return combinedImg;
     }
 
-
     @SneakyThrows
     private static Map<String, LogObject> readLogs(int count) {
 
@@ -142,7 +138,7 @@ public class ImageLogProducer {
         String gameActions = null;
         String decision = null;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(ImageLogProducer.logActions))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(LOG_ACTIONS))) {
             for (String line; (line = br.readLine()) != null; ) {
                 if (line.contains("INFO")) {
                     if (line.contains("ImageId")) {
@@ -168,11 +164,6 @@ public class ImageLogProducer {
             }
         }
         return fileNameLogObjetMap;
-    }
-
-    @SneakyThrows
-    private static BufferedImage getImage(File file) {
-        return ImageIO.read(file);
     }
 }
 

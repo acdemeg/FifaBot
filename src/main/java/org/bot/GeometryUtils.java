@@ -1,9 +1,9 @@
-package org.example;
+package org.bot;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.example.enums.GameConstantsEnum;
-import org.example.enums.GeomEnum;
+import org.bot.enums.GameConstantsEnum;
+import org.bot.enums.GeomEnum;
 
 import java.awt.*;
 

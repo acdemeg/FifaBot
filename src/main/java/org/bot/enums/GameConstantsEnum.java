@@ -1,11 +1,11 @@
-package org.example.enums;
+package org.bot.enums;
 
 import lombok.Getter;
 
 import java.awt.*;
 
-import static org.example.GameInfo.HEIGHT;
-import static org.example.GameInfo.WIDTH;
+import static org.bot.GameInfo.HEIGHT;
+import static org.bot.GameInfo.WIDTH;
 
 /**
  * Common game constants enum

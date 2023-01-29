@@ -1,4 +1,4 @@
-package org.example;
+package org.bot;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.function.IntConsumer;
 
-import static org.example.GameAction.CONTROLS_ENUM_KEY_CODE_MAP;
-import static org.example.Main.ROBOT;
+import static org.bot.GameAction.CONTROLS_ENUM_KEY_CODE_MAP;
+import static org.bot.Main.ROBOT;
 
 /**
  * This class take responsible for events generation.

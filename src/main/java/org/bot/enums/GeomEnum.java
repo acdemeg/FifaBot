@@ -1,10 +1,10 @@
-package org.example.enums;
+package org.bot.enums;
 
 import lombok.Getter;
 
 import java.util.List;
 
-import static org.example.enums.ControlsEnum.*;
+import static org.bot.enums.ControlsEnum.*;
 
 /**
  * Geometric enum for internal using

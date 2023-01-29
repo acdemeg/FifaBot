@@ -1,7 +1,7 @@
-package org.example;
+package org.bot;
 
 import lombok.RequiredArgsConstructor;
-import org.example.enums.GameConstantsEnum;
+import org.bot.enums.GameConstantsEnum;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,9 +13,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static org.example.GameInfo.HEIGHT;
-import static org.example.GameInfo.WIDTH;
-import static org.example.enums.ColorsEnum.*;
+import static org.bot.GameInfo.HEIGHT;
+import static org.bot.GameInfo.WIDTH;
+import static org.bot.enums.ColorsEnum.*;
 
 /**
  * This class performing base analysis of football field scheme image

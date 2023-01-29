@@ -1,4 +1,4 @@
-package org.example;
+package org.bot;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,11 +1,11 @@
-package org.example.enums;
+package org.bot.enums;
 
 import lombok.Getter;
 
 import java.awt.*;
 
 /**
- * Enum all colors for {@link  org.example.ImageAnalysis}
+ * Enum all colors for {@link  org.bot.ImageAnalysis}
  */
 public enum ColorsEnum {
     PLAYMATE_COLOR_LOWER(new Color(100, 35, 30)),

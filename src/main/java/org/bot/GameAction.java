@@ -1,10 +1,10 @@
-package org.example;
+package org.bot;
 
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.example.enums.ControlsEnum;
+import org.bot.enums.ControlsEnum;
 
 import java.awt.*;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.awt.event.KeyEvent.*;
-import static org.example.enums.ControlsEnum.*;
+import static org.bot.enums.ControlsEnum.*;
 
 /**
  * This class represent in-game control actions

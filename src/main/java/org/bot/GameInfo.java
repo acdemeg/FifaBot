@@ -1,9 +1,9 @@
-package org.example;
+package org.bot;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
-import org.example.enums.GameConstantsEnum;
+import org.bot.enums.GameConstantsEnum;
 
 import java.awt.*;
 import java.util.SortedSet;

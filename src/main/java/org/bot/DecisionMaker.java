@@ -1,12 +1,12 @@
-package org.example;
+package org.bot;
 
 
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.java.Log;
-import org.example.enums.ControlsEnum;
-import org.example.enums.GameConstantsEnum;
-import org.example.enums.GeomEnum;
+import org.bot.enums.ControlsEnum;
+import org.bot.enums.GameConstantsEnum;
+import org.bot.enums.GeomEnum;
 
 import java.awt.*;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 
-import static org.example.GeometryUtils.*;
-import static org.example.enums.ControlsEnum.*;
-import static org.example.enums.GameConstantsEnum.*;
+import static org.bot.GeometryUtils.*;
+import static org.bot.enums.ControlsEnum.*;
+import static org.bot.enums.GameConstantsEnum.*;
 
 /**
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data

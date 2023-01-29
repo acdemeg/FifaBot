@@ -1,12 +1,12 @@
-import org.example.GameInfo;
-import org.example.ImageAnalysis;
+import org.bot.GameInfo;
+import org.bot.ImageAnalysis;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import static org.example.Main.IMAGE_FORMAT;
+import static org.bot.Main.IMAGE_FORMAT;
 
 public class TestUtils {
 

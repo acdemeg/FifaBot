@@ -1,6 +1,6 @@
-import org.example.DecisionMaker;
-import org.example.GameAction;
-import org.example.GameInfo;
+import org.bot.DecisionMaker;
+import org.bot.GameAction;
+import org.bot.GameInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static org.example.enums.ControlsEnum.*;
+import static org.bot.enums.ControlsEnum.*;
 
 class DecisionMakerTest {
 
