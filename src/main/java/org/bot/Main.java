@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.bot.utils.ImageUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,7 +19,7 @@ public class Main {
     public static final Robot ROBOT = createRobot();
     public static final File LOG_IMAGES = new File("logs/screenshots");
     public static final File LOG_ACTIONS = new File("logs/fifa19bot.log");
-    private static final boolean IS_REPLAYER_MODE = true;
+    private static final boolean IS_REPLAYER_MODE = false;
     private static final boolean IS_LOGGING = true;
 
     @SneakyThrows
@@ -52,7 +53,8 @@ public class Main {
     private static void logging(BufferedImage bufferedImage) throws IOException, InterruptedException {
         String imageId = String.valueOf(System.nanoTime());
         log.info("ImageId: " + imageId);
-        ImageUtils.saveImage(bufferedImage, LOG_IMAGES.getPath(), imageId + "." + IMAGE_FORMAT);
+        File file = new File(LOG_IMAGES.getPath(), imageId + "." + IMAGE_FORMAT);
+        ImageIO.write(bufferedImage, IMAGE_FORMAT, file);
         Thread.sleep(500);
     }
 

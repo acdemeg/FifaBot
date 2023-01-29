@@ -88,22 +88,31 @@ public class ImageAnalysis {
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
-
                 int pixel = bufferedImage.getRGB(x, y);
                 pixels[x][y] = pixel;
-
+                int xPrev = x;
                 if (isBoundPlayerColor(pixel)) {
-
                     if (isExistBottomRightNearPoint(x, y)) {
                         x = getEndPlayerBound(x + 1, y, this::isBoundPlayerColor);
+                        addSkippedValuesInPixels(xPrev, x, y);
                     } else {
                         x = addPlayer(x, y, this::isBoundPlayerColor, false);
+                        addSkippedValuesInPixels(xPrev, x, y);
                     }
                 } else if (activePlayer == null && isActivePlayerColor(pixel)) {
                     x = addPlayer(x, y, this::isActivePlayerColor, true);
+                    addSkippedValuesInPixels(xPrev, x, y);
                 } else if (ball == null && isBallColor(pixel)) {
                     ball = new Point(x + 1, y + 5);
                 }
+            }
+        }
+    }
+
+    private void addSkippedValuesInPixels(int xPrev, int x, int y) {
+        if (xPrev < x) {
+            for (int i = xPrev + 1; i <= x; i++) {
+                pixels[i][y] = bufferedImage.getRGB(i, y);
             }
         }
     }
