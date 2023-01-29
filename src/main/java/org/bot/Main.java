@@ -19,8 +19,8 @@ public class Main {
     public static final Robot ROBOT = createRobot();
     public static final File LOG_IMAGES = new File("logs/screenshots");
     public static final File LOG_ACTIONS = new File("logs/fifa19bot.log");
-    private static final boolean IS_REPLAYER_MODE = false;
-    private static final boolean IS_LOGGING = true;
+    private static boolean isReplayerMode;
+    private static boolean isLogging;
 
     @SneakyThrows
     private static Robot createRobot() {
@@ -28,9 +28,21 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        if (IS_REPLAYER_MODE) {
+        setArgs(args);
+        if (isReplayerMode) {
             runRePlayer();
         } else gameProcessing();
+    }
+
+    private static void setArgs(String[] args) {
+        for (String arg : args) {
+            boolean flag = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1));
+            if (arg.contains("isLogging")) {
+                isLogging = flag;
+            } else if (arg.contains("isRePlayer")) {
+                isReplayerMode = flag;
+            }
+        }
     }
 
     private static void gameProcessing() throws IOException, InterruptedException {
@@ -44,7 +56,7 @@ public class Main {
             GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();
             ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
             keyboardProducer.makeGameAction();
-            if (IS_LOGGING) {
+            if (isLogging) {
                 logging(bufferedImage);
             }
         }
