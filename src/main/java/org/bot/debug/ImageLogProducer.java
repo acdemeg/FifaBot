@@ -12,17 +12,17 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
-import static org.bot.Main.*;
+import static org.bot.Main.IMAGE_FORMAT;
+import static org.bot.Main.LOG_ACTIONS;
 
 public class ImageLogProducer {
     @Data
@@ -31,13 +31,13 @@ public class ImageLogProducer {
         private final String gameActions;
         private final String decision;
     }
+
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
     private static final int HEIGHT_INFO_BLOCK = 320;
     private static final int SCALE_FACTOR = 5;
     private static final int SCALE_SIZE = SCALE_FACTOR * 258;
-    private static final Map<String, LogObject> fileNameLogObjetMap = readLogs(
-            Objects.requireNonNull(LOG_IMAGES.list()).length);
+    private static final Map<String, LogObject> fileNameLogObjetMap = readLogs();
 
     @SneakyThrows
     public static void main(String[] args) {
@@ -130,39 +130,16 @@ public class ImageLogProducer {
     }
 
     @SneakyThrows
-    private static Map<String, LogObject> readLogs(int count) {
-
-        final Map<String, LogObject> fileNameLogObjetMap = new HashMap<>(count);
-        String imageId = null;
-        String gameInfo = null;
-        String gameActions = null;
-        String decision = null;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(LOG_ACTIONS))) {
-            for (String line; (line = br.readLine()) != null; ) {
-                if (line.contains("INFO")) {
-                    if (line.contains("GameInfo")) {
-                        gameInfo = ImageUtils.pinchLogs(line, 6);
-                    } else if (line.contains("[GameAction")) {
-                        gameActions = ImageUtils.pinchLogs(line, 6);
-                    } else if (line.contains("GameAction")) {
-                        decision = ImageUtils.pinchLogs(line, 6);
-                    } else if (line.contains("ImageId")) {
-                        imageId = line.substring(15);
-                    }
-
-                    if (gameInfo != null && gameActions != null && decision != null) {
-                        fileNameLogObjetMap.put(imageId, new LogObject(gameInfo, gameActions, decision));
-                        gameInfo = null;
-                        gameActions = null;
-                        decision = null;
-                        imageId = null;
-                    }
-                }
-                if (count == fileNameLogObjetMap.size()) {
-                    return fileNameLogObjetMap;
-                }
-            }
+    private static Map<String, LogObject> readLogs() {
+        final Map<String, LogObject> fileNameLogObjetMap = new HashMap<>();
+        final String logs = new String(Files.readAllBytes(Paths.get(LOG_ACTIONS.toURI())));
+        String[] arr = logs.split("\r\n");
+        for (int i = 2; i < arr.length; i += 8) {
+            fileNameLogObjetMap.put(ImageUtils.pinchLogs(arr[i + 7], 15),
+                    new LogObject(
+                            ImageUtils.pinchLogs(arr[i + 1], 6),
+                            ImageUtils.pinchLogs(arr[i + 3], 6),
+                            ImageUtils.pinchLogs(arr[i + 5], 6)));
         }
         return fileNameLogObjetMap;
     }
