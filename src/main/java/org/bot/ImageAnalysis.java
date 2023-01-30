@@ -2,6 +2,7 @@ package org.bot;
 
 import lombok.RequiredArgsConstructor;
 import org.bot.enums.GameConstantsEnum;
+import org.bot.utils.ImageUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -88,7 +89,7 @@ public class ImageAnalysis {
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
-                int pixel = bufferedImage.getRGB(x, y);
+                int pixel = ImageUtils.getRGB(bufferedImage, x, y);
                 pixels[x][y] = pixel;
                 int xPrev = x;
                 if (isBoundPlayerColor(pixel)) {
@@ -112,7 +113,7 @@ public class ImageAnalysis {
     private void addSkippedValuesInPixels(int xPrev, int x, int y) {
         if (xPrev < x) {
             for (int i = xPrev + 1; i <= x; i++) {
-                pixels[i][y] = bufferedImage.getRGB(i, y);
+                pixels[i][y] = ImageUtils.getRGB(bufferedImage, i, y);
             }
         }
     }
@@ -269,7 +270,7 @@ public class ImageAnalysis {
     private boolean checkDoubleCrossingBound(int x, int topRange, int bottomRange, boolean isActivePlayer) {
         if (bottomRange > 0 && topRange < HEIGHT) {
             for (int y = bottomRange; y <= topRange; y++) {
-                int pixel = bufferedImage.getRGB(x, y);
+                int pixel = ImageUtils.getRGB(bufferedImage, x, y);
                 if ((!isActivePlayer && isActivePlayerColor(pixel))
                         || (isActivePlayer && isBoundPlayerColor(pixel))) {
                     return true;
@@ -281,7 +282,7 @@ public class ImageAnalysis {
 
     private boolean isExistBottomRightNearPoint(int x, int y) {
         if (y + 4 < HEIGHT) {
-            int pixel = bufferedImage.getRGB(x, y + 4);
+            int pixel = ImageUtils.getRGB(bufferedImage, x, y + 4);
             boolean isPlaymate = isPlaymateColor(pixel);
             Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
             return players.anyMatch(p -> (p.x >= x && p.x - x < X_DISTANCE_NEARLY_PLAYER)
@@ -292,7 +293,7 @@ public class ImageAnalysis {
 
     private int getEndPlayerBound(int x, int y, Function<Integer, Boolean> isBoundColor) {
         if (x < WIDTH) {
-            int pixel = bufferedImage.getRGB(x, y);
+            int pixel = ImageUtils.getRGB(bufferedImage, x, y);
             if (Boolean.TRUE.equals(isBoundColor.apply(pixel))) {
                 return getEndPlayerBound(x + 1, y, isBoundColor);
             }
@@ -303,7 +304,7 @@ public class ImageAnalysis {
 
     private boolean setPlayerCoordinate(int x, int y, boolean isActivePlayer) {
         if (y > 0 && y < HEIGHT) {
-            int pixel = bufferedImage.getRGB(x, y);
+            int pixel = ImageUtils.getRGB(bufferedImage, x, y);
             Predicate<SortedSet<Point>> isExistPoint = players -> players.stream()
                     .anyMatch(point -> point.distance(x, y) < SEARCH_RADIUS_NEARLY_PLAYER);
 

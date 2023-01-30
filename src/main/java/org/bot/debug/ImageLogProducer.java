@@ -43,7 +43,7 @@ public class ImageLogProducer {
     public static void main(String[] args) {
         ImageUtils.getStringBufferedImageSortedMap().forEach(ImageLogProducer::processImage);
         // save full image
-        String imageName = "logs/log_images/game_history_log." + IMAGE_FORMAT;
+        String imageName = "logs/full_game." + IMAGE_FORMAT;
         ImageIO.write(combinedImage, IMAGE_FORMAT, new File(imageName));
     }
 

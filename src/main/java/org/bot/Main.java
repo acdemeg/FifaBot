@@ -18,6 +18,7 @@ public class Main {
     public static final String IMAGE_FORMAT = "png";
     public static final Robot ROBOT = createRobot();
     public static final File LOG_IMAGES = new File("logs/screenshots");
+    public static final File LOG_IMAGES_RAW_DATA = new File("logs/imagesRawData");
     public static final File LOG_ACTIONS = new File("logs/fifa19bot.log");
     private static boolean isReplayerMode;
     private static boolean isLogging;
@@ -39,7 +40,7 @@ public class Main {
             boolean flag = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1));
             if (arg.contains("isLogging")) {
                 isLogging = flag;
-            } else if (arg.contains("isRePlayer")) {
+            } else if (arg.contains("isReplayer")) {
                 isReplayerMode = flag;
             }
         }
@@ -47,7 +48,6 @@ public class Main {
 
     private static void gameProcessing() throws IOException, InterruptedException {
         log.info("GAME START!");
-        ROBOT.waitForIdle();
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {
@@ -57,24 +57,25 @@ public class Main {
             ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
             keyboardProducer.makeGameAction();
             if (isLogging) {
-                logging(bufferedImage);
+                logging(bufferedImage, gameInfo);
             }
         }
     }
 
-    private static void logging(BufferedImage bufferedImage) throws IOException, InterruptedException {
+    private static void logging(BufferedImage bufferedImage, GameInfo gameInfo) throws IOException, InterruptedException {
         String imageId = String.valueOf(System.nanoTime());
         log.info("ImageId: " + imageId);
         File file = new File(LOG_IMAGES.getPath(), imageId + "." + IMAGE_FORMAT);
         ImageIO.write(bufferedImage, IMAGE_FORMAT, file);
+        ImageUtils.serialisationImageData(gameInfo.getPixels(), imageId);
         Thread.sleep(500);
     }
 
     private static void runRePlayer() {
-        log.info("START RePlayer!");
-        ROBOT.waitForIdle();
-        ImageUtils.getStringBufferedImageSortedMap().forEach((name, image) -> {
-            GameInfo gameInfo = new ImageAnalysis(image).analyse();
+        log.info("START Replayer!");
+        ImageUtils.getStringImageDataMap().forEach((name, dataBuffer) -> {
+            ImageUtils.setTempDataBuffer(dataBuffer);
+            GameInfo gameInfo = new ImageAnalysis(null).analyse();
             DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
             decisionMaker.decide();
         });
