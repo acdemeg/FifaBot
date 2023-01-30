@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.bot.GameInfo.*;
 
@@ -16,9 +17,9 @@ import static org.bot.GameInfo.*;
 public class Main {
 
     public static final String IMAGE_FORMAT = "png";
+    public static final String RAW_DATA_FORMAT = "dat";
     public static final Robot ROBOT = createRobot();
-    public static final File LOG_IMAGES = new File("logs/screenshots");
-    public static final File LOG_IMAGES_RAW_DATA = new File("logs/imagesRawData");
+    public static final File LOG_IMAGES = new File("logs/TestImages");
     public static final File LOG_ACTIONS = new File("logs/fifa19bot.log");
     private static boolean isReplayerMode;
     private static boolean isLogging;
@@ -33,17 +34,6 @@ public class Main {
         if (isReplayerMode) {
             runRePlayer();
         } else gameProcessing();
-    }
-
-    private static void setArgs(String[] args) {
-        for (String arg : args) {
-            boolean flag = Boolean.parseBoolean(arg.substring(arg.indexOf("=") + 1));
-            if (arg.contains("isLogging")) {
-                isLogging = flag;
-            } else if (arg.contains("isReplayer")) {
-                isReplayerMode = flag;
-            }
-        }
     }
 
     private static void gameProcessing() throws IOException, InterruptedException {
@@ -79,5 +69,10 @@ public class Main {
             DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
             decisionMaker.decide();
         });
+    }
+
+    private static void setArgs(String[] args) {
+        isLogging = Arrays.asList(args).contains("-logging");
+        isReplayerMode = Arrays.asList(args).contains("-replayer");
     }
 }

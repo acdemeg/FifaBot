@@ -13,8 +13,7 @@ import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import static org.bot.Main.LOG_IMAGES;
-import static org.bot.Main.LOG_IMAGES_RAW_DATA;
+import static org.bot.Main.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ImageUtils {
@@ -29,16 +28,21 @@ public class ImageUtils {
      */
     public static SortedMap<String, BufferedImage> getStringBufferedImageSortedMap() {
         SortedMap<String, BufferedImage> fileNameImageMap = new TreeMap<>();
-        Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file ->
-                fileNameImageMap.put(cropExt(file), readImage(file))
+        Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file -> {
+                    if (file.getName().endsWith(IMAGE_FORMAT))
+                        fileNameImageMap.put(cropExt(file), readImage(file));
+                }
         );
         return fileNameImageMap;
     }
 
     public static SortedMap<String, int[][]> getStringImageDataMap() {
         SortedMap<String, int[][]> fileNameImageMap = new TreeMap<>();
-        Arrays.stream(Objects.requireNonNull(LOG_IMAGES_RAW_DATA.listFiles())).forEach(file ->
-                fileNameImageMap.put(cropExt(file), deserializationImageData(cropExt(file)))
+        Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file -> {
+                    if (file.getName().endsWith(RAW_DATA_FORMAT)) {
+                        fileNameImageMap.put(cropExt(file), deserializationImageData(cropExt(file)));
+                    }
+                }
         );
         return fileNameImageMap;
     }
@@ -50,7 +54,7 @@ public class ImageUtils {
 
     @SneakyThrows
     public static void serialisationImageData(int[][] dataBuffer, String imageId) {
-        File file = new File(LOG_IMAGES_RAW_DATA.getPath(), imageId + ".dat");
+        File file = new File(LOG_IMAGES.getPath(), imageId + ".dat");
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(dataBuffer);
         }
@@ -58,7 +62,7 @@ public class ImageUtils {
 
     @SneakyThrows
     public static int[][] deserializationImageData(String imageId) {
-        File file = new File(LOG_IMAGES_RAW_DATA.getPath(), imageId + ".dat");
+        File file = new File(LOG_IMAGES.getPath(), imageId + ".dat");
         try (ObjectInputStream iis = new ObjectInputStream(new FileInputStream(file))) {
             return (int[][]) iis.readObject();
         }

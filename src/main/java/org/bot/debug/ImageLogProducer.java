@@ -141,14 +141,14 @@ public class ImageLogProducer {
         try (BufferedReader br = new BufferedReader(new FileReader(LOG_ACTIONS))) {
             for (String line; (line = br.readLine()) != null; ) {
                 if (line.contains("INFO")) {
-                    if (line.contains("ImageId")) {
-                        imageId = line.substring(15);
-                    } else if (line.contains("GameInfo")) {
+                    if (line.contains("GameInfo")) {
                         gameInfo = ImageUtils.pinchLogs(line, 6);
                     } else if (line.contains("[GameAction")) {
                         gameActions = ImageUtils.pinchLogs(line, 6);
                     } else if (line.contains("GameAction")) {
                         decision = ImageUtils.pinchLogs(line, 6);
+                    } else if (line.contains("ImageId")) {
+                        imageId = line.substring(15);
                     }
 
                     if (gameInfo != null && gameActions != null && decision != null) {
@@ -156,6 +156,7 @@ public class ImageLogProducer {
                         gameInfo = null;
                         gameActions = null;
                         decision = null;
+                        imageId = null;
                     }
                 }
                 if (count == fileNameLogObjetMap.size()) {
