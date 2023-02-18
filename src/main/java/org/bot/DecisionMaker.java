@@ -45,7 +45,6 @@ public class DecisionMaker {
     }
 
     private void gameActionsFilling() {
-        gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
         gameActions.add(protectBallOrDefenceAction());
         if (gameInfo.isPlaymateBallPossession() && gameInfo.getActivePlayer() != null) {
             gameActions.add(attackShootAction());
@@ -61,10 +60,26 @@ public class DecisionMaker {
                     gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))
             ).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
-        return gameActions.stream().min(
-                        Comparator.comparing(action -> action.getControls().stream().max(
-                                Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
-                .orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+        if (gameInfo.getPlaymateSide() == null || !gameInfo.isPlaymateBallPossession()) {
+            return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+        }
+        Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
+        Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
+                ? RIGHT_PENALTY_POINT.getPoint() : LEFT_PENALTY_POINT.getPoint();
+        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.getControls().size() == 1
+                && ControlsEnum.passiveControlsSet().contains(gameAction.getControls().get(0)));
+        gameActions.stream().filter(filterPassiveControls).collect(Collectors.toSet())
+                .forEach(gameAction -> {
+                    if (gameAction.getControls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
+                        priorityGameActionMap.put(0, gameAction);
+                    } else {
+                        int priority = (int) penaltyPoint.distance(gameAction.getActionTargetPlayer());
+                        priorityGameActionMap.put(priority, gameAction);
+                    }
+                });
+        return priorityGameActionMap.entrySet().stream().min(
+                Comparator.comparingInt(Map.Entry::getKey)).orElse(new AbstractMap.SimpleEntry<>(
+                0, new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()))).getValue();
     }
 
     // find free part of field(no opposites in front of the playmate) for moving

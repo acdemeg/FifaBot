@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.bot.enums.ControlsEnum;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.IntConsumer;
@@ -42,6 +43,7 @@ public class ActionProducer {
         List<ControlsEnum> controls = isFromHistory
                 ? GameHistory.getNotReleasedGameAction().getControls() : gameAction.getControls();
         if (isReverse) {
+            controls = new ArrayList<>(controls);
             Collections.reverse(controls);
         }
         controls.forEach(control -> {
