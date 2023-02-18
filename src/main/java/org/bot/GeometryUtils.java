@@ -2,7 +2,6 @@ package org.bot;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.bot.enums.GameConstantsEnum;
 import org.bot.enums.GeomEnum;
 
 import java.awt.*;
@@ -61,25 +60,22 @@ public class GeometryUtils {
 
     /**
      * This method define shot direction
+     *
      * @param shotCandidate shot target player
      * @param activePlayer  active player
-     * @param playmateSide  field side of playmates
      * @return shot direction as {@code GeomEnum}
      */
-    public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, GameConstantsEnum playmateSide,
-                                               double adjacentSide, double hypotenuse) {
+    public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, double adjacentSide, double hypotenuse) {
         GeomEnum direction;
         double angle = Math.acos(adjacentSide / hypotenuse);
-        if ((activePlayer.x < shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
+        if ((activePlayer.x <= shotCandidate.x) && (activePlayer.y <= shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_RIGHT);
-        } else if ((activePlayer.x < shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+        } else if (activePlayer.x <= shotCandidate.x) {
             direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.TOP, GeomEnum.TOP_RIGHT);
-        } else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y > shotCandidate.y)) {
+        } else if (activePlayer.y >= shotCandidate.y) {
             direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.TOP, GeomEnum.TOP_LEFT);
-        } else if ((activePlayer.x > shotCandidate.x) && (activePlayer.y < shotCandidate.y)) {
-            direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_LEFT);
         } else {
-            direction = playmateSide.equals(GameConstantsEnum.LEFT_PLAYMATE_SIDE) ? GeomEnum.LEFT : GeomEnum.RIGHT;
+            direction = getDirection(angle, GeomEnum.LEFT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_LEFT);
         }
 
         return direction;

@@ -25,14 +25,14 @@ class DecisionMakerTest {
         switch (number) {
             case 3: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(135, 76));
+                        List.of(MOVE_UP, ATTACK_SHORT_PASS_HEADER), new Point(106, 55));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(104, 78));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
                 break;
             }
             case 4: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(151, 93));
+                        List.of(MOVE_UP, MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(122, 61));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(105, 86));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
                 break;
@@ -51,7 +51,7 @@ class DecisionMakerTest {
             }
             case 7: {
                 GameAction attackShortPass = new GameAction(
-                        List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(121, 16));
+                        List.of(MOVE_DOWN, ATTACK_SHORT_PASS_HEADER), new Point(92, 43));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(91, 18));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
             }

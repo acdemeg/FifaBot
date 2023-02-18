@@ -218,8 +218,7 @@ public class DecisionMaker {
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
 
         GeomEnum direction = defineShotDirection(
-                actionTargetPlayer, gameInfo.getActivePlayer(), gameInfo.getPlaymateSide(),
-                rectangleBetweenPlayers.getWidth(), lowShotDistance);
+                actionTargetPlayer, gameInfo.getActivePlayer(), rectangleBetweenPlayers.getWidth(), lowShotDistance);
         int delay = getDelayByDistanceValue(lowShotDistance);
         ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());

@@ -13,8 +13,8 @@ class ImageAnalysisTest {
     private final Set<Integer> shadingImageSet = Set.of(10, 51, 52, 53, 55, 56, 80, 81, 88, 91, 92, 93, 94, 96, 97, 98);
     private final Set<Integer> notFullSetPlayers = Set.of(37, 63, 64, 65, 66, 69, 74, 83, 95);
     private final Set<Integer> playmateBallPossessionSet = Set.of(3, 4, 6, 7, 8, 9, 24);
-    private final Set<Integer> oppositeBallPossessionSet = Set.of(23, 26);
-    private final Set<Integer> nobodyBallPossessionSet = Set.of(5, 11, 19, 20, 21, 22);
+    private final Set<Integer> oppositeBallPossessionSet = Set.of(22, 23);
+    private final Set<Integer> nobodyBallPossessionSet = Set.of(5, 11, 19, 20, 21, 26);
 
     @ParameterizedTest
     @MethodSource("provideImageNumbers")
