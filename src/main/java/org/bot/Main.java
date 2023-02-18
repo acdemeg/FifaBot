@@ -63,8 +63,8 @@ public class Main {
 
     private static void runRePlayer() {
         log.info("START Replayer!");
-        ImageUtils.getStringImageDataMap().forEach((name, dataBuffer) -> {
-            ImageUtils.setTempDataBuffer(dataBuffer);
+        ImageUtils.getImageNameDataMap().forEach((imageName, imageBuffer) -> {
+            ImageUtils.setTempDataBuffer(imageBuffer);
             GameInfo gameInfo = new ImageAnalysis(null).analyse();
             DecisionMaker decisionMaker = new DecisionMaker(gameInfo);
             decisionMaker.decide();

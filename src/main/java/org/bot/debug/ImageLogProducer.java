@@ -134,7 +134,7 @@ public class ImageLogProducer {
         final Map<String, LogObject> fileNameLogObjetMap = new HashMap<>();
         final String logs = new String(Files.readAllBytes(Paths.get(LOG_ACTIONS.toURI())));
         String[] arr = logs.split("\r\n");
-        for (int i = 2; i < arr.length; i += 8) {
+        for (int i = 2; i + 7 < arr.length; i += 8) {
             fileNameLogObjetMap.put(ImageUtils.pinchLogs(arr[i + 7], 15),
                     new LogObject(
                             ImageUtils.pinchLogs(arr[i + 1], 6),
@@ -144,4 +144,3 @@ public class ImageLogProducer {
         return fileNameLogObjetMap;
     }
 }
-

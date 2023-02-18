@@ -360,7 +360,7 @@ public class ImageAnalysis {
         return ACTIVE_PLAYER_LOWER.getColor().getRed() > r && ACTIVE_PLAYER_UPPER.getColor().getRed() <= r
                 && ACTIVE_PLAYER_LOWER.getColor().getGreen() < g && ACTIVE_PLAYER_UPPER.getColor().getGreen() > g
                 && ACTIVE_PLAYER_LOWER.getColor().getBlue() < b && ACTIVE_PLAYER_UPPER.getColor().getBlue() > b
-                && Math.abs(g - b) < 11 && Math.abs(r - g) > 100;
+                && Math.abs(g - b) < 30 && Math.abs(r - g) > 100;
     }
 
     private boolean isBallColor(int pixel) {

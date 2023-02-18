@@ -11,8 +11,10 @@ import org.bot.enums.GeomEnum;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.bot.GeometryUtils.*;
@@ -35,10 +37,10 @@ public class DecisionMaker {
 
     public ActionProducer decide() {
         log.info(gameInfo.toString()); // order 1
-        fixRepeatableAction();
+        boolean repeatableAction = isRepeatableAction();
         shadingFieldHandle();
         gameActionsFilling();
-        GameAction gameAction = pickActionWithBestPriority();
+        GameAction gameAction = pickActionWithBestPriority(repeatableAction);
         log.info(gameAction.toString()); // order 3
         setGameHistory(gameAction.getActionTargetPlayer(), gameAction);
 
@@ -55,8 +57,13 @@ public class DecisionMaker {
         }
     }
 
-    private GameAction pickActionWithBestPriority() {
+    private GameAction pickActionWithBestPriority(boolean repeatableAction) {
         log.info(gameActions.toString()); // order 2
+        if (repeatableAction) {
+            return gameActions.stream().filter(
+                    gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))
+            ).findFirst().orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+        }
         return gameActions.stream().min(
                         Comparator.comparing(action -> action.getControls().stream().min(
                                 Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
@@ -149,14 +156,17 @@ public class DecisionMaker {
         return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer());
     }
 
-    private void fixRepeatableAction() {
-        if (GameHistory.getActionRepeats() > 3 && gameInfo.isShadingField()) {
-            gameInfo.setPlaymateBallPossession(!gameInfo.isPlaymateBallPossession());
+    private boolean isRepeatableAction() {
+        if (GameHistory.getActionRepeats() > 5) {
+            gameInfo.setPlaymateBallPossession(true);
+            GameHistory.setActionRepeats(0);
+            return true;
         }
+        return false;
     }
 
     private void shadingFieldHandle() {
-        if (gameInfo.isShadingField() && GameHistory.getPrevGameInfo() != null) {
+        if ((gameInfo.isShadingField() || gameInfo.getPlaymates().isEmpty()) && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
             log.fine("#shadingFieldHandle -> set values complete");
@@ -194,7 +204,7 @@ public class DecisionMaker {
                             lowShotDistance, gameInfo.getActivePlayer(), playmate, opposite)
                     )
                     .collect(Collectors.toSet());
-            if (threateningOppositesIntoSquare.isEmpty()) {
+            if (threateningOppositesIntoSquare.isEmpty() && !playmate.equals(gameInfo.getActivePlayer())) {
                 lowShotCandidateAreaMap.put(playmate, rectangleBetweenPlayers);
                 lowShotCandidateDistanceMap.put(playmate, lowShotDistance);
             }
@@ -203,7 +213,7 @@ public class DecisionMaker {
 
     private GameAction getGameActionForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
                                                           SortedMap<Point, Double> lowShotCandidateDistanceMap) {
-        Point actionTargetPlayer = lowShotCandidateAreaMap.firstKey();
+        Point actionTargetPlayer = getNearlyPointForLowShotByDirection(lowShotCandidateAreaMap);
         Rectangle rectangleBetweenPlayers = lowShotCandidateAreaMap.get(actionTargetPlayer);
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
 
@@ -216,6 +226,23 @@ public class DecisionMaker {
         controls.add(ATTACK_SHORT_PASS_HEADER);
 
         return new GameAction(controls, actionTargetPlayer);
+    }
+
+    private Point getNearlyPointForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap) {
+        AtomicReference<Point> lowShotTarget = new AtomicReference<>(lowShotCandidateAreaMap.firstKey());
+        Predicate<Point> nearlyPlaymateTest = playmate ->
+                gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
+                        ? playmate.getX() >= gameInfo.getActivePlayer().getX()
+                        : playmate.getX() <= gameInfo.getActivePlayer().getX();
+        lowShotCandidateAreaMap.keySet().stream()
+                .filter(nearlyPlaymateTest)
+                .forEach(playmate -> {
+                    if (playmate.distance(gameInfo.getActivePlayer()) < lowShotTarget.get().distance(gameInfo.getActivePlayer())) {
+                        lowShotTarget.set(playmate);
+                    }
+                });
+
+        return lowShotTarget.get();
     }
 
     private int getDelayByDistanceValue(double distance) {

@@ -36,7 +36,7 @@ public class ImageUtils {
         return fileNameImageMap;
     }
 
-    public static SortedMap<String, int[][]> getStringImageDataMap() {
+    public static SortedMap<String, int[][]> getImageNameDataMap() {
         SortedMap<String, int[][]> fileNameImageMap = new TreeMap<>();
         Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file -> {
                     if (file.getName().endsWith(RAW_DATA_FORMAT)) {
