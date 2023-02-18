@@ -6,6 +6,8 @@ import org.bot.enums.GeomEnum;
 
 import java.awt.*;
 
+import static org.bot.enums.GameConstantsEnum.PLAYER_DIAMETER;
+
 /**
  * This class provides utils methods for base 2d geometry over {@code Point} objects
  */
@@ -38,7 +40,11 @@ public class GeometryUtils {
      */
     public static Rectangle getRectangleBetweenPlayers(Point player1, Point player2) {
         Point upperLeft = new Point(Math.min(player1.x, player2.x), Math.min(player1.y, player2.y));
+        upperLeft.x = Math.max(upperLeft.x - PLAYER_DIAMETER.getValue(), 0);
+        upperLeft.y = Math.max(upperLeft.y - PLAYER_DIAMETER.getValue(), 0);
         Point bottomRight = new Point(Math.max(player1.x, player2.x), Math.max(player1.y, player2.y));
+        bottomRight.x = Math.min(bottomRight.x + PLAYER_DIAMETER.getValue(), GameInfo.WIDTH);
+        bottomRight.y = Math.min(bottomRight.y + PLAYER_DIAMETER.getValue(), GameInfo.HEIGHT);
         Dimension dimension = new Dimension(bottomRight.x - upperLeft.x, bottomRight.y - upperLeft.y);
         return new Rectangle(upperLeft, dimension);
     }

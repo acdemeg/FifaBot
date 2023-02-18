@@ -33,7 +33,10 @@ public class Main {
         setArgs(args);
         if (isReplayerMode) {
             runRePlayer();
-        } else gameProcessing();
+        } else {
+            ImageUtils.clearTestImagesFolder();
+            gameProcessing();
+        }
     }
 
     private static void gameProcessing() throws IOException, InterruptedException {

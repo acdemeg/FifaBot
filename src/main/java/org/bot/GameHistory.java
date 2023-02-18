@@ -24,4 +24,7 @@ public class GameHistory {
     @Getter
     @Setter
     private static int actionRepeats;
+    @Getter
+    @Setter
+    private static GameAction notReleasedGameAction;
 }

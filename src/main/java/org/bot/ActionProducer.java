@@ -2,7 +2,9 @@ package org.bot;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.bot.enums.ControlsEnum;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.IntConsumer;
 
@@ -20,12 +22,29 @@ public class ActionProducer {
     private final GameAction gameAction;
 
     public void makeGameAction() {
-        handleControls(ROBOT::keyPress, true);
-        handleControls(ROBOT::keyRelease, false);
+        if (GameHistory.getNotReleasedGameAction() != null) {
+            makeKeyAction(ROBOT::keyRelease, false, true, true);
+            GameHistory.setNotReleasedGameAction(null);
+        }
+        handleControls(ROBOT::keyPress, true, false);
+        handleControls(ROBOT::keyRelease, false, true);
     }
 
-    private void handleControls(IntConsumer keyAction, boolean needDelay) {
-        gameAction.getControls().forEach(control -> {
+    private void handleControls(IntConsumer keyAction, boolean needDelay, boolean reverse) {
+        if (!needDelay && ControlsEnum.movingControlsSet().containsAll(gameAction.getControls())) {
+            GameHistory.setNotReleasedGameAction(gameAction);
+            return;
+        }
+        makeKeyAction(keyAction, needDelay, reverse, false);
+    }
+
+    private void makeKeyAction(IntConsumer keyAction, boolean needDelay, boolean isReverse, boolean isFromHistory) {
+        List<ControlsEnum> controls = isFromHistory
+                ? GameHistory.getNotReleasedGameAction().getControls() : gameAction.getControls();
+        if (isReverse) {
+            Collections.reverse(controls);
+        }
+        controls.forEach(control -> {
             List<Integer> keyEvents = CONTROLS_ENUM_KEY_CODE_MAP.get(control);
             keyEvents.forEach(keyAction::accept);
             if (needDelay) {

@@ -29,19 +29,16 @@ import static org.bot.enums.GameConstantsEnum.*;
 public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
-    private static final int DISTANCE_DELAY_MULTIPLICATION_FACTOR = 10;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
     private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
 
     public ActionProducer decide() {
-        log.info(gameInfo.toString()); // order 1
-        boolean repeatableAction = isRepeatableAction();
-        shadingFieldHandle();
+        boolean repeatableAction = shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
-        log.info(gameAction.toString()); // order 3
+        log.info(gameAction.toString());
         setGameHistory(gameAction.getActionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
@@ -58,28 +55,26 @@ public class DecisionMaker {
     }
 
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
-        log.info(gameActions.toString()); // order 2
+        log.info(gameActions.toString());
         if (repeatableAction) {
             return gameActions.stream().filter(
                     gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))
-            ).findFirst().orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+            ).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
         return gameActions.stream().min(
-                        Comparator.comparing(action -> action.getControls().stream().min(
+                        Comparator.comparing(action -> action.getControls().stream().max(
                                 Comparator.comparing(ControlsEnum::getPriority)).orElse(NONE)))
                 .orElse(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
     }
 
     // find free part of field(no opposites in front of the playmate) for moving
     private GameAction getMovingAction() {
-
         boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
+
         GeomEnum direction = isLeft ? GeomEnum.RIGHT : GeomEnum.LEFT;
         GeomEnum bottomDirection = isLeft ? GeomEnum.BOTTOM_RIGHT : GeomEnum.BOTTOM_LEFT;
         GeomEnum topDirection = isLeft ? GeomEnum.TOP_RIGHT : GeomEnum.TOP_LEFT;
-
         Collection<Double> angles = getAngles(isLeft);
-
         return toDefineDirectionAndGetAction(direction, bottomDirection, topDirection, angles);
     }
 
@@ -159,18 +154,21 @@ public class DecisionMaker {
     private boolean isRepeatableAction() {
         if (GameHistory.getActionRepeats() > 5) {
             gameInfo.setPlaymateBallPossession(true);
+            gameInfo.setNobodyBallPossession(false);
             GameHistory.setActionRepeats(0);
             return true;
         }
         return false;
     }
 
-    private void shadingFieldHandle() {
+    private boolean shadingFieldHandle() {
         if ((gameInfo.isShadingField() || gameInfo.getPlaymates().isEmpty()) && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
             log.fine("#shadingFieldHandle -> set values complete");
         }
+        log.info(gameInfo.toString());
+        return isRepeatableAction();
     }
 
     // find available playmates for low shot pass
@@ -245,7 +243,7 @@ public class DecisionMaker {
     }
 
     private int getDelayByDistanceValue(double distance) {
-        return (int) (distance * DISTANCE_DELAY_MULTIPLICATION_FACTOR);
+        return (int) (distance * Math.sqrt(distance));
     }
 
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,

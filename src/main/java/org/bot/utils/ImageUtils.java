@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -34,6 +35,22 @@ public class ImageUtils {
                 }
         );
         return fileNameImageMap;
+    }
+
+    /**
+     * Remove all images in {@link org.bot.Main#LOG_IMAGES} folder
+     */
+    public static void clearTestImagesFolder() throws IOException {
+        File[] files = LOG_IMAGES.listFiles();
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    clearTestImagesFolder();
+                } else {
+                    Files.delete(f.toPath());
+                }
+            }
+        }
     }
 
     public static SortedMap<String, int[][]> getImageNameDataMap() {

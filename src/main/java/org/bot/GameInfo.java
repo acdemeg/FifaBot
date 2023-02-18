@@ -27,7 +27,7 @@ public class GameInfo {
     private final SortedSet<Point> opposites;
     private final Point ball;
     private boolean isPlaymateBallPossession;
-    private final boolean isNobodyBallPossession;
+    private boolean isNobodyBallPossession;
     private final boolean isShadingField;
     private final GameConstantsEnum playmateSide;
     @ToString.Exclude

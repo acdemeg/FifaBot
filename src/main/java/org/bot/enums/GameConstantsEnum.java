@@ -11,6 +11,7 @@ import static org.bot.GameInfo.WIDTH;
  * Common game constants enum
  */
 public enum GameConstantsEnum {
+    PLAYER_DIAMETER(10),
     LEFT_PLAYMATE_SIDE(new Point(0, 0)),
     RIGHT_PLAYMATE_SIDE(new Point(WIDTH, HEIGHT)),
     CENTER_FIELD_POINT(new Point(129, 77)),
@@ -35,9 +36,15 @@ public enum GameConstantsEnum {
     ));
 
     @Getter
+    private int value;
+    @Getter
     private Point point;
     @Getter
     private Rectangle rectangle;
+
+    GameConstantsEnum(int value) {
+        this.value = value;
+    }
 
     GameConstantsEnum(Point point) {
         this.point = point;
