@@ -49,7 +49,7 @@ public class ActionProducer {
         controls.forEach(control -> {
             List<Integer> keyEvents = CONTROLS_ENUM_KEY_CODE_MAP.get(control);
             keyEvents.forEach(keyAction::accept);
-            if (needDelay) {
+            if (needDelay || (isReverse && ControlsEnum.movingControlsSet().contains(control))) {
                 ROBOT.delay(control.getDelay().get());
             }
         });

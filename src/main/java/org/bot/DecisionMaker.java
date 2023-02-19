@@ -61,7 +61,7 @@ public class DecisionMaker {
             ).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
         if (gameInfo.getPlaymateSide() == null || !gameInfo.isPlaymateBallPossession()) {
-            return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+            return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
         Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
@@ -85,17 +85,15 @@ public class DecisionMaker {
     // find free part of field(no opposites in front of the playmate) for moving
     private GameAction getMovingAction() {
         boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
-
         GeomEnum direction = isLeft ? GeomEnum.RIGHT : GeomEnum.LEFT;
         GeomEnum bottomDirection = isLeft ? GeomEnum.BOTTOM_RIGHT : GeomEnum.BOTTOM_LEFT;
         GeomEnum topDirection = isLeft ? GeomEnum.TOP_RIGHT : GeomEnum.TOP_LEFT;
-        Collection<Double> angles = getAngles(isLeft);
+        Collection<Double> angles = getAnglesBetweenPlayers(isLeft);
         return toDefineDirectionAndGetAction(direction, bottomDirection, topDirection, angles);
     }
 
     private GameAction toDefineDirectionAndGetAction(GeomEnum direction, GeomEnum bottomDirection,
                                                      GeomEnum topDirection, Collection<Double> angles) {
-
         boolean canRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 6 && angle > -Math.PI / 6);
         boolean canBottomRightOrLeftMove = angles.stream().noneMatch(angle -> angle < -Math.PI / 6 && angle > -Math.PI / 2);
         boolean canTopRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 2 && angle > Math.PI / 6);
@@ -118,10 +116,10 @@ public class DecisionMaker {
                 return new GameAction(bottomDirection.getControlsList(), gameInfo.getActivePlayer());
             }
         }
-        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+        return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
     }
 
-    private Collection<Double> getAngles(boolean isLeft) {
+    private Collection<Double> getAnglesBetweenPlayers(boolean isLeft) {
         IntBinaryOperator compare = (x1, x2) -> {
             if (isLeft)
                 return x1 > x2 ? 0 : 1;
@@ -139,30 +137,29 @@ public class DecisionMaker {
         ).entrySet().stream().filter(entry -> entry.getValue() < FREE_FIELD_PART_SCAN_DISTANCE).collect(
                 Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         // find all angles between Ox axis and hypotenuse(angle between active player and opposite)
-        return mapOppositesDistanceValue.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> Math.asin(
-                                (double) entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue()
-                )).values();
+        return getAngles(mapOppositesDistanceValue, gameInfo);
     }
 
+
     private GameAction attackShootAction() {
-        if (canAttackShoot()) {
+        boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
+        if (canAttackShoot(isLeft)) {
+            double attackShootDistance = isLeft
+                    ? RIGHT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall())
+                    : LEFT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall());
+            int delay = getDelayByDistanceValue(attackShootDistance);
+            ATTACK_SHOOT_VOLLEY_HEADER.getDelay().set(delay);
             return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER), gameInfo.getActivePlayer());
         }
-        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+        return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
     }
 
     private GameAction protectBallOrDefenceAction() {
-        if (gameInfo.isNobodyBallPossession() && gameInfo.getActivePlayer() != null) {
-            return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
-        }
-        return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+        return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
     }
 
-    private boolean canAttackShoot() {
-        GameConstantsEnum penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
-                ? RIGHT_PENALTY_AREA : LEFT_PENALTY_AREA;
+    private boolean canAttackShoot(boolean isLeft) {
+        GameConstantsEnum penaltyArea = isLeft ? RIGHT_PENALTY_AREA : LEFT_PENALTY_AREA;
         return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer());
     }
 
@@ -209,7 +206,7 @@ public class DecisionMaker {
     private void lowShotMapsFilling(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
                                     SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         gameInfo.getPlaymates().forEach(playmate -> {
-            Rectangle rectangleBetweenPlayers = getRectangleBetweenPlayers(playmate, gameInfo.getActivePlayer());
+            Rectangle rectangleBetweenPlayers = getRectangleBetweenPlayers(playmate, gameInfo.getActivePlayer(), true);
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
             Set<Point> threateningOppositesIntoSquare = gameInfo.getOpposites().stream()
                     .filter(rectangleBetweenPlayers::contains)
@@ -227,11 +224,11 @@ public class DecisionMaker {
     private GameAction getGameActionForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
                                                           SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         Point actionTargetPlayer = getNearlyPointForLowShotByDirection(lowShotCandidateAreaMap);
-        Rectangle rectangleBetweenPlayers = lowShotCandidateAreaMap.get(actionTargetPlayer);
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
-
+        double rectangleWidth = getRectangleBetweenPlayers(
+                actionTargetPlayer, gameInfo.getActivePlayer(), false).getWidth();
         GeomEnum direction = defineShotDirection(
-                actionTargetPlayer, gameInfo.getActivePlayer(), rectangleBetweenPlayers.getWidth(), lowShotDistance);
+                actionTargetPlayer, gameInfo.getActivePlayer(), rectangleWidth, lowShotDistance);
         int delay = getDelayByDistanceValue(lowShotDistance);
         ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());

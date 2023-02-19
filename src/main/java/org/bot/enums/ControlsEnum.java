@@ -62,7 +62,7 @@ public enum ControlsEnum {
     private final AtomicInteger delay;
 
     public static Set<ControlsEnum> movingControlsSet() {
-        return Set.of(SPRINT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT);
+        return Set.of(SPRINT, ATTACK_PROTECT_BALL, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT);
     }
 
     public static Set<ControlsEnum> shotControlsSet() {

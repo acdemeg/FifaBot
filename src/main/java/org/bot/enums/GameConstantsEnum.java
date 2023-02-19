@@ -17,6 +17,8 @@ public enum GameConstantsEnum {
     CENTER_FIELD_POINT(new Point(129, 77)),
     LEFT_PENALTY_POINT(new Point(33, 77)),
     RIGHT_PENALTY_POINT(new Point(225, 77)),
+    LEFT_FOOTBALL_GOAL(new Point(0, 77)),
+    RIGHT_FOOTBALL_GOAL(new Point(WIDTH, 77)),
     LEFT_PENALTY_AREA_TOP_POINT(new Point(48, 31)),
     LEFT_PENALTY_AREA_BOTTOM_POINT(new Point(48, 124)),
     RIGHT_PENALTY_AREA_TOP_POINT(new Point(208, 31)),

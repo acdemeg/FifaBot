@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 import org.bot.enums.GeomEnum;
 
 import java.awt.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.bot.enums.GameConstantsEnum.PLAYER_DIAMETER;
 
@@ -34,23 +37,27 @@ public class GeometryUtils {
     /**
      * This method build {@code Rectangle} by two {@code Point}
      *
-     * @param player1 first player
-     * @param player2 second player
+     * @param player1    first player
+     * @param player2    second player
+     * @param isOverSize if true add area for safely moving
      * @return Rectangle area which bases on two points
      */
-    public static Rectangle getRectangleBetweenPlayers(Point player1, Point player2) {
+    public static Rectangle getRectangleBetweenPlayers(Point player1, Point player2, boolean isOverSize) {
         Point upperLeft = new Point(Math.min(player1.x, player2.x), Math.min(player1.y, player2.y));
-        upperLeft.x = Math.max(upperLeft.x - PLAYER_DIAMETER.getValue(), 0);
-        upperLeft.y = Math.max(upperLeft.y - PLAYER_DIAMETER.getValue(), 0);
         Point bottomRight = new Point(Math.max(player1.x, player2.x), Math.max(player1.y, player2.y));
-        bottomRight.x = Math.min(bottomRight.x + PLAYER_DIAMETER.getValue(), GameInfo.WIDTH);
-        bottomRight.y = Math.min(bottomRight.y + PLAYER_DIAMETER.getValue(), GameInfo.HEIGHT);
+        if (isOverSize) {
+            upperLeft.x = Math.max(upperLeft.x - PLAYER_DIAMETER.getValue(), 0);
+            upperLeft.y = Math.max(upperLeft.y - PLAYER_DIAMETER.getValue(), 0);
+            bottomRight.x = Math.min(bottomRight.x + PLAYER_DIAMETER.getValue(), GameInfo.WIDTH);
+            bottomRight.y = Math.min(bottomRight.y + PLAYER_DIAMETER.getValue(), GameInfo.HEIGHT);
+        }
         Dimension dimension = new Dimension(bottomRight.x - upperLeft.x, bottomRight.y - upperLeft.y);
         return new Rectangle(upperLeft, dimension);
     }
 
     /**
      * This method calculate height for random triangle
+     *
      * @param player1 first player
      * @param player2 second player
      * @param player3 third player
@@ -74,6 +81,9 @@ public class GeometryUtils {
     public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, double adjacentSide, double hypotenuse) {
         GeomEnum direction;
         double angle = Math.acos(adjacentSide / hypotenuse);
+        if (Double.isNaN(angle)) {
+            throw new ArithmeticException("Angle can't be NaN");
+        }
         if ((activePlayer.x <= shotCandidate.x) && (activePlayer.y <= shotCandidate.y)) {
             direction = getDirection(angle, GeomEnum.RIGHT, GeomEnum.BOTTOM, GeomEnum.BOTTOM_RIGHT);
         } else if (activePlayer.x <= shotCandidate.x) {
@@ -85,6 +95,19 @@ public class GeometryUtils {
         }
 
         return direction;
+    }
+
+    public static Collection<Double> getAngles(Map<Point, Double> mapOppositesDistanceValue, GameInfo gameInfo) {
+        return mapOppositesDistanceValue.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> {
+                            double angle = Math.asin((entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue());
+                            if (Double.isNaN(angle)) {
+                                throw new ArithmeticException("Angle can't be NaN");
+                            }
+                            return angle;
+                        }
+                )).values();
     }
 
     // if angle less than 15 degree -> horizontal direction, if angle great than 75 degree -> vertical direction
