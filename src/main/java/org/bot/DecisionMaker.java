@@ -50,36 +50,59 @@ public class DecisionMaker {
             gameActions.add(attackShootAction());
             gameActions.add(getLowShotAction());
             gameActions.add(getMovingAction());
+        } else if (gameInfo.getActivePlayer() != null) {
+            gameActions.add(getDefenceAction());
         }
+    }
+
+    private GameAction getDefenceAction() {
+        if (gameInfo.isNobodyBallPossession()) {
+            return protectBallOrDefenceAction();
+        }
+        Point ball = gameInfo.getBall();
+        Rectangle penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? LEFT_PENALTY_AREA.getRectangle() : RIGHT_PENALTY_AREA.getRectangle();
+        if (ball != null && penaltyArea.contains(gameInfo.getActivePlayer()) && gameInfo.getActivePlayer().distance(ball) < PLAYER_DIAMETER.getValue()) {
+            return new GameAction(List.of(DEFENCE_TACKLE_PUSH_OR_PULL), gameInfo.getActivePlayer());
+        }
+        return new GameAction(List.of(DEFENCE_CONTAIN), gameInfo.getActivePlayer());
     }
 
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
         log.info(gameActions.toString());
         if (repeatableAction) {
-            return gameActions.stream().filter(
-                    gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))
-            ).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
+            return gameActions.stream().filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
-        if (gameInfo.getPlaymateSide() == null || !gameInfo.isPlaymateBallPossession()) {
-            return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
+        if (gameInfo.getPlaymateSide() == null) {
+            return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
-        Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
-                ? RIGHT_PENALTY_POINT.getPoint() : LEFT_PENALTY_POINT.getPoint();
-        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.getControls().size() == 1
-                && ControlsEnum.passiveControlsSet().contains(gameAction.getControls().get(0)));
-        gameActions.stream().filter(filterPassiveControls).collect(Collectors.toSet())
-                .forEach(gameAction -> {
-                    if (gameAction.getControls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
-                        priorityGameActionMap.put(0, gameAction);
-                    } else {
-                        int priority = (int) penaltyPoint.distance(gameAction.getActionTargetPlayer());
-                        priorityGameActionMap.put(priority, gameAction);
-                    }
-                });
-        return priorityGameActionMap.entrySet().stream().min(
-                Comparator.comparingInt(Map.Entry::getKey)).orElse(new AbstractMap.SimpleEntry<>(
-                0, new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()))).getValue();
+        Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? RIGHT_PENALTY_POINT.getPoint() : LEFT_PENALTY_POINT.getPoint();
+        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.getControls().size() == 1 && ControlsEnum.passiveControlsSet().contains(gameAction.getControls().get(0)));
+        gameActions.stream().filter(filterPassiveControls).collect(Collectors.toSet()).forEach(gameAction -> {
+            if (gameInfo.isPlaymateBallPossession()) {
+                addAttackActions(priorityGameActionMap, penaltyPoint, gameAction);
+            } else {
+                addDefenceActions(priorityGameActionMap, gameAction);
+            }
+        });
+        return priorityGameActionMap.entrySet().stream().min(Comparator.comparingInt(Map.Entry::getKey)).orElse(new AbstractMap.SimpleEntry<>(0, new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()))).getValue();
+    }
+
+    private void addDefenceActions(Map<Integer, GameAction> priorityGameActionMap, GameAction gameAction) {
+        if (gameAction.getControls().contains(DEFENCE_TACKLE_PUSH_OR_PULL)) {
+            priorityGameActionMap.put(0, gameAction);
+        } else {
+            priorityGameActionMap.put(1, gameAction);
+        }
+    }
+
+    private void addAttackActions(Map<Integer, GameAction> priorityGameActionMap, Point penaltyPoint, GameAction gameAction) {
+        if (gameAction.getControls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
+            priorityGameActionMap.put(0, gameAction);
+        } else {
+            int priority = (int) penaltyPoint.distance(gameAction.getActionTargetPlayer());
+            priorityGameActionMap.put(priority, gameAction);
+        }
     }
 
     // find free part of field(no opposites in front of the playmate) for moving
@@ -144,11 +167,9 @@ public class DecisionMaker {
     private GameAction attackShootAction() {
         boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
         if (canAttackShoot(isLeft)) {
-            double attackShootDistance = isLeft
-                    ? RIGHT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall())
-                    : LEFT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall());
-            int delay = getDelayByDistanceValue(attackShootDistance);
-            ATTACK_SHOOT_VOLLEY_HEADER.getDelay().set(delay);
+            double attackShootDistance = isLeft ? RIGHT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall()) : LEFT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall());
+            int delay = getDelayByDistanceValue(attackShootDistance, true);
+            ATTACK_SHOOT_VOLLEY_HEADER.getDelay().set(delay + INIT_DELAY.getValue());
             return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER), gameInfo.getActivePlayer());
         }
         return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
@@ -160,7 +181,7 @@ public class DecisionMaker {
 
     private boolean canAttackShoot(boolean isLeft) {
         GameConstantsEnum penaltyArea = isLeft ? RIGHT_PENALTY_AREA : LEFT_PENALTY_AREA;
-        return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer());
+        return penaltyArea.getRectangle().contains(gameInfo.getActivePlayer()) && gameInfo.getBall() != null;
     }
 
     private boolean isRepeatableAction() {
@@ -225,12 +246,10 @@ public class DecisionMaker {
                                                           SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         Point actionTargetPlayer = getNearlyPointForLowShotByDirection(lowShotCandidateAreaMap);
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
-        double rectangleWidth = getRectangleBetweenPlayers(
-                actionTargetPlayer, gameInfo.getActivePlayer(), false).getWidth();
-        GeomEnum direction = defineShotDirection(
-                actionTargetPlayer, gameInfo.getActivePlayer(), rectangleWidth, lowShotDistance);
-        int delay = getDelayByDistanceValue(lowShotDistance);
-        ATTACK_SHORT_PASS_HEADER.getDelay().set(delay);
+        double rectangleWidth = getRectangleBetweenPlayers(actionTargetPlayer, gameInfo.getActivePlayer(), false).getWidth();
+        GeomEnum direction = defineShotDirection(actionTargetPlayer, gameInfo.getActivePlayer(), rectangleWidth, lowShotDistance);
+        int delay = getDelayByDistanceValue(lowShotDistance, false);
+        ATTACK_SHORT_PASS_HEADER.getDelay().set(delay + INIT_DELAY.getValue());
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());
         controls.add(ATTACK_SHORT_PASS_HEADER);
 
@@ -254,10 +273,6 @@ public class DecisionMaker {
         return lowShotTarget.get();
     }
 
-    private int getDelayByDistanceValue(double distance) {
-        return (int) (distance * Math.sqrt(distance));
-    }
-
     private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
                                                   Point playmate, Point opposite) {
         // find height of triangle(distance to opposite from low shot vector)
@@ -272,5 +287,11 @@ public class DecisionMaker {
         int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
         GameHistory.setActionRepeats(counter);
         log.fine("#setGameHistory -> Set values complete");
+    }
+
+    // evaluate key press delay
+    private int getDelayByDistanceValue(double distance, boolean isShoot) {
+        if (isShoot) return (int) distance;
+        return (int) (distance * Math.sqrt(distance));
     }
 }

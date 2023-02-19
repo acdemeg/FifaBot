@@ -12,6 +12,7 @@ import static org.bot.GameInfo.WIDTH;
  */
 public enum GameConstantsEnum {
     PLAYER_DIAMETER(10),
+    INIT_DELAY(50),
     LEFT_PLAYMATE_SIDE(new Point(0, 0)),
     RIGHT_PLAYMATE_SIDE(new Point(WIDTH, HEIGHT)),
     CENTER_FIELD_POINT(new Point(129, 77)),
