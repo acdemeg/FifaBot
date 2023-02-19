@@ -24,6 +24,9 @@ import java.util.Optional;
 import static org.bot.Main.IMAGE_FORMAT;
 import static org.bot.Main.LOG_ACTIONS;
 
+/**
+ * This class create full_game.png image with represent prev game states and log information. It needs to for debugging
+ */
 public class ImageLogProducer {
     @Data
     private static class LogObject {

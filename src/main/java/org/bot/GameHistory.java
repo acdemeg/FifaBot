@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.awt.*;
 
 /**
- * This class represent prev game states and it targets decision
+ * This class represent prev game states and prev targets decision
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameHistory {
