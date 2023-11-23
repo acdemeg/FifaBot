@@ -1,10 +1,10 @@
 # Fifa19Bot
 
-The repository contain FPS bot for game Fifa 19.
+The repository contain AI bot for game Fifa 19.
 
 ### How run
 
-###### For run requirements: `java 11+`
+###### For run requirements: `java 17+`
 
 ###### From root directory run: `gradlew run`
 

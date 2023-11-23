@@ -39,7 +39,7 @@ public class DecisionMaker {
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
         log.info(gameAction.toString());
-        setGameHistory(gameAction.getActionTargetPlayer(), gameAction);
+        setGameHistory(gameAction.actionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
     }
@@ -70,14 +70,14 @@ public class DecisionMaker {
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
         log.info(gameActions.toString());
         if (repeatableAction) {
-            return gameActions.stream().filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.getControls().get(0))).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
+            return gameActions.stream().filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.controls().get(0))).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
         if (gameInfo.getPlaymateSide() == null) {
             return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
         Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? RIGHT_PENALTY_POINT.getPoint() : LEFT_PENALTY_POINT.getPoint();
-        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.getControls().size() == 1 && ControlsEnum.passiveControlsSet().contains(gameAction.getControls().get(0)));
+        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.controls().size() == 1 && ControlsEnum.passiveControlsSet().contains(gameAction.controls().get(0)));
         gameActions.stream().filter(filterPassiveControls).collect(Collectors.toSet()).forEach(gameAction -> {
             if (gameInfo.isPlaymateBallPossession()) {
                 addAttackActions(priorityGameActionMap, penaltyPoint, gameAction);
@@ -89,7 +89,7 @@ public class DecisionMaker {
     }
 
     private void addDefenceActions(Map<Integer, GameAction> priorityGameActionMap, GameAction gameAction) {
-        if (gameAction.getControls().contains(DEFENCE_TACKLE_PUSH_OR_PULL)) {
+        if (gameAction.controls().contains(DEFENCE_TACKLE_PUSH_OR_PULL)) {
             priorityGameActionMap.put(0, gameAction);
         } else {
             priorityGameActionMap.put(1, gameAction);
@@ -97,10 +97,10 @@ public class DecisionMaker {
     }
 
     private void addAttackActions(Map<Integer, GameAction> priorityGameActionMap, Point penaltyPoint, GameAction gameAction) {
-        if (gameAction.getControls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
+        if (gameAction.controls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
             priorityGameActionMap.put(0, gameAction);
         } else {
-            int priority = (int) penaltyPoint.distance(gameAction.getActionTargetPlayer());
+            int priority = (int) penaltyPoint.distance(gameAction.actionTargetPlayer());
             priorityGameActionMap.put(priority, gameAction);
         }
     }

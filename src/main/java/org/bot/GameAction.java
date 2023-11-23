@@ -1,9 +1,5 @@
 package org.bot;
 
-
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.bot.enums.ControlsEnum;
 
 import java.awt.*;
@@ -17,14 +13,9 @@ import static org.bot.enums.ControlsEnum.*;
 /**
  * This class represent in-game control actions
  */
-@Data
-@ToString
-@RequiredArgsConstructor
-public class GameAction {
+public record GameAction(List<ControlsEnum> controls, Point actionTargetPlayer) {
 
     public static final Map<ControlsEnum, List<Integer>> CONTROLS_ENUM_KEY_CODE_MAP;
-    private final List<ControlsEnum> controls;
-    private final Point actionTargetPlayer;
 
     static {
 

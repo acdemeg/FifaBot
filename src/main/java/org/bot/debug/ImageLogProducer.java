@@ -1,6 +1,5 @@
 package org.bot.debug;
 
-import lombok.Data;
 import lombok.SneakyThrows;
 import org.bot.enums.GeomEnum;
 import org.bot.utils.ImageUtils;
@@ -28,13 +27,8 @@ import static org.bot.Main.LOG_ACTIONS;
  * This class create full_game.png image with represent prev game states and log information. It needs to for debugging
  */
 public class ImageLogProducer {
-    @Data
-    private static class LogObject {
-        private final String gameInfo;
-        private final String gameActions;
-        private final String decision;
+    private record LogObject(String gameInfo, String gameActions, String decision) {
     }
-
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
     private static final int HEIGHT_INFO_BLOCK = 320;
@@ -81,12 +75,12 @@ public class ImageLogProducer {
         float x = 10;
         float y = FONT_SIZE;
         g2d.setColor(Color.WHITE);
-        y += addLogField(logs.getGameInfo(), g2d, x, y);
+        y += addLogField(logs.gameInfo(), g2d, x, y);
         g2d.setColor(Color.RED);
-        addLogField(logs.getGameActions(), g2d, x, y);
+        addLogField(logs.gameActions(), g2d, x, y);
         g2d.setColor(Color.GREEN);
         y += FONT_SIZE * 4;
-        addLogField(logs.getDecision(), g2d, x, y);
+        addLogField(logs.decision(), g2d, x, y);
         g2d.setColor(Color.ORANGE);
         y += FONT_SIZE * 2;
         addLogField("ImageId: " + imageId, g2d, x, y);

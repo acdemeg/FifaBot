@@ -46,12 +46,7 @@ public class ImageAnalysis {
         final boolean isPlaymate;
         final boolean isOpposite;
         BaseData baseData;
-
-        @RequiredArgsConstructor
-        private static final class BaseData {
-            final int x;
-            final int y;
-            final int pixel;
+        private record BaseData(int x, int y, int pixel) {
         }
     }
 

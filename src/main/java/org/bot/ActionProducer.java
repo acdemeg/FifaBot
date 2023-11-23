@@ -1,7 +1,5 @@
 package org.bot;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.bot.enums.ControlsEnum;
 
 import java.util.ArrayList;
@@ -16,11 +14,7 @@ import static org.bot.Main.ROBOT;
  * This class take responsible for events generation.
  * Now is available only keyboard actions
  */
-@Data
-@RequiredArgsConstructor
-public class ActionProducer {
-
-    private final GameAction gameAction;
+public record ActionProducer(GameAction gameAction) {
 
     public void makeGameAction() {
         if (GameHistory.getNotReleasedGameAction() != null) {
@@ -32,7 +26,7 @@ public class ActionProducer {
     }
 
     private void handleControls(IntConsumer keyAction, boolean needDelay, boolean reverse) {
-        if (!needDelay && ControlsEnum.movingControlsSet().containsAll(gameAction.getControls())) {
+        if (!needDelay && ControlsEnum.movingControlsSet().containsAll(gameAction.controls())) {
             GameHistory.setNotReleasedGameAction(gameAction);
             return;
         }
@@ -41,7 +35,7 @@ public class ActionProducer {
 
     private void makeKeyAction(IntConsumer keyAction, boolean needDelay, boolean isReverse, boolean isFromHistory) {
         List<ControlsEnum> controls = isFromHistory
-                ? GameHistory.getNotReleasedGameAction().getControls() : gameAction.getControls();
+                ? GameHistory.getNotReleasedGameAction().controls() : gameAction.controls();
         if (isReverse) {
             controls = new ArrayList<>(controls);
             Collections.reverse(controls);
