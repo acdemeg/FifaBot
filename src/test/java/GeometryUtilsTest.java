@@ -1,4 +1,4 @@
-import org.bot.GeometryUtils;
+import org.bot.utils.GeometryUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

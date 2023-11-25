@@ -17,9 +17,9 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.bot.GeometryUtils.*;
 import static org.bot.enums.ControlsEnum.*;
 import static org.bot.enums.GameConstantsEnum.*;
+import static org.bot.utils.GeometryUtils.*;
 
 /**
  * This class take responsible for deciding by creating best {@code GameAction} based on {@code GameInfo} data
@@ -60,8 +60,10 @@ public class DecisionMaker {
             return protectBallOrDefenceAction();
         }
         Point ball = gameInfo.getBall();
-        Rectangle penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? LEFT_PENALTY_AREA.getRectangle() : RIGHT_PENALTY_AREA.getRectangle();
-        if (ball != null && penaltyArea.contains(gameInfo.getActivePlayer()) && gameInfo.getActivePlayer().distance(ball) < PLAYER_DIAMETER.getValue()) {
+        Rectangle penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? LEFT_PENALTY_AREA.getRectangle()
+                : RIGHT_PENALTY_AREA.getRectangle();
+        if (ball != null && penaltyArea.contains(gameInfo.getActivePlayer()) && gameInfo.getActivePlayer()
+                .distance(ball) < PLAYER_DIAMETER.getValue()) {
             return new GameAction(List.of(DEFENCE_TACKLE_PUSH_OR_PULL), gameInfo.getActivePlayer());
         }
         return new GameAction(List.of(DEFENCE_CONTAIN), gameInfo.getActivePlayer());
@@ -70,14 +72,18 @@ public class DecisionMaker {
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
         log.info(gameActions.toString());
         if (repeatableAction) {
-            return gameActions.stream().filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.controls().get(0))).findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
+            return gameActions.stream()
+                    .filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.controls().get(0)))
+                    .findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
         if (gameInfo.getPlaymateSide() == null) {
             return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
-        Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? RIGHT_PENALTY_POINT.getPoint() : LEFT_PENALTY_POINT.getPoint();
-        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.controls().size() == 1 && ControlsEnum.passiveControlsSet().contains(gameAction.controls().get(0)));
+        Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? RIGHT_PENALTY_POINT.getPoint()
+                : LEFT_PENALTY_POINT.getPoint();
+        Predicate<GameAction> filterPassiveControls = gameAction -> !(gameAction.controls()
+                .size() == 1 && ControlsEnum.passiveControlsSet().contains(gameAction.controls().get(0)));
         gameActions.stream().filter(filterPassiveControls).collect(Collectors.toSet()).forEach(gameAction -> {
             if (gameInfo.isPlaymateBallPossession()) {
                 addAttackActions(priorityGameActionMap, penaltyPoint, gameAction);
@@ -85,7 +91,9 @@ public class DecisionMaker {
                 addDefenceActions(priorityGameActionMap, gameAction);
             }
         });
-        return priorityGameActionMap.entrySet().stream().min(Comparator.comparingInt(Map.Entry::getKey)).orElse(new AbstractMap.SimpleEntry<>(0, new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()))).getValue();
+        return priorityGameActionMap.entrySet().stream().min(Comparator.comparingInt(Map.Entry::getKey))
+                .orElse(new AbstractMap.SimpleEntry<>(0, new GameAction(List.of(ATTACK_PROTECT_BALL),
+                                                                        gameInfo.getActivePlayer()))).getValue();
     }
 
     private void addDefenceActions(Map<Integer, GameAction> priorityGameActionMap, GameAction gameAction) {
@@ -96,7 +104,8 @@ public class DecisionMaker {
         }
     }
 
-    private void addAttackActions(Map<Integer, GameAction> priorityGameActionMap, Point penaltyPoint, GameAction gameAction) {
+    private void addAttackActions(Map<Integer, GameAction> priorityGameActionMap, Point penaltyPoint,
+                                  GameAction gameAction) {
         if (gameAction.controls().stream().anyMatch(ControlsEnum.shotControlsSet()::contains)) {
             priorityGameActionMap.put(0, gameAction);
         } else {
@@ -118,7 +127,8 @@ public class DecisionMaker {
     private GameAction toDefineDirectionAndGetAction(GeomEnum direction, GeomEnum bottomDirection,
                                                      GeomEnum topDirection, Collection<Double> angles) {
         boolean canRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 6 && angle > -Math.PI / 6);
-        boolean canBottomRightOrLeftMove = angles.stream().noneMatch(angle -> angle < -Math.PI / 6 && angle > -Math.PI / 2);
+        boolean canBottomRightOrLeftMove = angles.stream()
+                .noneMatch(angle -> angle < -Math.PI / 6 && angle > -Math.PI / 2);
         boolean canTopRightOrLeftMove = angles.stream().noneMatch(angle -> angle < Math.PI / 2 && angle > Math.PI / 6);
 
         if (canRightOrLeftMove) {
@@ -144,21 +154,20 @@ public class DecisionMaker {
 
     private Collection<Double> getAnglesBetweenPlayers(boolean isLeft) {
         IntBinaryOperator compare = (x1, x2) -> {
-            if (isLeft)
-                return x1 > x2 ? 0 : 1;
+            if (isLeft) return x1 > x2 ? 0 : 1;
             return x1 < x2 ? 0 : 1;
         };
         // find all opposites in right(left) rectangle
-        Set<Point> opposites = gameInfo.getOpposites().stream().filter(
-                point -> compare.applyAsInt(point.x, gameInfo.getActivePlayer().x) == 0
-                        && Math.abs(gameInfo.getActivePlayer().x - point.x) < FREE_FIELD_PART_SCAN_DISTANCE
-                        && Math.abs(gameInfo.getActivePlayer().y - point.y) < FREE_FIELD_PART_SCAN_DISTANCE
-        ).collect(Collectors.toSet());
+        Set<Point> opposites = gameInfo.getOpposites().stream()
+                .filter(point -> compare.applyAsInt(point.x, gameInfo.getActivePlayer().x) == 0 && Math.abs(
+                        gameInfo.getActivePlayer().x - point.x) < FREE_FIELD_PART_SCAN_DISTANCE && Math.abs(
+                        gameInfo.getActivePlayer().y - point.y) < FREE_FIELD_PART_SCAN_DISTANCE)
+                .collect(Collectors.toSet());
         // find all opposites in right(left) crescent
-        Map<Point, Double> mapOppositesDistanceValue = opposites.stream().collect(
-                Collectors.toMap(Function.identity(), point -> point.distance(gameInfo.getActivePlayer()))
-        ).entrySet().stream().filter(entry -> entry.getValue() < FREE_FIELD_PART_SCAN_DISTANCE).collect(
-                Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<Point, Double> mapOppositesDistanceValue = opposites.stream()
+                .collect(Collectors.toMap(Function.identity(), point -> point.distance(gameInfo.getActivePlayer())))
+                .entrySet().stream().filter(entry -> entry.getValue() < FREE_FIELD_PART_SCAN_DISTANCE)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         // find all angles between Ox axis and hypotenuse(angle between active player and opposite)
         return getAngles(mapOppositesDistanceValue, gameInfo);
     }
@@ -167,7 +176,8 @@ public class DecisionMaker {
     private GameAction attackShootAction() {
         boolean isLeft = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
         if (canAttackShoot(isLeft)) {
-            double attackShootDistance = isLeft ? RIGHT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall()) : LEFT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall());
+            double attackShootDistance = isLeft ? RIGHT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall())
+                    : LEFT_FOOTBALL_GOAL.getPoint().distance(gameInfo.getBall());
             int delay = getDelayByDistanceValue(attackShootDistance, true);
             ATTACK_SHOOT_VOLLEY_HEADER.getDelay().set(delay + INIT_DELAY.getValue());
             return new GameAction(List.of(ATTACK_SHOOT_VOLLEY_HEADER), gameInfo.getActivePlayer());
@@ -220,8 +230,7 @@ public class DecisionMaker {
             return new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer());
         }
 
-        return getGameActionForLowShotByDirection(
-                lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
+        return getGameActionForLowShotByDirection(lowShotCandidateAreaMap, lowShotCandidateDistanceMap);
     }
 
     private void lowShotMapsFilling(SortedMap<Point, Rectangle> lowShotCandidateAreaMap,
@@ -231,10 +240,8 @@ public class DecisionMaker {
             final double lowShotDistance = gameInfo.getActivePlayer().distance(playmate);
             Set<Point> threateningOppositesIntoSquare = gameInfo.getOpposites().stream()
                     .filter(rectangleBetweenPlayers::contains)
-                    .filter(opposite -> existThreatInterceptionOfBall(
-                            lowShotDistance, gameInfo.getActivePlayer(), playmate, opposite)
-                    )
-                    .collect(Collectors.toSet());
+                    .filter(opposite -> existThreatInterceptionOfBall(lowShotDistance, gameInfo.getActivePlayer(),
+                                                                      playmate, opposite)).collect(Collectors.toSet());
             if (threateningOppositesIntoSquare.isEmpty() && !playmate.equals(gameInfo.getActivePlayer())) {
                 lowShotCandidateAreaMap.put(playmate, rectangleBetweenPlayers);
                 lowShotCandidateDistanceMap.put(playmate, lowShotDistance);
@@ -246,8 +253,10 @@ public class DecisionMaker {
                                                           SortedMap<Point, Double> lowShotCandidateDistanceMap) {
         Point actionTargetPlayer = getNearlyPointForLowShotByDirection(lowShotCandidateAreaMap);
         double lowShotDistance = lowShotCandidateDistanceMap.get(actionTargetPlayer);
-        double rectangleWidth = getRectangleBetweenPlayers(actionTargetPlayer, gameInfo.getActivePlayer(), false).getWidth();
-        GeomEnum direction = defineShotDirection(actionTargetPlayer, gameInfo.getActivePlayer(), rectangleWidth, lowShotDistance);
+        double rectangleWidth = getRectangleBetweenPlayers(actionTargetPlayer, gameInfo.getActivePlayer(),
+                                                           false).getWidth();
+        GeomEnum direction = defineShotDirection(actionTargetPlayer, gameInfo.getActivePlayer(), rectangleWidth,
+                                                 lowShotDistance);
         int delay = getDelayByDistanceValue(lowShotDistance, false);
         ATTACK_SHORT_PASS_HEADER.getDelay().set(delay + INIT_DELAY.getValue());
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.getControlsList());
@@ -258,23 +267,21 @@ public class DecisionMaker {
 
     private Point getNearlyPointForLowShotByDirection(SortedMap<Point, Rectangle> lowShotCandidateAreaMap) {
         AtomicReference<Point> lowShotTarget = new AtomicReference<>(lowShotCandidateAreaMap.firstKey());
-        Predicate<Point> nearlyPlaymateTest = playmate ->
-                gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
-                        ? playmate.getX() >= gameInfo.getActivePlayer().getX()
-                        : playmate.getX() <= gameInfo.getActivePlayer().getX();
-        lowShotCandidateAreaMap.keySet().stream()
-                .filter(nearlyPlaymateTest)
-                .forEach(playmate -> {
-                    if (playmate.distance(gameInfo.getActivePlayer()) < lowShotTarget.get().distance(gameInfo.getActivePlayer())) {
-                        lowShotTarget.set(playmate);
-                    }
-                });
+        Predicate<Point> nearlyPlaymateTest = playmate -> gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE)
+                ? playmate.getX() >= gameInfo.getActivePlayer().getX()
+                : playmate.getX() <= gameInfo.getActivePlayer().getX();
+        lowShotCandidateAreaMap.keySet().stream().filter(nearlyPlaymateTest).forEach(playmate -> {
+            if (playmate.distance(gameInfo.getActivePlayer()) < lowShotTarget.get()
+                    .distance(gameInfo.getActivePlayer())) {
+                lowShotTarget.set(playmate);
+            }
+        });
 
         return lowShotTarget.get();
     }
 
-    private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer,
-                                                  Point playmate, Point opposite) {
+    private boolean existThreatInterceptionOfBall(double lowShotDistance, Point activePlayer, Point playmate,
+                                                  Point opposite) {
         // find height of triangle(distance to opposite from low shot vector)
         double height = calculateTriangleHeight(activePlayer, playmate, opposite);
         return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;

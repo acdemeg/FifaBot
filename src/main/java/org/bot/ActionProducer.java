@@ -34,8 +34,8 @@ public record ActionProducer(GameAction gameAction) {
     }
 
     private void makeKeyAction(IntConsumer keyAction, boolean needDelay, boolean isReverse, boolean isFromHistory) {
-        List<ControlsEnum> controls = isFromHistory
-                ? GameHistory.getNotReleasedGameAction().controls() : gameAction.controls();
+        List<ControlsEnum> controls =
+                isFromHistory ? GameHistory.getNotReleasedGameAction().controls() : gameAction.controls();
         if (isReverse) {
             controls = new ArrayList<>(controls);
             Collections.reverse(controls);

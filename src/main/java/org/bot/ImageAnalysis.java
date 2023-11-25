@@ -46,14 +46,14 @@ public class ImageAnalysis {
         final boolean isPlaymate;
         final boolean isOpposite;
         BaseData baseData;
+
         private record BaseData(int x, int y, int pixel) {
         }
     }
 
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
-        Comparator<Point> comparator = Comparator.comparingDouble(Point::getY)
-                .thenComparingDouble(Point::getX);
+        Comparator<Point> comparator = Comparator.comparingDouble(Point::getY).thenComparingDouble(Point::getX);
         this.playmates = new TreeSet<>(comparator);
         this.opposites = new TreeSet<>(comparator);
         this.pixels = new int[WIDTH][HEIGHT];
@@ -266,8 +266,7 @@ public class ImageAnalysis {
         if (bottomRange > 0 && topRange < HEIGHT) {
             for (int y = bottomRange; y <= topRange; y++) {
                 int pixel = ImageUtils.getRGB(bufferedImage, x, y);
-                if ((!isActivePlayer && isActivePlayerColor(pixel))
-                        || (isActivePlayer && isBoundPlayerColor(pixel))) {
+                if ((!isActivePlayer && isActivePlayerColor(pixel)) || (isActivePlayer && isBoundPlayerColor(pixel))) {
                     return true;
                 }
             }
@@ -280,8 +279,8 @@ public class ImageAnalysis {
             int pixel = ImageUtils.getRGB(bufferedImage, x, y + 4);
             boolean isPlaymate = isPlaymateColor(pixel);
             Stream<Point> players = isPlaymate ? playmates.stream() : opposites.stream();
-            return players.anyMatch(p -> (p.x >= x && p.x - x < X_DISTANCE_NEARLY_PLAYER)
-                    && (p.y >= y && p.y - y < Y_DISTANCE_NEARLY_PLAYER));
+            return players.anyMatch(
+                    p -> (p.x >= x && p.x - x < X_DISTANCE_NEARLY_PLAYER) && (p.y >= y && p.y - y < Y_DISTANCE_NEARLY_PLAYER));
         }
         return false;
     }

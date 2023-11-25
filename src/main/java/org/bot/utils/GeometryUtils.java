@@ -1,7 +1,8 @@
-package org.bot;
+package org.bot.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.bot.GameInfo;
 import org.bot.enums.GeomEnum;
 
 import java.awt.*;
@@ -78,7 +79,8 @@ public class GeometryUtils {
      * @param activePlayer  active player
      * @return shot direction as {@code GeomEnum}
      */
-    public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, double adjacentSide, double hypotenuse) {
+    public static GeomEnum defineShotDirection(Point shotCandidate, Point activePlayer, double adjacentSide,
+                                               double hypotenuse) {
         GeomEnum direction;
         double angle = Math.acos(adjacentSide / hypotenuse);
         if (Double.isNaN(angle)) {
@@ -98,21 +100,18 @@ public class GeometryUtils {
     }
 
     public static Collection<Double> getAngles(Map<Point, Double> mapOppositesDistanceValue, GameInfo gameInfo) {
-        return mapOppositesDistanceValue.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> {
-                            double angle = Math.asin((entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue());
-                            if (Double.isNaN(angle)) {
-                                throw new ArithmeticException("Angle can't be NaN");
-                            }
-                            return angle;
-                        }
-                )).values();
+        return mapOppositesDistanceValue.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> {
+            double angle = Math.asin((entry.getKey().y - gameInfo.getActivePlayer().y) / entry.getValue());
+            if (Double.isNaN(angle)) {
+                throw new ArithmeticException("Angle can't be NaN");
+            }
+            return angle;
+        })).values();
     }
 
     // if angle less than 15 degree -> horizontal direction, if angle great than 75 degree -> vertical direction
-    private static GeomEnum getDirection(double angle, GeomEnum horizontalDirection,
-                                         GeomEnum verticalDirection, GeomEnum direction2D) {
+    private static GeomEnum getDirection(double angle, GeomEnum horizontalDirection, GeomEnum verticalDirection,
+                                         GeomEnum direction2D) {
         if (angle < Math.PI / 12) {
             return horizontalDirection;
         } else if (angle > (5 * Math.PI) / 12) {

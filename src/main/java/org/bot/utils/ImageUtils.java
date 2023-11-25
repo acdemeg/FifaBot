@@ -30,10 +30,8 @@ public class ImageUtils {
     public static SortedMap<String, BufferedImage> getStringBufferedImageSortedMap() {
         SortedMap<String, BufferedImage> fileNameImageMap = new TreeMap<>();
         Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file -> {
-                    if (file.getName().endsWith(IMAGE_FORMAT))
-                        fileNameImageMap.put(cropExt(file), readImage(file));
-                }
-        );
+            if (file.getName().endsWith(IMAGE_FORMAT)) fileNameImageMap.put(cropExt(file), readImage(file));
+        });
         return fileNameImageMap;
     }
 
@@ -56,17 +54,15 @@ public class ImageUtils {
     public static SortedMap<String, int[][]> getImageNameDataMap() {
         SortedMap<String, int[][]> fileNameImageMap = new TreeMap<>();
         Arrays.stream(Objects.requireNonNull(LOG_IMAGES.listFiles())).forEach(file -> {
-                    if (file.getName().endsWith(RAW_DATA_FORMAT)) {
-                        fileNameImageMap.put(cropExt(file), deserializationImageData(cropExt(file)));
-                    }
-                }
-        );
+            if (file.getName().endsWith(RAW_DATA_FORMAT)) {
+                fileNameImageMap.put(cropExt(file), deserializationImageData(cropExt(file)));
+            }
+        });
         return fileNameImageMap;
     }
 
     public static String pinchLogs(String line, int beginIndex) {
-        return line.substring(beginIndex).replace("java.awt.Point", "")
-                .replace("x=", "").replace("y=", "");
+        return line.substring(beginIndex).replace("java.awt.Point", "").replace("x=", "").replace("y=", "");
     }
 
     @SneakyThrows

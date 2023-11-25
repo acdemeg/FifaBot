@@ -23,33 +23,29 @@ class DecisionMakerTest {
         Set<GameAction> gameActions = decisionMaker.getGameActions();
 
         switch (number) {
-            case 3: {
+            case 3 -> {
                 GameAction attackShortPass = new GameAction(
                         List.of(MOVE_UP, ATTACK_SHORT_PASS_HEADER), new Point(106, 55));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(104, 78));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
-                break;
             }
-            case 4: {
+            case 4 -> {
                 GameAction attackShortPass = new GameAction(
                         List.of(MOVE_UP, MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(122, 61));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(105, 86));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
-                break;
             }
-            case 5: {
+            case 5 -> {
                 GameAction attackProtectBall = new GameAction(List.of(ATTACK_PROTECT_BALL), new Point(68, 51));
                 Assertions.assertTrue(gameActions.contains(attackProtectBall));
-                break;
             }
-            case 6: {
+            case 6 -> {
                 GameAction attackShortPass = new GameAction(
                         List.of(MOVE_RIGHT, ATTACK_SHORT_PASS_HEADER), new Point(110, 16));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(76, 15));
                 Assertions.assertTrue(gameActions.contains(attackShortPass) && gameActions.contains(moveRight));
-                break;
             }
-            case 7: {
+            case 7 -> {
                 GameAction attackShortPass = new GameAction(
                         List.of(MOVE_DOWN, ATTACK_SHORT_PASS_HEADER), new Point(92, 43));
                 GameAction moveRight = new GameAction(List.of(MOVE_RIGHT), new Point(91, 18));

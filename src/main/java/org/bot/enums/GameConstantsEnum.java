@@ -28,15 +28,13 @@ public enum GameConstantsEnum {
     LEFT_GOALKEEPER_AREA_BOTTOM_POINT(new Point(16, 99)),
     RIGHT_GOALKEEPER_AREA_TOP_POINT(new Point(40, 55)),
     RIGHT_GOALKEEPER_AREA_BOTTOM_POINT(new Point(240, 99)),
-    LEFT_PENALTY_AREA(new Rectangle(
-            0, LEFT_PENALTY_AREA_TOP_POINT.getPoint().y, LEFT_PENALTY_AREA_TOP_POINT.getPoint().x,
-            LEFT_PENALTY_AREA_BOTTOM_POINT.getPoint().y - LEFT_PENALTY_AREA_TOP_POINT.getPoint().y
-    )),
-    RIGHT_PENALTY_AREA(new Rectangle(
-            RIGHT_PENALTY_AREA_TOP_POINT.getPoint().x, RIGHT_PENALTY_AREA_TOP_POINT.getPoint().y,
-            WIDTH - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().x,
-            RIGHT_PENALTY_AREA_BOTTOM_POINT.getPoint().y - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().y
-    ));
+    LEFT_PENALTY_AREA(
+            new Rectangle(0, LEFT_PENALTY_AREA_TOP_POINT.getPoint().y, LEFT_PENALTY_AREA_TOP_POINT.getPoint().x,
+                          LEFT_PENALTY_AREA_BOTTOM_POINT.getPoint().y - LEFT_PENALTY_AREA_TOP_POINT.getPoint().y)),
+    RIGHT_PENALTY_AREA(
+            new Rectangle(RIGHT_PENALTY_AREA_TOP_POINT.getPoint().x, RIGHT_PENALTY_AREA_TOP_POINT.getPoint().y,
+                          WIDTH - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().x,
+                          RIGHT_PENALTY_AREA_BOTTOM_POINT.getPoint().y - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().y));
 
     @Getter
     private int value;

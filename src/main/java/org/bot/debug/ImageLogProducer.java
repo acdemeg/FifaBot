@@ -29,6 +29,7 @@ import static org.bot.Main.LOG_ACTIONS;
 public class ImageLogProducer {
     private record LogObject(String gameInfo, String gameActions, String decision) {
     }
+
     private static BufferedImage combinedImage;
     private static final int FONT_SIZE = 20;
     private static final int HEIGHT_INFO_BLOCK = 320;
@@ -133,10 +134,9 @@ public class ImageLogProducer {
         String[] arr = logs.split("\r\n");
         for (int i = 2; i + 7 < arr.length; i += 8) {
             fileNameLogObjetMap.put(ImageUtils.pinchLogs(arr[i + 7], 15),
-                    new LogObject(
-                            ImageUtils.pinchLogs(arr[i + 1], 6),
-                            ImageUtils.pinchLogs(arr[i + 3], 6),
-                            ImageUtils.pinchLogs(arr[i + 5], 6)));
+                                    new LogObject(ImageUtils.pinchLogs(arr[i + 1], 6),
+                                                  ImageUtils.pinchLogs(arr[i + 3], 6),
+                                                  ImageUtils.pinchLogs(arr[i + 5], 6)));
         }
         return fileNameLogObjetMap;
     }
