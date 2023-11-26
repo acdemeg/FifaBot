@@ -1,5 +1,6 @@
 # FifaBot
 
+<!--suppress HtmlDeprecatedAttribute -->
 <span style="font-family: 'Bebas Neue',serif; font-size: 1.1em;">
 The repository contains an AI bot for the game Fifa19, but this approach will work for others as well
 FIFA series games. The bot analyzes the 2D layout of the field (it must be turned on) to evaluate the game
@@ -76,9 +77,11 @@ unchangeable over time (coordinates of the center of the field, penalty area, in
 <details>
   <summary>Collapse/Expand</summary>
 
-The main game loop starts and the bot takes a screenshot of the field as `BufferedImage`, for example: soccer::
+The main game loop starts and the bot takes a screenshot of the field as `BufferedImage`, for example:soccer::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 50%" src="files/2027169000811800.png" alt="state_1">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169000811800.png" alt="state_1">
+</p>
 
 The bot analyzed the screenshot and received the following information:
 
@@ -119,9 +122,11 @@ From a set of actions, the bot selects the highest priority:
        actionTargetPlayer=[x=65,y=53]
     ]
 
-After executing the action, we get a new state: soccer::
+After executing the action, we get a new state:soccer::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 50%" src="files/2027169766038500.png" alt="state_2">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169766038500.png" alt="state_2">
+</p>
 
 The bot performed the action correctly - gave a pass to the player who was in the upper right corner from
 active player in the previous screenshot, then the cycle repeats.
@@ -133,17 +138,21 @@ active player in the previous screenshot, then the cycle repeats.
 <details>
   <summary>Collapse/Expand</summary>
 
-This is what part of the log looks like with the described states: file_folder::
+This is what part of the log looks like with the described states:file_folder::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/log.png" alt="log">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/log.png" alt="log">
+</p>
 
 For the purpose of debugging and analyzing the behavior of the bot, a class was written
 [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java)
 allowing you to link a text log with an image of the game state.
 
-An example of a visual log for the states described above: mag_right::
+An example of a visual log for the states described above:mag_right::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
+</p>
 
 >:warning: **_Important:_** The `/logs/TestImages` folder should contain quite limited
 > the number of images corresponding to a certain game interval, otherwise for
@@ -154,7 +163,7 @@ An example of a visual log for the states described above: mag_right::
 
 ### Managing and setting up the game client
 
-The bot uses the following gameplay control scheme: wrench::
+The bot uses the following gameplay control scheme:wrench::
 
 <details>
   <summary>Collapse/Expand</summary>
@@ -245,20 +254,28 @@ The bot uses the following gameplay control scheme: wrench::
 
 </details>
 
-You need to create the appropriate configuration in the game client: video_game::
+You need to create the appropriate configuration in the game client:video_game::
 
 <details>
   <summary>Collapse/Expand</summary>
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_1.png" alt="controls_eng_1">
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_2.png" alt="controls_eng_2">
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_3.png" alt="controls_eng_3">
+    <p align="center">
+      <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_1.png" alt="controls_eng_1">
+    </p>
+    <p align="center">
+      <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_2.png" alt="controls_eng_2">
+    </p>
+    <p align="center">
+      <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_eng_3.png" alt="controls_eng_3">
+    </p>
 </details>
 
 The 2D field layout must be turned on and the players' colors must be `red` - for you,
 `blue` - for the enemy, control device - `Keyboard only`,
-FullHD resolution, 100% scaling: computer::
+FullHD resolution, 100% scaling:computer::
 
 <details>
   <summary>Collapse/Expand</summary>
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_eng.png" alt="settting_eng">
+    <p align="center">
+        <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_eng.png" alt="settting_eng">
+    </p>
 </details>

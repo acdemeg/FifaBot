@@ -1,5 +1,6 @@
 # FifaBot
 
+<!--suppress HtmlDeprecatedAttribute -->
 <span style="font-family: 'Bebas Neue',serif; font-size: 1.1em;">
 Репозиторий содержит AI бота для игры Fifa19, но данный подход сработает и для других
 игр серии fifa. Бот анализирует 2D-схему поля(она должна быть включена) для оценки игровой
@@ -75,9 +76,11 @@
 <details>
   <summary>Свернуть/Развернуть</summary>
 
-Стартует главный цикл игры и бот делает скриншот поля как `BufferedImage`, например: soccer::
+Стартует главный цикл игры и бот делает скриншот поля как `BufferedImage`, например:soccer::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 50%" src="files/2027169000811800.png" alt="state_1">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169000811800.png" alt="state_1">
+</p>
 
 Бот анализировал скриншот и получил следующую информацию:
 
@@ -118,9 +121,11 @@
        actionTargetPlayer=[x=65,y=53]
     ]
 
-После выполнения действия мы получаем новое состояние: soccer:: 
+После выполнения действия мы получаем новое состояние:soccer:: 
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 50%" src="files/2027169766038500.png" alt="state_2">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169766038500.png" alt="state_2">
+</p>
 
 Бот правильно выполнил действие - отдал пас игроку который находился в правом верхнем углу от 
 активного игрока на предыдущем скриншоте, далее цикл повторяется.
@@ -132,17 +137,21 @@
 <details>
   <summary>Свернуть/Развернуть</summary>
 
-Так выглядит часть лога с описанными состояниями: file_folder::
+Так выглядит часть лога с описанными состояниями:file_folder::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/log.png" alt="log">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/log.png" alt="log">
+</p>
 
 В целях отладки и анализа поведения бота был написан класс 
 [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java)
 позволяющий связать текстовый лог с изображением состояния игры. 
 
-Пример визуального лога для описанных выше состояний: mag_right::
+Пример визуального лога для описанных выше состояний:mag_right::
 
-<img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
+<p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
+</p>
 
 >:warning: **_Важно:_** В папке `/logs/TestImages` должно быть довольно ограниченное
 > количество изображений соответсвующее определенному интервалу игры, иначе для
@@ -153,7 +162,7 @@
 
 ### Управление и настройка клиента игры
 
-Бот использует следующую схему управления игровым процессом: wrench::
+Бот использует следующую схему управления игровым процессом:wrench::
 
 <details>
   <summary>Свернуть/Развернуть</summary>
@@ -244,20 +253,28 @@
 
 </details>
 
-Необходимо создать соответствующую конфигурацию в клиенте игры: video_game::
+Необходимо создать соответствующую конфигурацию в клиенте игры:video_game::
 
 <details>
   <summary>Свернуть/Развернуть</summary>
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_1.png" alt="controls_ru_1">
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_2.png" alt="controls_ru_2">
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_3.png" alt="controls_ru_3">
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_1.png" alt="controls_ru_1">
+  </p>
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_2.png" alt="controls_ru_2">
+  </p>
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/controls_ru_3.png" alt="controls_ru_3">
+  </p>
 </details>
 
 Должна быть включена 2D-cхема поля и выбраны цвета игроков `красный` - для вас,
 `синий` - для противника, устройство управления - `Только клавиатура`, 
-разрешение FullHD, масштабирование 100%: computer::
+разрешение FullHD, масштабирование 100%:computer::
 
 <details>
   <summary>Свернуть/Развернуть</summary>
-  <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_ru.png" alt="settting_ru">
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_ru.png" alt="settting_ru">
+  </p>
 </details>
