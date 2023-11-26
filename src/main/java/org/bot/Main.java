@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.LogManager;
 
 import static org.bot.GameInfo.*;
 
@@ -23,6 +24,7 @@ public class Main {
     public static final File LOG_ACTIONS = new File(USER_HOME + "/logs/fifa_bot.log");
     private static boolean isReplayerMode;
     private static boolean isLogging;
+    private static boolean isProductionMode;
 
     @SneakyThrows
     private static Robot createRobot() {
@@ -32,6 +34,9 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         prepareEnv();
         setArgs(args);
+        if (isProductionMode) {
+            LogManager.getLogManager().reset();
+        }
         if (isReplayerMode) {
             runRePlayer();
         } else {
@@ -79,6 +84,7 @@ public class Main {
     private static void setArgs(String[] args) {
         isLogging = Arrays.asList(args).contains("-logging");
         isReplayerMode = Arrays.asList(args).contains("-replayer");
+        isProductionMode = Arrays.asList(args).contains("-production");
     }
 
     private static void prepareEnv() throws IOException {

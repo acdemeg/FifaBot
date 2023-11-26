@@ -20,10 +20,11 @@ Read this in other languages:
 
 ###### Run from the project directory: `gradlew run`
 
-###### Extra options: `-logging` `-replayer`
+###### Extra options:
 
 1. `-logging` - all screenshots will be placed in _**USER_HOME/logs/TestImages**_, the log will be written to _**logs/fifa_bot.log**_
 2. `-replayer` - the application will be launched in **_Replayer_** mode
+3. `-production` - any logs will be disabled in the application
 
 >:warning: **_Important:_** The bot is configured to work in 1920x1080 resolution with 100% scaling
 
