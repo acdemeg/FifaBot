@@ -34,7 +34,7 @@ public class Main {
         if (isReplayerMode) {
             runRePlayer();
         } else {
-            ImageUtils.clearTestImagesFolder();
+            ImageUtils.clearLogs();
             gameProcessing();
         }
     }

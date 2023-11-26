@@ -8,7 +8,10 @@ import lombok.SneakyThrows;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -38,12 +41,13 @@ public class ImageUtils {
     /**
      * Remove all images in {@link org.bot.Main#LOG_IMAGES} folder
      */
-    public static void clearTestImagesFolder() throws IOException {
+    public static void clearLogs() throws IOException {
+        FileChannel.open(Paths.get(LOG_ACTIONS.getAbsolutePath()), StandardOpenOption.WRITE).truncate(0).close();
         File[] files = LOG_IMAGES.listFiles();
         if (files != null) { //some JVMs return null for empty dirs
             for (File f : files) {
                 if (f.isDirectory()) {
-                    clearTestImagesFolder();
+                    clearLogs();
                 } else {
                     Files.delete(f.toPath());
                 }
