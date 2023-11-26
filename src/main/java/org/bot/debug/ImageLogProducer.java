@@ -20,8 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.bot.Main.IMAGE_FORMAT;
-import static org.bot.Main.LOG_ACTIONS;
+import static org.bot.Main.*;
 
 /**
  * This class create full_game.png image with represent prev game states and log information. It needs to for debugging
@@ -41,7 +40,7 @@ public class ImageLogProducer {
     public static void main(String[] args) {
         ImageUtils.getStringBufferedImageSortedMap().forEach(ImageLogProducer::processImage);
         // save full image
-        String imageName = "logs/full_game." + IMAGE_FORMAT;
+        String imageName = USER_HOME + "/logs/full_game." + IMAGE_FORMAT;
         ImageIO.write(combinedImage, IMAGE_FORMAT, new File(imageName));
     }
 

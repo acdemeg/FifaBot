@@ -15,12 +15,12 @@ import static org.bot.GameInfo.*;
 
 @Log
 public class Main {
-
+    public static final String USER_HOME = System.getProperty("user.home");
     public static final String IMAGE_FORMAT = "png";
     public static final String RAW_DATA_FORMAT = "dat";
     public static final Robot ROBOT = createRobot();
-    public static final File LOG_IMAGES = new File("logs/TestImages");
-    public static final File LOG_ACTIONS = new File("logs/fifa19bot.log");
+    public static final File LOG_IMAGES = new File(USER_HOME + "/logs/TestImages");
+    public static final File LOG_ACTIONS = new File(USER_HOME + "/logs/fifa_bot.log");
     private static boolean isReplayerMode;
     private static boolean isLogging;
 
@@ -30,6 +30,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        prepareEnv();
         setArgs(args);
         if (isReplayerMode) {
             runRePlayer();
@@ -55,7 +56,8 @@ public class Main {
         }
     }
 
-    private static void logging(BufferedImage bufferedImage, GameInfo gameInfo) throws IOException, InterruptedException {
+    private static void logging(BufferedImage bufferedImage, GameInfo gameInfo)
+            throws IOException, InterruptedException {
         String imageId = String.valueOf(System.nanoTime());
         log.info("ImageId: " + imageId);
         File file = new File(LOG_IMAGES.getPath(), imageId + "." + IMAGE_FORMAT);
@@ -77,5 +79,17 @@ public class Main {
     private static void setArgs(String[] args) {
         isLogging = Arrays.asList(args).contains("-logging");
         isReplayerMode = Arrays.asList(args).contains("-replayer");
+    }
+
+    private static void prepareEnv() throws IOException {
+        log.info("Create directories if not exist");
+        boolean dirSuccess = new File(USER_HOME + "/logs").mkdirs();
+        boolean logActionSuccess = LOG_ACTIONS.createNewFile();
+        boolean logLockSuccess = new File(USER_HOME + "/logs/fifa_bot.log.lck").createNewFile();
+        boolean logImagesSuccess = LOG_IMAGES.mkdir();
+
+        if (!(dirSuccess && logActionSuccess && logImagesSuccess && logLockSuccess)) {
+            log.info("Can't create log dirs");
+        }
     }
 }

@@ -22,7 +22,7 @@ Read this in other languages:
 
 ###### Extra options: `-logging` `-replayer`
 
-1. `-logging` - all screenshots will be placed in _**logs/TestImages**_, the log will be written to _**logs/fifa19bot.log**_
+1. `-logging` - all screenshots will be placed in _**USER_HOME/logs/TestImages**_, the log will be written to _**logs/fifa_bot.log**_
 2. `-replayer` - the application will be launched in **_Replayer_** mode
 
 >:warning: **_Important:_** The bot is configured to work in 1920x1080 resolution with 100% scaling
@@ -60,7 +60,7 @@ input. Currently only keyboard is available
 
 [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java) - the class creates a `full_game.png` image
 displaying a visual log of the game. This is necessary for 
-debugging purposes and analysis of the "replay" from `logs/TestImages`
+debugging purposes and analysis of the "replay" from `USER_HOME/logs/TestImages`
 
 [ColorsEnum](src/main/java/org/bot/enums/ColorsEnum.java) - listing the color ranges for which
 objects are identified during image analysis
@@ -154,7 +154,7 @@ An example of a visual log for the states described above:mag_right::
     <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
 </p>
 
->:warning: **_Important:_** The `/logs/TestImages` folder should contain quite limited
+>:warning: **_Important:_** The `USER_HOME/logs/TestImages` folder should contain quite limited
 > the number of images corresponding to a certain game interval, otherwise for
 > [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java) may not be enough
 > RAM create too long final image
