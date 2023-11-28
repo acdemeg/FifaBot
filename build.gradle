@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'java-library'
+    id "org.beryx.jlink" version "3.0.1"
 }
 
 group 'org.bot'
@@ -30,19 +31,17 @@ test {
 
 application {
     mainClass = 'org.bot.Main'
-    applicationDefaultJvmArgs = [
-            "-Djava.util.logging.config.file=.\\src\\main\\resources\\logging.properties",
-            "-Xmx4g"
-    ]
-    task runImageLogProducer(type: JavaExec) {
-        classpath sourceSets.main.runtimeClasspath
-        mainClass = "org.bot.debug.ImageLogProducer"
-        jvmArgs = ["-Xmx8g"]
-    }
+    applicationDefaultJvmArgs = ["-Xmx4g"]
 }
 
 jar {
     manifest {
         attributes 'Main-Class': application.mainClass
     }
+}
+
+tasks.register('runImageLogProducer', JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    mainClass = "org.bot.debug.ImageLogProducer"
+    jvmArgs = ["-Xmx8g"]
 }

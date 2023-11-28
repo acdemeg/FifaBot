@@ -42,14 +42,16 @@ public class ImageUtils {
      * Remove all images in {@link org.bot.Main#LOG_IMAGES} folder
      */
     public static void clearLogs() throws IOException {
-        FileChannel.open(Paths.get(LOG_ACTIONS.getAbsolutePath()), StandardOpenOption.WRITE).truncate(0).close();
-        File[] files = LOG_IMAGES.listFiles();
-        if (files != null) { //some JVMs return null for empty dirs
-            for (File f : files) {
-                if (f.isDirectory()) {
-                    clearLogs();
-                } else {
-                    Files.delete(f.toPath());
+        try(FileChannel ignored = FileChannel.open(Paths.get(LOG_ACTIONS.getAbsolutePath()),
+                                                   StandardOpenOption.WRITE).truncate(0)) {
+            File[] files = LOG_IMAGES.listFiles();
+            if (files != null) { //some JVMs return null for empty dirs
+                for (File f : files) {
+                    if (f.isDirectory()) {
+                        clearLogs();
+                    } else {
+                        Files.delete(f.toPath());
+                    }
                 }
             }
         }

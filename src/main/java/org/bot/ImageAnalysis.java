@@ -81,6 +81,7 @@ public class ImageAnalysis {
                 isNobodyBallPossession, isShadingField, playmateSide, pixels);
     }
 
+    @SuppressWarnings("java:S127")
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {

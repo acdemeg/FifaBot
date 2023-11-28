@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.logging.LogManager;
 
 import static org.bot.GameInfo.*;
@@ -37,6 +38,11 @@ public class Main {
         if (isProductionMode) {
             LogManager.getLogManager().reset();
         }
+        else {
+            LogManager.getLogManager().readConfiguration(
+                    Main.class.getClassLoader().getResourceAsStream("logging.properties")
+            );
+        }
         if (isReplayerMode) {
             runRePlayer();
         } else {
@@ -46,7 +52,7 @@ public class Main {
     }
 
     private static void gameProcessing() throws IOException, InterruptedException {
-        log.info("GAME START!");
+        System.out.println("GAME STARTED!");
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {
@@ -87,15 +93,12 @@ public class Main {
         isProductionMode = Arrays.asList(args).contains("-production");
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void prepareEnv() throws IOException {
-        log.info("Create directories if not exist");
-        boolean dirSuccess = new File(USER_HOME + "/logs").mkdirs();
-        boolean logActionSuccess = LOG_ACTIONS.createNewFile();
-        boolean logLockSuccess = new File(USER_HOME + "/logs/fifa_bot.log.lck").createNewFile();
-        boolean logImagesSuccess = LOG_IMAGES.mkdir();
-
-        if (!(dirSuccess && logActionSuccess && logImagesSuccess && logLockSuccess)) {
-            log.info("Can't create log dirs");
-        }
+        Locale.setDefault(Locale.ENGLISH);
+        new File(USER_HOME + "/logs").mkdirs();
+        LOG_ACTIONS.createNewFile();
+        new File(USER_HOME + "/logs/fifa_bot.log.lck").createNewFile();
+        LOG_IMAGES.mkdir();
     }
 }
