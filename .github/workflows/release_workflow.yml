@@ -1,0 +1,44 @@
+name: Release bot
+
+on: workflow_dispatch
+#  push:
+#    tags:
+#      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+
+      - name: Test with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test
+
+      - name: Prepare release artifact
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+        run: ./create_executable.bat
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./build/FifaBot.exe,./build/libs/FifaBot-1.0.jar"
