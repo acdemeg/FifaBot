@@ -32,10 +32,12 @@ jobs:
         with:
           arguments: test
 
-      - name: Prepare release artifact
+      - name: Prepare nodeJs
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
+      - name: Prepare release artifact
         run: ./create_executable.bat
 
       - name: Create release
