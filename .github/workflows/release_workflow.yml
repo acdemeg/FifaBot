@@ -1,4 +1,4 @@
-name: Release bot
+name: Release
 
 on:
   push:
@@ -37,6 +37,12 @@ jobs:
         with:
           node-version: 18
 
+      - name: Cache modules
+        uses: actions/cache@v3
+        with:
+          path: ~\AppData\Local\npm-cache\
+          key: caxa deps
+
       - name: Install caxa deps
         run:  npm install -g caxa
 
@@ -46,4 +52,5 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./build/FifaBot.exe,./build/libs/FifaBot-1.0.jar"
+          artifacts: "./build/FifaBot.exe,./build/libs/FifaBot.jar"
+          allowUpdates: true

@@ -1,5 +1,14 @@
 # FifaBot
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/acdemeg/FifaBot/build_workflow.yml?logo=gradle&labelColor=292f35)
+[![GitHub release (with filter)](https://img.shields.io/github/v/release/acdemeg/FifaBot?logo=github&labelColor=292f35)](https://github.com/acdemeg/FifaBot/releases)
+![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?labelColor=292f35)
+![GitHub Repo stars](https://img.shields.io/github/stars/acdemeg/FifaBot?color=FFA500&labelColor=292f35)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/acdemeg/FifaBot?color=DC143C&labelColor=292f35)
+![GitHub repo size](https://img.shields.io/github/repo-size/acdemeg/FifaBot?color=008B8B&labelColor=292f35)
+![GitHub issues](https://img.shields.io/github/issues-raw/acdemeg/FifaBot?color=DB7093&labelColor=292f35)
+![GitHub all releases](https://img.shields.io/github/downloads/acdemeg/FifaBot/total?labelColor=292f35)
+
 <!--suppress HtmlDeprecatedAttribute -->
 <span style="font-family: 'Bebas Neue',serif; font-size: 1.1em;">
 The repository contains an AI bot for the game Fifa19, but this approach will work for others as well
@@ -26,6 +35,8 @@ Read this in other languages:
 2. `-replayer` - the application will be launched in **_Replayer_** mode
 3. `-production` - any logs will be disabled in the application
 4. `-visual-log` - will create a merged image with an overlaid log in `USER_HOME/logs/TestImages`. See [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java)
+
+>:question: **_Note:_** The bot can be launched as an .exe file (self-extracting archive compiled using jlink), downloaded in the Releases tab
 
 >:warning: **_Important:_** The bot is configured to work in 1920x1080 resolution with 100% scaling
 

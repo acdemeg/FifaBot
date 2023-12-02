@@ -1,5 +1,14 @@
 # FifaBot
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/acdemeg/FifaBot/build_workflow.yml?logo=gradle&labelColor=292f35)
+[![GitHub release (with filter)](https://img.shields.io/github/v/release/acdemeg/FifaBot?logo=github&labelColor=292f35)](https://github.com/acdemeg/FifaBot/releases)
+![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?labelColor=292f35)
+![GitHub Repo stars](https://img.shields.io/github/stars/acdemeg/FifaBot?color=FFA500&labelColor=292f35)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/acdemeg/FifaBot?color=DC143C&labelColor=292f35)
+![GitHub repo size](https://img.shields.io/github/repo-size/acdemeg/FifaBot?color=008B8B&labelColor=292f35)
+![GitHub issues](https://img.shields.io/github/issues-raw/acdemeg/FifaBot?color=DB7093&labelColor=292f35)
+![GitHub all releases](https://img.shields.io/github/downloads/acdemeg/FifaBot/total?labelColor=292f35)
+
 <!--suppress HtmlDeprecatedAttribute -->
 <span style="font-family: 'Bebas Neue',serif; font-size: 1.1em;">
 Репозиторий содержит AI бота для игры Fifa19, но данный подход сработает и для других
@@ -26,6 +35,8 @@
 2. `-replayer` - приложение будет запущено в режиме **_Реплеера_**
 3. `-production` - в приложении будут отключены любые логи
 4. `-visual-log` - создаст в `USER_HOME/logs/TestImages` склеенное изображение с наложенным логом. См. [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java) 
+
+>:question: **_Заметка:_** Бот можно запустить как .exe файл(самораспаковывающийся архив собранный с помощью jlink), скачать во вкладке Releases
 
 >:warning: **_Важно:_** Бот настроен на работу в разрешении 1920x1080 при масштабировании 100%
 
