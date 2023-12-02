@@ -25,6 +25,7 @@
 1. `-logging` - все скриншоты будут помещены _**USER_HOME/logs/TestImages**_, лог будет записан в _**logs/fifa_bot.log**_
 2. `-replayer` - приложение будет запущено в режиме **_Реплеера_**
 3. `-production` - в приложении будут отключены любые логи
+4. `-visual-log` - создаст в `USER_HOME/logs/TestImages` склеенное изображение с наложенным логом. См. [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java) 
 
 >:warning: **_Важно:_** Бот настроен на работу в разрешении 1920x1080 при масштабировании 100%
 

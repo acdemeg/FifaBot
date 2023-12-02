@@ -2,6 +2,7 @@ package org.bot;
 
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
+import org.bot.debug.ImageLogProducer;
 import org.bot.utils.ImageUtils;
 
 import javax.imageio.ImageIO;
@@ -24,8 +25,9 @@ public class Main {
     public static final File LOG_IMAGES = new File(USER_HOME + "/logs/TestImages");
     public static final File LOG_ACTIONS = new File(USER_HOME + "/logs/fifa_bot.log");
     private static boolean isReplayerMode;
-    private static boolean isLogging;
+    private static boolean isLoggingMode;
     private static boolean isProductionMode;
+    private static boolean isVisualLogMode;
 
     @SneakyThrows
     private static Robot createRobot() {
@@ -35,20 +37,18 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         prepareEnv();
         setArgs(args);
+        if (isVisualLogMode) {
+            ImageLogProducer.produce();
+            return;
+        }
         if (isProductionMode) {
             LogManager.getLogManager().reset();
         }
-        else {
-            LogManager.getLogManager().readConfiguration(
-                    Main.class.getClassLoader().getResourceAsStream("logging.properties")
-            );
-        }
         if (isReplayerMode) {
             runRePlayer();
-        } else {
-            ImageUtils.clearLogs();
-            gameProcessing();
         }
+        ImageUtils.clearLogs();
+        gameProcessing();
     }
 
     private static void gameProcessing() throws IOException, InterruptedException {
@@ -61,7 +61,7 @@ public class Main {
             GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();
             ActionProducer keyboardProducer = new DecisionMaker(gameInfo).decide();
             keyboardProducer.makeGameAction();
-            if (isLogging) {
+            if (isLoggingMode) {
                 logging(bufferedImage, gameInfo);
             }
         }
@@ -88,9 +88,10 @@ public class Main {
     }
 
     private static void setArgs(String[] args) {
-        isLogging = Arrays.asList(args).contains("-logging");
+        isLoggingMode = Arrays.asList(args).contains("-logging");
         isReplayerMode = Arrays.asList(args).contains("-replayer");
         isProductionMode = Arrays.asList(args).contains("-production");
+        isVisualLogMode = Arrays.asList(args).contains("-visual-log");
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -100,5 +101,8 @@ public class Main {
         LOG_ACTIONS.createNewFile();
         new File(USER_HOME + "/logs/fifa_bot.log.lck").createNewFile();
         LOG_IMAGES.mkdir();
+        LogManager.getLogManager().readConfiguration(
+                Main.class.getClassLoader().getResourceAsStream("logging.properties")
+        );
     }
 }

@@ -25,6 +25,7 @@ Read this in other languages:
 1. `-logging` - all screenshots will be placed in _**USER_HOME/logs/TestImages**_, the log will be written to _**logs/fifa_bot.log**_
 2. `-replayer` - the application will be launched in **_Replayer_** mode
 3. `-production` - any logs will be disabled in the application
+4. `-visual-log` - will create a merged image with an overlaid log in `USER_HOME/logs/TestImages`. See [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java)
 
 >:warning: **_Important:_** The bot is configured to work in 1920x1080 resolution with 100% scaling
 

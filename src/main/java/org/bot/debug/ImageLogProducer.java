@@ -37,7 +37,7 @@ public class ImageLogProducer {
     private static final Map<String, LogObject> fileNameLogObjetMap = readLogs();
 
     @SneakyThrows
-    public static void main(String[] args) {
+    public static void produce() {
         ImageUtils.getStringBufferedImageSortedMap().forEach(ImageLogProducer::processImage);
         // save full image
         String imageName = USER_HOME + "/logs/full_game." + IMAGE_FORMAT;
