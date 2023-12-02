@@ -1,9 +1,9 @@
 name: Release bot
 
-on: workflow_dispatch
-#  push:
-#    tags:
-#      - '*'
+on:
+  push:
+    tags:
+      - '*'
 
 permissions:
   contents: write
@@ -36,6 +36,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+
+      - name: Install caxa deps
+        run:  npm install -g caxa
 
       - name: Prepare release artifact
         run: ./create_executable.bat
