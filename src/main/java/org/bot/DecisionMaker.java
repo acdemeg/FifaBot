@@ -76,6 +76,9 @@ public class DecisionMaker {
         if (gameInfo.getPlaymateSide() == null) {
             return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
+        if (gameInfo.isCorner()) {
+            return new GameAction(List.of(ATTACK_LOB_PASS_CROSS_HEADER), null);
+        }
         if (repeatableAction) {
             return gameActions.stream()
                     .filter(gameAction -> !ControlsEnum.repeatableControlsSet().contains(gameAction.controls().get(0)))

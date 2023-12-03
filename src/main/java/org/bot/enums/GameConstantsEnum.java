@@ -10,11 +10,16 @@ import static org.bot.GameInfo.WIDTH;
 /**
  * Common game constants enum
  */
+@Getter
 public enum GameConstantsEnum {
     PLAYER_DIAMETER(10),
     INIT_DELAY(50),
-    LEFT_PLAYMATE_SIDE(new Point(0, 0)),
-    RIGHT_PLAYMATE_SIDE(new Point(WIDTH, HEIGHT)),
+    LEFT_TOP_CORNER(new Point(0, 0)),
+    LEFT_BOTTOM_CORNER(new Point(0, HEIGHT)),
+    RIGHT_TOP_CORNER(new Point(WIDTH, 0)),
+    RIGHT_BOTTOM_CORNER(new Point(WIDTH, HEIGHT)),
+    LEFT_PLAYMATE_SIDE(LEFT_BOTTOM_CORNER.getPoint(), LEFT_TOP_CORNER.getPoint()),
+    RIGHT_PLAYMATE_SIDE(RIGHT_BOTTOM_CORNER.getPoint(), RIGHT_TOP_CORNER.getPoint()),
     CENTER_FIELD_POINT(new Point(129, 77)),
     LEFT_PENALTY_POINT(new Point(33, 77)),
     RIGHT_PENALTY_POINT(new Point(225, 77)),
@@ -26,7 +31,7 @@ public enum GameConstantsEnum {
     RIGHT_PENALTY_AREA_BOTTOM_POINT(new Point(208, 124)),
     LEFT_GOALKEEPER_AREA_TOP_POINT(new Point(16, 55)),
     LEFT_GOALKEEPER_AREA_BOTTOM_POINT(new Point(16, 99)),
-    RIGHT_GOALKEEPER_AREA_TOP_POINT(new Point(40, 55)),
+    RIGHT_GOALKEEPER_AREA_TOP_POINT(new Point(240, 55)),
     RIGHT_GOALKEEPER_AREA_BOTTOM_POINT(new Point(240, 99)),
     LEFT_PENALTY_AREA(
             new Rectangle(0, LEFT_PENALTY_AREA_TOP_POINT.getPoint().y, LEFT_PENALTY_AREA_TOP_POINT.getPoint().x,
@@ -36,11 +41,10 @@ public enum GameConstantsEnum {
                           WIDTH - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().x,
                           RIGHT_PENALTY_AREA_BOTTOM_POINT.getPoint().y - RIGHT_PENALTY_AREA_TOP_POINT.getPoint().y));
 
-    @Getter
     private int value;
-    @Getter
     private Point point;
-    @Getter
+    private Point bottom;
+    private Point top;
     private Rectangle rectangle;
 
     GameConstantsEnum(int value) {
@@ -49,6 +53,10 @@ public enum GameConstantsEnum {
 
     GameConstantsEnum(Point point) {
         this.point = point;
+    }
+    GameConstantsEnum(Point bottom, Point top) {
+        this.bottom = bottom;
+        this.top = top;
     }
 
     GameConstantsEnum(Rectangle rectangle) {

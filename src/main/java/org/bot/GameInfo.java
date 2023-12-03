@@ -29,6 +29,7 @@ public class GameInfo {
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
     private final boolean isShadingField;
+    private final boolean isCorner;
     private final GameConstantsEnum playmateSide;
     @ToString.Exclude
     private final int[][] pixels;

@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import static org.bot.GameInfo.HEIGHT;
 import static org.bot.GameInfo.WIDTH;
 import static org.bot.enums.ColorsEnum.*;
+import static org.bot.enums.GameConstantsEnum.*;
 
 /**
  * This class performing base analysis of football field scheme image
@@ -27,15 +28,18 @@ public class ImageAnalysis {
     private static final int X_DISTANCE_NEARLY_PLAYER = 6;
     private static final int Y_DISTANCE_NEARLY_PLAYER = 9;
     private static final int OVERLAY_PLAYER_BASE_DISTANCE = 5;
+    private static final int CORNER_POINT_DISTANCE = 25;
 
     private final BufferedImage bufferedImage;
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
     private Point activePlayer;
     private Point ball;
+    private Point shadingBall;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
     private boolean isShadingField;
+    private boolean isCorner;
     private GameConstantsEnum playmateSide;
     private final int[][] pixels;
 
@@ -77,11 +81,22 @@ public class ImageAnalysis {
         setPlayerPossessionOfBall();
         setPlaymateSide();
         setShadingField();
+        setCornerState();
         return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
-                isNobodyBallPossession, isShadingField, playmateSide, pixels);
+                isNobodyBallPossession, isShadingField, isCorner, playmateSide, pixels);
     }
 
-    @SuppressWarnings("java:S127")
+    private void setCornerState() {
+        Point cornerBall = ball == null ? shadingBall : ball;
+        if (cornerBall != null) {
+            isCorner = LEFT_TOP_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
+                    || LEFT_BOTTOM_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
+                    || RIGHT_TOP_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
+                    || RIGHT_BOTTOM_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE;
+        }
+    }
+
+    @SuppressWarnings({"java:S127", "java:S3776"})
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -101,6 +116,8 @@ public class ImageAnalysis {
                     addSkippedValuesInPixels(xPrev, x, y);
                 } else if (ball == null && isBallColor(pixel)) {
                     ball = new Point(x + 1, y + 5);
+                } else if (shadingBall == null && isShadingBallColor(pixel)) {
+                    shadingBall = new Point(x + 1, y + 5);
                 }
             }
         }
@@ -366,6 +383,16 @@ public class ImageAnalysis {
         return BALL_COLOR_LOWER.getColor().getRed() < r && BALL_COLOR_UPPER.getColor().getRed() > r
                 && BALL_COLOR_LOWER.getColor().getGreen() < g && BALL_COLOR_UPPER.getColor().getGreen() > g
                 && BALL_COLOR_LOWER.getColor().getBlue() >= b && BALL_COLOR_UPPER.getColor().getBlue() <= b;
+    }
+
+    private boolean isShadingBallColor(int pixel) {
+        int r = (pixel >> 16) & 0xFF;
+        int g = (pixel >> 8) & 0xFF;
+        int b = pixel & 0xFF;
+
+        return SHADING_BALL_COLOR_LOWER.getColor().getRed() < r && SHADING_BALL_COLOR_UPPER.getColor().getRed() > r
+                && SHADING_BALL_COLOR_LOWER.getColor().getGreen() < g && SHADING_BALL_COLOR_UPPER.getColor().getGreen() > g
+                && SHADING_BALL_COLOR_LOWER.getColor().getBlue() < b && SHADING_BALL_COLOR_UPPER.getColor().getBlue() > b;
     }
 
     private boolean isOverlayOppositePlayerColor(int pixel) {
