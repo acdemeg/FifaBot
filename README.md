@@ -6,8 +6,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/acdemeg/FifaBot?color=FFA500&labelColor=292f35)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/acdemeg/FifaBot?color=DC143C&labelColor=292f35)
 ![GitHub repo size](https://img.shields.io/github/repo-size/acdemeg/FifaBot?color=008B8B&labelColor=292f35)
-![GitHub issues](https://img.shields.io/github/issues-raw/acdemeg/FifaBot?color=DB7093&labelColor=292f35)
-![GitHub all releases](https://img.shields.io/github/downloads/acdemeg/FifaBot/total?labelColor=292f35)
+![GitHub all releases](https://img.shields.io/github/downloads/acdemeg/FifaBot/total?color=DB7093&labelColor=292f35)
 
 <!--suppress HtmlDeprecatedAttribute -->
 <span style="font-family: 'Bebas Neue',serif; font-size: 1.1em;">

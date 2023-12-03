@@ -51,6 +51,7 @@ public class Main {
         gameProcessing();
     }
 
+    @SuppressWarnings("BusyWait")
     private static void gameProcessing() throws IOException, InterruptedException {
         System.out.println("GAME STARTED!");
         long start = System.currentTimeMillis();
@@ -64,17 +65,16 @@ public class Main {
             if (isLoggingMode) {
                 logging(bufferedImage, gameInfo);
             }
+            Thread.sleep(300);
         }
     }
 
-    private static void logging(BufferedImage bufferedImage, GameInfo gameInfo)
-            throws IOException, InterruptedException {
+    private static void logging(BufferedImage bufferedImage, GameInfo gameInfo) throws IOException {
         String imageId = String.valueOf(System.nanoTime());
         log.info("ImageId: " + imageId);
         File file = new File(LOG_IMAGES.getPath(), imageId + "." + IMAGE_FORMAT);
         ImageIO.write(bufferedImage, IMAGE_FORMAT, file);
         ImageUtils.serialisationImageData(gameInfo.getPixels(), imageId);
-        Thread.sleep(500);
     }
 
     private static void runRePlayer() {

@@ -71,13 +71,13 @@ public class DecisionMaker {
 
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
         log.info(gameActions.toString());
+        if (gameInfo.getPlaymateSide() == null) {
+            return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
+        }
         if (repeatableAction) {
             return gameActions.stream()
                     .filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.controls().get(0)))
                     .findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
-        }
-        if (gameInfo.getPlaymateSide() == null) {
-            return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
         Point penaltyPoint = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? RIGHT_PENALTY_POINT.getPoint()
