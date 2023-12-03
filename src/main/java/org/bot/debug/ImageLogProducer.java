@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class ImageLogProducer {
     private static final int HEIGHT_INFO_BLOCK = 320;
     private static final int SCALE_FACTOR = 5;
     private static final int SCALE_SIZE = SCALE_FACTOR * 258;
-    private static final Map<String, LogObject> fileNameLogObjetMap = readLogs();
+    private static final Map<String, LogObject> fileNameLogObjetMap = parseLogs();
 
     @SneakyThrows
     public static void produce() {
@@ -127,15 +128,20 @@ public class ImageLogProducer {
     }
 
     @SneakyThrows
-    private static Map<String, LogObject> readLogs() {
+    private static Map<String, LogObject> parseLogs() {
         final Map<String, LogObject> fileNameLogObjetMap = new HashMap<>();
         final String logs = new String(Files.readAllBytes(Paths.get(LOG_ACTIONS.toURI())));
         String[] arr = logs.split("\r\n");
-        for (int i = 2; i + 7 < arr.length; i += 8) {
-            fileNameLogObjetMap.put(ImageUtils.pinchLogs(arr[i + 7], 15),
-                                    new LogObject(ImageUtils.pinchLogs(arr[i + 1], 6),
-                                                  ImageUtils.pinchLogs(arr[i + 3], 6),
-                                                  ImageUtils.pinchLogs(arr[i + 5], 6)));
+        arr = Arrays.stream(arr).filter(line -> line.startsWith("INFO: ImageId")
+                        || line.startsWith("INFO: GameAction")
+                        || line.startsWith("INFO: [GameAction")
+                        || line.startsWith("INFO: GameInfo")
+                ).toArray(String[]::new);
+        for (int i = 0; i + 3 < arr.length; i += 4) {
+            fileNameLogObjetMap.put(ImageUtils.pinchLogs(arr[i + 3], 15),
+                                    new LogObject(ImageUtils.pinchLogs(arr[i], 6),
+                                                  ImageUtils.pinchLogs(arr[i + 1], 6),
+                                                  ImageUtils.pinchLogs(arr[i + 2], 6)));
         }
         return fileNameLogObjetMap;
     }

@@ -29,7 +29,7 @@ public enum ControlsEnum {
     CUSTOM_TACTICS(new AtomicInteger(INIT_DELAY.getValue())),
     SWITCH_FROM_GK(new AtomicInteger(INIT_DELAY.getValue())),
     ATTACK_THROUGH_BALL(new AtomicInteger(INIT_DELAY.getValue())),
-    ATTACK_LOB_PASS_CROSS_HEADER(new AtomicInteger(INIT_DELAY.getValue())),
+    ATTACK_LOB_PASS_CROSS_HEADER(new AtomicInteger(300)),
     ATTACK_SHOOT_VOLLEY_HEADER(new AtomicInteger(INIT_DELAY.getValue())),
     ATTACK_SHORT_PASS_HEADER(new AtomicInteger(INIT_DELAY.getValue())),
     ATTACK_PLAYER_RUN_MODIFIER(new AtomicInteger(INIT_DELAY.getValue())),
@@ -73,6 +73,10 @@ public enum ControlsEnum {
 
     public static Set<ControlsEnum> passiveControlsSet() {
         return Set.of(NONE, ATTACK_PROTECT_BALL);
+    }
+
+    public static Set<ControlsEnum> repeatableControlsSet() {
+        return Set.of(NONE, ATTACK_PROTECT_BALL, MOVE_RIGHT, MOVE_LEFT);
     }
 
     ControlsEnum(AtomicInteger delay) {

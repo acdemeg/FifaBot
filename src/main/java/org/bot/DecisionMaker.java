@@ -30,16 +30,18 @@ public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
+    private static final int MAX_ACTIONS_REPEAT = 3;
     private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
 
     public ActionProducer decide() {
+        boolean isShade = gameInfo.isShadingField();
         boolean repeatableAction = shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
         log.info(gameAction.toString());
-        setGameHistory(gameAction.actionTargetPlayer(), gameAction);
+        setGameHistory(gameAction.actionTargetPlayer(), gameAction, isShade);
 
         return new ActionProducer(gameAction);
     }
@@ -76,7 +78,7 @@ public class DecisionMaker {
         }
         if (repeatableAction) {
             return gameActions.stream()
-                    .filter(gameAction -> !Set.of(NONE, ATTACK_PROTECT_BALL).contains(gameAction.controls().get(0)))
+                    .filter(gameAction -> !ControlsEnum.repeatableControlsSet().contains(gameAction.controls().get(0)))
                     .findFirst().orElse(new GameAction(List.of(ATTACK_PROTECT_BALL), gameInfo.getActivePlayer()));
         }
         Map<Integer, GameAction> priorityGameActionMap = new HashMap<>();
@@ -195,9 +197,14 @@ public class DecisionMaker {
     }
 
     private boolean isRepeatableAction() {
-        if (GameHistory.getActionRepeats() > 5) {
+        if (GameHistory.getActionRepeats() > MAX_ACTIONS_REPEAT) {
             gameInfo.setPlaymateBallPossession(true);
             gameInfo.setNobodyBallPossession(false);
+            // if the bot gets stuck -> make a cross to the other side
+            if (gameInfo.getPlaymateSide() != null) {
+                ControlsEnum side = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? MOVE_RIGHT : MOVE_LEFT;
+                gameActions.add(new GameAction(List.of(MOVE_UP, side, ATTACK_LOB_PASS_CROSS_HEADER), null));
+            }
             GameHistory.setActionRepeats(0);
             return true;
         }
@@ -205,6 +212,10 @@ public class DecisionMaker {
     }
 
     private boolean shadingFieldHandle() {
+        if (gameInfo.isEmptyState()) {
+            return false;
+        }
+
         if ((gameInfo.isShadingField() || gameInfo.getPlaymates().isEmpty()) && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
@@ -287,13 +298,15 @@ public class DecisionMaker {
         return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;
     }
 
-    private void setGameHistory(Point actionTargetPlayer, GameAction gameAction) {
+    private void setGameHistory(Point actionTargetPlayer, GameAction gameAction, boolean isShade) {
         GameHistory.setPrevGameInfo(gameInfo);
         GameHistory.setPrevActionTarget(actionTargetPlayer);
         GameHistory.setPrevGameAction(gameAction);
-        int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
-        GameHistory.setActionRepeats(counter);
-        log.fine("#setGameHistory -> Set values complete");
+        if (isShade) {
+            int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
+            GameHistory.setActionRepeats(counter);
+        }
+        log.info("#setGameHistory -> Set values complete");
     }
 
     // evaluate key press delay

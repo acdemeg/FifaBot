@@ -32,4 +32,13 @@ public class GameInfo {
     private final GameConstantsEnum playmateSide;
     @ToString.Exclude
     private final int[][] pixels;
+
+    public boolean isEmptyState() {
+        return activePlayer == null
+                && playmates.isEmpty()
+                && opposites.isEmpty()
+                && ball == null
+                && playmateSide == null
+                && !isShadingField;
+    }
 }
