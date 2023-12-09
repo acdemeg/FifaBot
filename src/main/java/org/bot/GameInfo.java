@@ -39,7 +39,6 @@ public class GameInfo {
                 && playmates.isEmpty()
                 && opposites.isEmpty()
                 && ball == null
-                && playmateSide == null
-                && !isShadingField;
+                && playmateSide == null;
     }
 }

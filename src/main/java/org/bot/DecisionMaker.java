@@ -30,18 +30,17 @@ public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
-    private static final int MAX_ACTIONS_REPEAT = 3;
+    private static final int MAX_ACTIONS_REPEAT = 30;
     private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
 
     public ActionProducer decide() {
-        boolean isShade = gameInfo.isShadingField();
         boolean repeatableAction = shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
         log.info(gameAction.toString());
-        setGameHistory(gameAction.actionTargetPlayer(), gameAction, isShade);
+        setGameHistory(gameAction.actionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
     }
@@ -218,8 +217,7 @@ public class DecisionMaker {
         if (gameInfo.isEmptyState()) {
             return false;
         }
-
-        if ((gameInfo.isShadingField() || gameInfo.getPlaymates().isEmpty()) && GameHistory.getPrevGameInfo() != null) {
+        if (gameInfo.getPlaymates().isEmpty() && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
             gameInfo.setActivePlayer(GameHistory.getPrevActionTarget());
             log.fine("#shadingFieldHandle -> set values complete");
@@ -301,14 +299,12 @@ public class DecisionMaker {
         return (height / lowShotDistance) < OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO;
     }
 
-    private void setGameHistory(Point actionTargetPlayer, GameAction gameAction, boolean isShade) {
+    private void setGameHistory(Point actionTargetPlayer, GameAction gameAction) {
         GameHistory.setPrevGameInfo(gameInfo);
         GameHistory.setPrevActionTarget(actionTargetPlayer);
         GameHistory.setPrevGameAction(gameAction);
-        if (isShade) {
-            int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
-            GameHistory.setActionRepeats(counter);
-        }
+        int counter = GameHistory.getPrevGameAction().equals(gameAction) ? GameHistory.getActionRepeats() + 1 : 0;
+        GameHistory.setActionRepeats(counter);
         log.info("#setGameHistory -> Set values complete");
     }
 

@@ -24,18 +24,18 @@ import static org.bot.enums.GameConstantsEnum.*;
  */
 public class ImageAnalysis {
 
-    private static final double SEARCH_RADIUS_NEARLY_PLAYER = 7.5;
+    private static final double SEARCH_RADIUS_NEARLY_PLAYER = 8;
     private static final int X_DISTANCE_NEARLY_PLAYER = 6;
     private static final int Y_DISTANCE_NEARLY_PLAYER = 9;
     private static final int OVERLAY_PLAYER_BASE_DISTANCE = 5;
     private static final int CORNER_POINT_DISTANCE = 25;
+    private static final int BALL_POSSESSION_RADIUS = 10;
 
     private final BufferedImage bufferedImage;
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
     private Point activePlayer;
     private Point ball;
-    private Point shadingBall;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
     private boolean isShadingField;
@@ -76,27 +76,33 @@ public class ImageAnalysis {
      * else add new coordinate in corresponding Set in depend on player belong to.<p>
      */
     public GameInfo analyse() {
+        setShadingField();
         baseAnalyseRun();
         searchOverlayPlayers();
         setPlayerPossessionOfBall();
         setPlaymateSide();
-        setShadingField();
         setCornerState();
+        searchNearlyPlayerIfActivePlayerNotFound();
         return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
                 isNobodyBallPossession, isShadingField, isCorner, playmateSide, pixels);
     }
 
-    private void setCornerState() {
-        Point cornerBall = ball == null ? shadingBall : ball;
-        if (cornerBall != null) {
-            isCorner = LEFT_TOP_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
-                    || LEFT_BOTTOM_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
-                    || RIGHT_TOP_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE
-                    || RIGHT_BOTTOM_CORNER.getPoint().distance(cornerBall) < CORNER_POINT_DISTANCE;
+    private void searchNearlyPlayerIfActivePlayerNotFound() {
+        if (ball != null && playmates != null) {
+            activePlayer = playmates.stream().min(Comparator.comparing(player -> player.distance(ball))).orElse(null);
         }
     }
 
-    @SuppressWarnings({"java:S127", "java:S3776"})
+    private void setCornerState() {
+        if (ball != null) {
+            isCorner = LEFT_TOP_CORNER.getPoint().distance(ball) < CORNER_POINT_DISTANCE
+                    || LEFT_BOTTOM_CORNER.getPoint().distance(ball) < CORNER_POINT_DISTANCE
+                    || RIGHT_TOP_CORNER.getPoint().distance(ball) < CORNER_POINT_DISTANCE
+                    || RIGHT_BOTTOM_CORNER.getPoint().distance(ball) < CORNER_POINT_DISTANCE;
+        }
+    }
+
+    @SuppressWarnings({"java:S127"})
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -116,8 +122,6 @@ public class ImageAnalysis {
                     addSkippedValuesInPixels(xPrev, x, y);
                 } else if (ball == null && isBallColor(pixel)) {
                     ball = new Point(x + 1, y + 5);
-                } else if (shadingBall == null && isShadingBallColor(pixel)) {
-                    shadingBall = new Point(x + 1, y + 5);
                 }
             }
         }
@@ -133,11 +137,11 @@ public class ImageAnalysis {
 
     private void setShadingField() {
         int shades = 0;
-        shades = isShadingFieldColor(pixels[10][10]) ? shades + 1 : shades;
-        shades = isShadingFieldColor(pixels[WIDTH - 10][10]) ? shades + 1 : shades;
-        shades = isShadingFieldColor(pixels[10][HEIGHT - 10]) ? shades + 1 : shades;
-        shades = isShadingFieldColor(pixels[WIDTH - 10][HEIGHT - 10]) ? shades + 1 : shades;
-        isShadingField = playmates.size() < 5 && shades > 1;
+        shades = isShadingFieldColor(bufferedImage.getRGB(10, 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(bufferedImage.getRGB(WIDTH - 10, 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(bufferedImage.getRGB(10, HEIGHT - 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(bufferedImage.getRGB(WIDTH - 10, HEIGHT - 10)) ? shades + 1 : shades;
+        isShadingField = shades > 1;
     }
 
     private void setPlaymateSide() {
@@ -160,12 +164,12 @@ public class ImageAnalysis {
         Point opposite = opposites.stream().min(closestToBall).orElse(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
         double playmateDistance = playmate.distance(ball);
         double oppositeDistance = opposite.distance(ball);
-        if (Math.abs(playmateDistance - oppositeDistance) <= 1 || (playmateDistance > 10 && oppositeDistance > 10)) {
+        if (Math.abs(playmateDistance - oppositeDistance) <= 1
+                || (playmateDistance > BALL_POSSESSION_RADIUS && oppositeDistance > BALL_POSSESSION_RADIUS)) {
             isNobodyBallPossession = true;
         } else if (playmateDistance < oppositeDistance) {
             isPlaymateBallPossession = true;
         }
-
     }
 
     private void searchOverlayPlayers() {
@@ -281,6 +285,9 @@ public class ImageAnalysis {
     }
 
     private boolean checkDoubleCrossingBound(int x, int topRange, int bottomRange, boolean isActivePlayer) {
+        if (isShadingField) {
+            return false;
+        }
         if (bottomRange > 0 && topRange < HEIGHT) {
             for (int y = bottomRange; y <= topRange; y++) {
                 int pixel = ImageUtils.getRGB(bufferedImage, x, y);
@@ -292,6 +299,7 @@ public class ImageAnalysis {
         return false;
     }
 
+    // if player already was added
     private boolean isExistBottomRightNearPoint(int x, int y) {
         if (y + 4 < HEIGHT) {
             int pixel = ImageUtils.getRGB(bufferedImage, x, y + 4);
@@ -324,10 +332,17 @@ public class ImageAnalysis {
                 activePlayer = new Point(x, y);
                 return playmates.add(activePlayer);
             }
+
+            int test1 = ImageUtils.getRGB(bufferedImage, Math.min(x + 1, WIDTH - 1), Math.min(y + 1, HEIGHT - 1));
+            int test2 = ImageUtils.getRGB(bufferedImage, Math.min(x + 2, WIDTH - 1), Math.min(y + 2, HEIGHT - 1));
+            int test3 = ImageUtils.getRGB(bufferedImage, Math.min(x + 3, WIDTH - 1), Math.min(y + 3, HEIGHT - 1));
+
             if (isPlaymateColor(pixel)) {
-                return !isExistPoint.test(playmates) && playmates.add(new Point(x, y));
+                return (isPlaymateColor(test1) || isPlaymateColor(test2) || isPlaymateColor(test3))
+                        && !isExistPoint.test(playmates) && playmates.add(new Point(x, y));
             } else if (isOppositeColor(pixel)) {
-                return !isExistPoint.test(opposites) && opposites.add(new Point(x, y));
+                return (isOppositeColor(test1) || isOppositeColor(test2) || isOppositeColor(test3))
+                        && !isExistPoint.test(opposites) && opposites.add(new Point(x, y));
             }
             return false;
         }
@@ -339,6 +354,11 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
+        if (isShadingField) {
+            return SHADING_BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() <= r && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getRed() >= r
+                    && SHADING_BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() <= g && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getGreen() >= g
+                    && SHADING_BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() <= b && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getBlue() >= b;
+        }
         return BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() < r && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getRed() > r
                 && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() < g && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getGreen() > g
                 && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() < b && BOUND_OF_PLAYER_COLOR_UPPER.getColor().getBlue() > b;
@@ -349,6 +369,11 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
+        if (isShadingField) {
+            return SHADING_PLAYMATE_COLOR_LOWER.getColor().getRed() <= r && SHADING_PLAYMATE_COLOR_UPPER.getColor().getRed() >= r
+                    && SHADING_PLAYMATE_COLOR_LOWER.getColor().getGreen() <= g && SHADING_PLAYMATE_COLOR_UPPER.getColor().getGreen() >= g
+                    && SHADING_PLAYMATE_COLOR_LOWER.getColor().getBlue() <= b && SHADING_PLAYMATE_COLOR_UPPER.getColor().getBlue() >= b;
+        }
         return PLAYMATE_COLOR_LOWER.getColor().getRed() < r && PLAYMATE_COLOR_UPPER.getColor().getRed() > r
                 && PLAYMATE_COLOR_LOWER.getColor().getGreen() > g && PLAYMATE_COLOR_UPPER.getColor().getGreen() < g
                 && PLAYMATE_COLOR_LOWER.getColor().getBlue() > b && PLAYMATE_COLOR_UPPER.getColor().getBlue() < b;
@@ -359,6 +384,11 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
+        if (isShadingField) {
+            return SHADING_OPPOSITE_COLOR_LOWER.getColor().getRed() <= r && SHADING_OPPOSITE_COLOR_UPPER.getColor().getRed() >= r
+                    && SHADING_OPPOSITE_COLOR_LOWER.getColor().getGreen() <= g && SHADING_OPPOSITE_COLOR_UPPER.getColor().getGreen() >= g
+                    && SHADING_OPPOSITE_COLOR_LOWER.getColor().getBlue() <= b && SHADING_OPPOSITE_COLOR_UPPER.getColor().getBlue() >= b;
+        }
         return OPPOSITE_COLOR_LOWER.getColor().getRed() > r && OPPOSITE_COLOR_UPPER.getColor().getRed() < r
                 && OPPOSITE_COLOR_LOWER.getColor().getGreen() > g && OPPOSITE_COLOR_UPPER.getColor().getGreen() < g
                 && OPPOSITE_COLOR_LOWER.getColor().getBlue() < b && OPPOSITE_COLOR_UPPER.getColor().getBlue() > b;
@@ -369,6 +399,12 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
+        if (isShadingField) {
+            return SHADING_ACTIVE_PLAYER_LOWER.getColor().getRed() <= r && SHADING_ACTIVE_PLAYER_UPPER.getColor().getRed() >= r
+                    && SHADING_ACTIVE_PLAYER_LOWER.getColor().getGreen() <= g && SHADING_ACTIVE_PLAYER_UPPER.getColor().getGreen() >= g
+                    && ((SHADING_ACTIVE_PLAYER_LOWER.getColor().getBlue() <= b && SHADING_ACTIVE_PLAYER_UPPER.getColor().getBlue() >= b)
+                    || isShadingField);
+        }
         return ACTIVE_PLAYER_LOWER.getColor().getRed() > r && ACTIVE_PLAYER_UPPER.getColor().getRed() <= r
                 && ACTIVE_PLAYER_LOWER.getColor().getGreen() < g && ACTIVE_PLAYER_UPPER.getColor().getGreen() > g
                 && ACTIVE_PLAYER_LOWER.getColor().getBlue() < b && ACTIVE_PLAYER_UPPER.getColor().getBlue() > b
@@ -380,19 +416,14 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
+        if (isShadingField) {
+            return SHADING_BALL_COLOR_LOWER.getColor().getRed() <= r && SHADING_BALL_COLOR_UPPER.getColor().getRed() >= r
+                    && SHADING_BALL_COLOR_LOWER.getColor().getGreen() <= g && SHADING_BALL_COLOR_UPPER.getColor().getGreen() >= g
+                    && SHADING_BALL_COLOR_LOWER.getColor().getBlue() <= b && SHADING_BALL_COLOR_UPPER.getColor().getBlue() >= b;
+        }
         return BALL_COLOR_LOWER.getColor().getRed() < r && BALL_COLOR_UPPER.getColor().getRed() > r
                 && BALL_COLOR_LOWER.getColor().getGreen() < g && BALL_COLOR_UPPER.getColor().getGreen() > g
                 && BALL_COLOR_LOWER.getColor().getBlue() >= b && BALL_COLOR_UPPER.getColor().getBlue() <= b;
-    }
-
-    private boolean isShadingBallColor(int pixel) {
-        int r = (pixel >> 16) & 0xFF;
-        int g = (pixel >> 8) & 0xFF;
-        int b = pixel & 0xFF;
-
-        return SHADING_BALL_COLOR_LOWER.getColor().getRed() < r && SHADING_BALL_COLOR_UPPER.getColor().getRed() > r
-                && SHADING_BALL_COLOR_LOWER.getColor().getGreen() < g && SHADING_BALL_COLOR_UPPER.getColor().getGreen() > g
-                && SHADING_BALL_COLOR_LOWER.getColor().getBlue() < b && SHADING_BALL_COLOR_UPPER.getColor().getBlue() > b;
     }
 
     private boolean isOverlayOppositePlayerColor(int pixel) {
@@ -400,9 +431,9 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getRed() < r && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getRed() > r
-                && OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getGreen() < g && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getGreen() > g
-                && OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getBlue() < b && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getBlue() > b;
+        return OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getRed() <= r && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getRed() >= r
+                && OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getGreen() <= g && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getGreen() >= g
+                && OVERLAY_OPPOSITE_PLAYER_COLOR_LOWER.getColor().getBlue() <= b && OVERLAY_OPPOSITE_PLAYER_COLOR_UPPER.getColor().getBlue() >= b;
     }
 
     private boolean isOverlayPlaymatePlayerColor(int pixel) {
@@ -410,9 +441,9 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getRed() < r && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getRed() > r
-                && OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getGreen() < g && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getGreen() > g
-                && OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getBlue() > b && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getBlue() < b;
+        return OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getRed() <= r && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getRed() >= r
+                && OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getGreen() <= g && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getGreen() >= g
+                && OVERLAY_PLAYMATE_PLAYER_COLOR_LOWER.getColor().getBlue() >= b && OVERLAY_PLAYMATE_PLAYER_COLOR_UPPER.getColor().getBlue() <= b;
     }
 
     private boolean isOverlayBoundPlayerColor(int pixel) {
@@ -420,9 +451,9 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getRed() < r && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() > r
-                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getGreen() < g && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() > g
-                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getBlue() < b && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() > b
+        return OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getRed() <= r && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getRed() >= r
+                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getGreen() <= g && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getGreen() >= g
+                && OVERLAY_BOUND_OF_PLAYER_COLOR.getColor().getBlue() <= b && BOUND_OF_PLAYER_COLOR_LOWER.getColor().getBlue() >= b
                 && Math.abs(g - b) < 10 && Math.abs(r - g) < 10 && Math.abs(r - b) < 10;
     }
 
@@ -431,9 +462,9 @@ public class ImageAnalysis {
         int g = (pixel >> 8) & 0xFF;
         int b = pixel & 0xFF;
 
-        return SHADING_FIELD_COLOR_LOWER.getColor().getRed() < r && SHADING_FIELD_COLOR_UPPER.getColor().getRed() > r
-                && SHADING_FIELD_COLOR_LOWER.getColor().getGreen() < g && SHADING_FIELD_COLOR_UPPER.getColor().getGreen() > g
-                && SHADING_FIELD_COLOR_LOWER.getColor().getBlue() < b && SHADING_FIELD_COLOR_UPPER.getColor().getBlue() > b
-                && r < g && r > b && g - r < 45 && g - b < 90 && r - b < 50;
+        return SHADING_FIELD_COLOR_LOWER.getColor().getRed() <= r && SHADING_FIELD_COLOR_UPPER.getColor().getRed() >= r
+                && SHADING_FIELD_COLOR_LOWER.getColor().getGreen() <= g && SHADING_FIELD_COLOR_UPPER.getColor().getGreen() >= g
+                && SHADING_FIELD_COLOR_LOWER.getColor().getBlue() <= b && SHADING_FIELD_COLOR_UPPER.getColor().getBlue() >= b
+                && r < g && r > b && g - r <= 45 && g - b <= 90 && r - b <= 50;
     }
 }

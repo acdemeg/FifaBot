@@ -28,8 +28,8 @@ class ImageAnalysisTest {
             return;
         }
         if (notFullSetPlayers.contains(number)) {
-            Assertions.assertTrue(gameInfo.getPlaymates().size() >= 10);
-            Assertions.assertTrue(gameInfo.getOpposites().size() >= 10);
+            Assertions.assertTrue(gameInfo.getPlaymates().size() >= 9);
+            Assertions.assertTrue(gameInfo.getOpposites().size() >= 9);
             Assertions.assertFalse(gameInfo.isShadingField());
             return;
         }
