@@ -2,7 +2,7 @@
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/acdemeg/FifaBot/build_workflow.yml?logo=gradle&labelColor=292f35)
 [![GitHub release (with filter)](https://img.shields.io/github/v/release/acdemeg/FifaBot?logo=github&labelColor=292f35)](https://github.com/acdemeg/FifaBot/releases)
-![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?labelColor=292f35)
+![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?color=8B8C7A&labelColor=292f35)
 ![GitHub Repo stars](https://img.shields.io/github/stars/acdemeg/FifaBot?color=FFA500&labelColor=292f35)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/acdemeg/FifaBot?color=DC143C&labelColor=292f35)
 ![GitHub repo size](https://img.shields.io/github/repo-size/acdemeg/FifaBot?color=008B8B&labelColor=292f35)
@@ -13,6 +13,8 @@
 The repository contains an AI bot for the game Fifa19, but this approach will work for others as well
 FIFA series games. The bot analyzes the 2D layout of the field (it must be turned on) to evaluate the game
 situations, then makes decisions and triggers keyboard events to control the game process.
+The bot is written without using third-party libraries like OpenCV, only dependencies are included
+for testing and code generation.
 
 Read this in other languages: 
 
@@ -290,4 +292,14 @@ FullHD resolution, 100% scaling:computer::
     <p align="center">
         <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_eng.png" alt="settting_eng">
     </p>
+</details>
+
+
+### Gameplay
+Difficulty level - beginner
+<details>
+  <summary>Collapse/Expand</summary>
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/FifaBotGamePlay.gif" alt="Bot gameplay">
+  </p>
 </details>

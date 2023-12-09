@@ -2,7 +2,7 @@
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/acdemeg/FifaBot/build_workflow.yml?logo=gradle&labelColor=292f35)
 [![GitHub release (with filter)](https://img.shields.io/github/v/release/acdemeg/FifaBot?logo=github&labelColor=292f35)](https://github.com/acdemeg/FifaBot/releases)
-![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?labelColor=292f35)
+![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/acdemeg/FifaBot?color=8B8C7A&labelColor=292f35)
 ![GitHub Repo stars](https://img.shields.io/github/stars/acdemeg/FifaBot?color=FFA500&labelColor=292f35)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/acdemeg/FifaBot?color=DC143C&labelColor=292f35)
 ![GitHub repo size](https://img.shields.io/github/repo-size/acdemeg/FifaBot?color=008B8B&labelColor=292f35)
@@ -13,6 +13,8 @@
 Репозиторий содержит AI бота для игры Fifa19, но данный подход сработает и для других
 игр серии fifa. Бот анализирует 2D-схему поля(она должна быть включена) для оценки игровой
 ситуации, затем принимает решение и инициирует события клавиатуры для управления процессом игры.
+Бот написан без использования сторонних библиотек наподобие OpenCV, включены только зависимости 
+для тестирования и генерации кода.
 
 Читайте это на других языках:
 
@@ -288,5 +290,14 @@
   <summary>Свернуть/Развернуть</summary>
   <p align="center">
     <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/settting_ru.png" alt="settting_ru">
+  </p>
+</details>
+
+### Геймплей
+Уровень сложности - начинающий
+<details>
+  <summary>Свернуть/Развернуть</summary>
+  <p align="center">
+    <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/FifaBotGamePlay.gif" alt="Bot gameplay">
   </p>
 </details>
