@@ -69,4 +69,8 @@ public record ActionProducer(GameAction gameAction) {
             }
         });
     }
+
+    public static void releaseAll() {
+        CONTROLS_ENUM_KEY_CODE_MAP.values().forEach(controls -> controls.forEach(ROBOT::keyRelease));
+    }
 }

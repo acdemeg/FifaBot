@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
 
 import static org.bot.GameInfo.*;
@@ -53,10 +55,9 @@ public class Main {
 
     @SuppressWarnings("BusyWait")
     private static void gameProcessing() throws IOException, InterruptedException {
-        System.out.println("GAME STARTED!");
-        long start = System.currentTimeMillis();
-        long year = 31104000000L;
-        while (System.currentTimeMillis() - start < year) {
+        AtomicBoolean exit = new AtomicBoolean(false);
+        inputProcessing(exit);
+        while (!exit.get()) {
             log.info("          ***------------------------------------------------------------***            ");
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
             BufferedImage bufferedImage = ROBOT.createScreenCapture(rectangle);
@@ -68,6 +69,21 @@ public class Main {
             }
             Thread.sleep(300);
         }
+        // release all keys on exit
+        ActionProducer.releaseAll();
+    }
+
+    private static void inputProcessing(AtomicBoolean exit) {
+        new Thread(() -> {
+            System.out.println("GAME STARTED!");
+            while (!exit.get()) {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("To end the program type 'exit' and press 'Enter':");
+                System.out.print(">");
+                String input = scanner.nextLine();
+                exit.set("exit".equalsIgnoreCase(input));
+            }
+        }).start();
     }
 
     private static void logging(BufferedImage bufferedImage, GameInfo gameInfo) throws IOException {

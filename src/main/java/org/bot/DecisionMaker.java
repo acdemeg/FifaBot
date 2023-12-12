@@ -59,6 +59,9 @@ public class DecisionMaker {
             else if (!gameInfo.isNobodyBallPossession()) {
                 gameActions.add(getDefenceAction());
             }
+            else {
+                gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
+            }
         }
         else {
             gameActions.add(new GameAction(List.of(NONE), null));
