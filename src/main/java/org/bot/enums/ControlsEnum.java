@@ -67,6 +67,10 @@ public enum ControlsEnum {
         return Set.of(SPRINT, ATTACK_PROTECT_BALL, DEFENCE_CONTAIN, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT);
     }
 
+    public static Set<ControlsEnum> continuousControlsSet() {
+        return Set.of(DEFENCE_CONTAIN);
+    }
+
     public static Set<ControlsEnum> shotControlsSet() {
         return Set.of(ATTACK_SHOOT_VOLLEY_HEADER, CHIP_SHOT, LOW_SHOT, FINESSE_SHOT, FLAIR_SHOOT);
     }

@@ -57,6 +57,7 @@ public class Main {
         long start = System.currentTimeMillis();
         long year = 31104000000L;
         while (System.currentTimeMillis() - start < year) {
+            log.info("          ***------------------------------------------------------------***            ");
             Rectangle rectangle = new Rectangle(START_X, START_Y, WIDTH, HEIGHT);
             BufferedImage bufferedImage = ROBOT.createScreenCapture(rectangle);
             GameInfo gameInfo = new ImageAnalysis(bufferedImage).analyse();

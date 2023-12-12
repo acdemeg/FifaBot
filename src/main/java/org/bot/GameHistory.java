@@ -1,15 +1,15 @@
 package org.bot;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.awt.*;
+import java.util.Collections;
+import java.util.Optional;
 
 /**
  * This class represent prev game states and prev targets decision
  */
+@ToString
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class GameHistory {
     @Getter
@@ -27,4 +27,21 @@ public class GameHistory {
     @Getter
     @Setter
     private static GameAction notReleasedGameAction;
+    @Getter
+    @Setter
+    private static boolean isContinuousAction;
+	@Getter
+    @Setter
+    private static boolean isPossessionChanged;
+
+    public static String toStringStatic() {
+        GameAction mock = new GameAction(Collections.emptyList(), null);
+        return "isContinuousAction=" + isContinuousAction + ", "
+                + "actionRepeats=" + actionRepeats + ", "
+                + "notReleasedGameAction=" + Optional.ofNullable(notReleasedGameAction).orElse(mock) + ", "
+                + "prevGameAction=" + Optional.ofNullable(prevGameAction).orElse(mock) + ", "
+                + "prevActionTarget=" + Optional.ofNullable(prevActionTarget).orElse(new Point()) + ", "
+                + "prevGameInfo=" + Optional.ofNullable(prevGameInfo).orElse(new GameInfo()) + ", ";
+
+    }
 }

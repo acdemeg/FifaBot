@@ -2,10 +2,12 @@ package org.bot;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bot.enums.GameConstantsEnum;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.SortedSet;
 
 /**
@@ -15,6 +17,7 @@ import java.util.SortedSet;
 @Data
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class GameInfo {
     // for full window mode x = 836 y = 839
     public static final int START_X = 831;
@@ -23,22 +26,15 @@ public class GameInfo {
     public static final int HEIGHT = 153;
 
     private Point activePlayer;
-    private final SortedSet<Point> playmates;
-    private final SortedSet<Point> opposites;
     private final Point ball;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
     private final boolean isShadingField;
     private final boolean isCorner;
     private final GameConstantsEnum playmateSide;
+    private SortedSet<Point> playmates = Collections.emptySortedSet();
+    private SortedSet<Point> opposites = Collections.emptySortedSet();
     @ToString.Exclude
     private final int[][] pixels;
 
-    public boolean isEmptyState() {
-        return activePlayer == null
-                && playmates.isEmpty()
-                && opposites.isEmpty()
-                && ball == null
-                && playmateSide == null;
-    }
 }

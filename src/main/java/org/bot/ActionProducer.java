@@ -1,5 +1,6 @@
 package org.bot;
 
+import lombok.extern.java.Log;
 import org.bot.enums.ControlsEnum;
 
 import java.util.ArrayList;
@@ -9,15 +10,17 @@ import java.util.function.IntConsumer;
 
 import static org.bot.GameAction.CONTROLS_ENUM_KEY_CODE_MAP;
 import static org.bot.Main.ROBOT;
+import static org.bot.enums.ControlsEnum.CANCEL;
 
 /**
  * This class take responsible for events generation.
  * Now is available only keyboard actions
  */
+@Log
 public record ActionProducer(GameAction gameAction) {
 
     public void makeGameAction() {
-        if (GameHistory.getNotReleasedGameAction() != null) {
+        if (GameHistory.getNotReleasedGameAction() != null && !GameHistory.isContinuousAction()) {
             makeKeyAction(ROBOT::keyRelease, false, true, true);
             GameHistory.setNotReleasedGameAction(null);
         }
@@ -34,12 +37,30 @@ public record ActionProducer(GameAction gameAction) {
     }
 
     private void makeKeyAction(IntConsumer keyAction, boolean needDelay, boolean isReverse, boolean isFromHistory) {
-        List<ControlsEnum> controls =
-                isFromHistory ? GameHistory.getNotReleasedGameAction().controls() : gameAction.controls();
+        List<ControlsEnum> controls;
+        if (isFromHistory) {
+            controls = GameHistory.getNotReleasedGameAction().controls();
+            log.info("NotReleasedGameAction: " + controls);
+        }
+        else {
+            controls = gameAction.controls();
+        }
         if (isReverse) {
             controls = new ArrayList<>(controls);
             Collections.reverse(controls);
+            log.info("KeyRelease: " + controls);
         }
+        else {
+            if (GameHistory.isPossessionChanged()) {
+				// cancel prev action 
+				List<Integer> cancelCodes = CONTROLS_ENUM_KEY_CODE_MAP.get(CANCEL);
+				cancelCodes.forEach(ROBOT::keyPress);
+				ROBOT.delay(CANCEL.getDelay().get()); 
+				cancelCodes.forEach(ROBOT::keyRelease);	
+			}
+            log.info("KeyPress: " + controls);
+        }
+
         controls.forEach(control -> {
             List<Integer> keyEvents = CONTROLS_ENUM_KEY_CODE_MAP.get(control);
             keyEvents.forEach(keyAction::accept);

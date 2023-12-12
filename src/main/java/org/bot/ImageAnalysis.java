@@ -83,8 +83,8 @@ public class ImageAnalysis {
         setPlaymateSide();
         setCornerState();
         searchNearlyPlayerIfActivePlayerNotFound();
-        return new GameInfo(activePlayer, playmates, opposites, ball, isPlaymateBallPossession,
-                isNobodyBallPossession, isShadingField, isCorner, playmateSide, pixels);
+        return new GameInfo(activePlayer, ball, isPlaymateBallPossession, isNobodyBallPossession, isShadingField,
+                            isCorner, playmateSide, playmates, opposites, pixels);
     }
 
     private void searchNearlyPlayerIfActivePlayerNotFound() {
