@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.bot.GameInfo.HEIGHT;
@@ -23,7 +24,8 @@ import static org.bot.enums.GameConstantsEnum.*;
  * This class performing base analysis of football field scheme image
  */
 public class ImageAnalysis {
-
+    private static final Comparator<Point> POINT_COMPARATOR = Comparator.comparingDouble(Point::getY)
+            .thenComparingDouble(Point::getX);
     private static final double SEARCH_RADIUS_NEARLY_PLAYER = 8;
     private static final int X_DISTANCE_NEARLY_PLAYER = 6;
     private static final int Y_DISTANCE_NEARLY_PLAYER = 9;
@@ -35,6 +37,7 @@ public class ImageAnalysis {
     private final SortedSet<Point> playmates;
     private final SortedSet<Point> opposites;
     private Point activePlayer;
+    private final SortedSet<Point> activePlayerCandidates = new TreeSet<>(POINT_COMPARATOR);
     private Point ball;
     private boolean isPlaymateBallPossession;
     private boolean isNobodyBallPossession;
@@ -57,9 +60,8 @@ public class ImageAnalysis {
 
     public ImageAnalysis(BufferedImage bufferedImage) {
         this.bufferedImage = bufferedImage;
-        Comparator<Point> comparator = Comparator.comparingDouble(Point::getY).thenComparingDouble(Point::getX);
-        this.playmates = new TreeSet<>(comparator);
-        this.opposites = new TreeSet<>(comparator);
+        this.playmates = new TreeSet<>(POINT_COMPARATOR);
+        this.opposites = new TreeSet<>(POINT_COMPARATOR);
         this.pixels = new int[WIDTH][HEIGHT];
     }
 
@@ -82,14 +84,30 @@ public class ImageAnalysis {
         setPlayerPossessionOfBall();
         setPlaymateSide();
         setCornerState();
-        searchNearlyPlayerIfActivePlayerNotFound();
+        searchShadingActivePlayer();
         return new GameInfo(activePlayer, ball, isPlaymateBallPossession, isNobodyBallPossession, isShadingField,
                             isCorner, playmateSide, playmates, opposites, pixels);
     }
 
-    private void searchNearlyPlayerIfActivePlayerNotFound() {
-        if (ball != null && playmates != null && activePlayer == null) {
-            activePlayer = playmates.stream().min(Comparator.comparing(player -> player.distance(ball))).orElse(null);
+    private void searchShadingActivePlayer() {
+        if (ball != null && activePlayer == null) {
+            // filter false active players
+            opposites.forEach(opponent -> activePlayerCandidates.retainAll(activePlayerCandidates.stream()
+                .filter(point -> point.distance(opponent.getX(), opponent.getY()) > SEARCH_RADIUS_NEARLY_PLAYER)
+                .collect(Collectors.toSet())));
+            // find potential candidates
+            SortedSet<Point> potentialCandidates = new TreeSet<>(POINT_COMPARATOR);
+            activePlayerCandidates.forEach(player -> potentialCandidates.addAll(
+                    playmates.stream()
+                            .filter(point -> point.distance(player.getX(), player.getY()) < SEARCH_RADIUS_NEARLY_PLAYER)
+                            .collect(Collectors.toSet())
+            ));
+            // remove potentialCandidates from playmates
+            playmates.retainAll(potentialCandidates);
+            // if empty then set closest for ball
+            activePlayer = potentialCandidates.stream().findAny()
+                    .orElse(playmates.stream().min(Comparator.comparing(player -> player.distance(ball)))
+                    .orElse(null));
         }
     }
 
@@ -102,7 +120,7 @@ public class ImageAnalysis {
         }
     }
 
-    @SuppressWarnings({"java:S127"})
+    @SuppressWarnings({"java:S127", "java:S3776"})
     private void baseAnalyseRun() {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
@@ -118,8 +136,12 @@ public class ImageAnalysis {
                         addSkippedValuesInPixels(xPrev, x, y);
                     }
                 } else if (activePlayer == null && isActivePlayerColor(pixel)) {
-                    x = addPlayer(x, y, this::isActivePlayerColor, true);
-                    addSkippedValuesInPixels(xPrev, x, y);
+                    if (isShadingField) {
+                        activePlayerCandidates.add(new Point(x, y));
+                    } else {
+                        x = addPlayer(x, y, this::isActivePlayerColor, true);
+                        addSkippedValuesInPixels(xPrev, x, y);
+                    }
                 } else if (ball == null && isBallColor(pixel)) {
                     ball = new Point(x + 1, y + 5);
                 }
