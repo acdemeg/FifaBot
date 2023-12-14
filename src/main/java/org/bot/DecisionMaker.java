@@ -30,7 +30,8 @@ public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
-    private static final int MAX_ACTIONS_REPEAT = 10;
+    private static final int MAX_ACTIONS_REPEAT = 5;
+    private static final int BALL_POSSESSION_CHECKS_COUNT = 3;
     private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
@@ -40,6 +41,7 @@ public class DecisionMaker {
     }
 
     public ActionProducer decide() {
+        ballPossessionAdjusting();
         boolean repeatableAction = shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
@@ -47,6 +49,19 @@ public class DecisionMaker {
         setGameHistory(gameAction.actionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
+    }
+
+    private void ballPossessionAdjusting() {
+        if (!gameInfo.isPlaymateBallPossession()) {
+            if (GameHistory.getBallPossessionChecksCount() < BALL_POSSESSION_CHECKS_COUNT) {
+                gameInfo.setPlaymateBallPossession(true);
+                gameInfo.setNobodyBallPossession(false);
+                GameHistory.setBallPossessionChecksCount(GameHistory.getBallPossessionChecksCount() + 1);
+            }
+        }
+        else {
+            GameHistory.setBallPossessionChecksCount(0);
+        }
     }
 
     private void gameActionsFilling() {
@@ -59,12 +74,6 @@ public class DecisionMaker {
             else if (!gameInfo.isNobodyBallPossession()) {
                 gameActions.add(getDefenceAction());
             }
-            else {
-                gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
-            }
-        }
-        else {
-            gameActions.add(new GameAction(List.of(NONE), null));
         }
         // filter action if was released on same key, example ATTACK_SHORT_PASS_HEADER -> DEFENCE_CONTAIN
         // this need in order to exclude waste action repeat
@@ -74,6 +83,7 @@ public class DecisionMaker {
                          .filter(action -> !GameHistory.getPrevGameAction().controls()
                          .equals(action.controls())).collect(Collectors.toSet()));
         }
+        gameActions.add(new GameAction(List.of(NONE), gameInfo.getActivePlayer()));
     }
 
     private GameAction getDefenceAction() {
@@ -327,9 +337,9 @@ public class DecisionMaker {
         GameHistory.setActionRepeats(counter);
 	    GameHistory.setContinuousAction(ControlsEnum.continuousControlsSet().containsAll(gameAction.controls()));
 		if (GameHistory.getPrevGameInfo() != null) {
-			GameHistory.setPossessionChanged((
-				GameHistory.getPrevGameInfo().isPlaymateBallPossession() ^ gameInfo.isPlaymateBallPossession()) 
-				&& gameInfo.isPlaymateBallPossession());			
+			GameHistory.setPossessionChangedOnTrue(
+                    !GameHistory.getPrevGameInfo().isPlaymateBallPossession() && gameInfo.isPlaymateBallPossession()
+            );
 		}
         GameHistory.setPrevGameInfo(gameInfo);
         GameHistory.setPrevActionTarget(actionTargetPlayer);

@@ -47,7 +47,9 @@ public class Main {
             LogManager.getLogManager().reset();
         }
         if (isReplayerMode) {
+            LogManager.getLogManager().reset();
             runRePlayer();
+            return;
         }
         ImageUtils.clearLogs();
         gameProcessing();
@@ -78,10 +80,9 @@ public class Main {
             System.out.println("GAME STARTED!");
             while (!exit.get()) {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("To end the program type 'exit' and press 'Enter':");
-                System.out.print(">");
-                String input = scanner.nextLine();
-                exit.set("exit".equalsIgnoreCase(input));
+                System.out.println("To end the program press \"Enter\":");
+                scanner.nextLine();
+                exit.set(true);
             }
         }).start();
     }

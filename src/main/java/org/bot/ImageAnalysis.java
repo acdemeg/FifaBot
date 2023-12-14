@@ -88,7 +88,7 @@ public class ImageAnalysis {
     }
 
     private void searchNearlyPlayerIfActivePlayerNotFound() {
-        if (ball != null && playmates != null) {
+        if (ball != null && playmates != null && activePlayer == null) {
             activePlayer = playmates.stream().min(Comparator.comparing(player -> player.distance(ball))).orElse(null);
         }
     }
@@ -137,10 +137,10 @@ public class ImageAnalysis {
 
     private void setShadingField() {
         int shades = 0;
-        shades = isShadingFieldColor(bufferedImage.getRGB(10, 10)) ? shades + 1 : shades;
-        shades = isShadingFieldColor(bufferedImage.getRGB(WIDTH - 10, 10)) ? shades + 1 : shades;
-        shades = isShadingFieldColor(bufferedImage.getRGB(10, HEIGHT - 10)) ? shades + 1 : shades;
-        shades = isShadingFieldColor(bufferedImage.getRGB(WIDTH - 10, HEIGHT - 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(ImageUtils.getRGB(bufferedImage, 10, 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(ImageUtils.getRGB(bufferedImage, WIDTH - 10, 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(ImageUtils.getRGB(bufferedImage, 10, HEIGHT - 10)) ? shades + 1 : shades;
+        shades = isShadingFieldColor(ImageUtils.getRGB(bufferedImage, WIDTH - 10, HEIGHT - 10)) ? shades + 1 : shades;
         isShadingField = shades > 1;
     }
 
@@ -402,8 +402,7 @@ public class ImageAnalysis {
         if (isShadingField) {
             return SHADING_ACTIVE_PLAYER_LOWER.getColor().getRed() <= r && SHADING_ACTIVE_PLAYER_UPPER.getColor().getRed() >= r
                     && SHADING_ACTIVE_PLAYER_LOWER.getColor().getGreen() <= g && SHADING_ACTIVE_PLAYER_UPPER.getColor().getGreen() >= g
-                    && ((SHADING_ACTIVE_PLAYER_LOWER.getColor().getBlue() <= b && SHADING_ACTIVE_PLAYER_UPPER.getColor().getBlue() >= b)
-                    || isShadingField);
+                    && SHADING_ACTIVE_PLAYER_LOWER.getColor().getBlue() <= b && SHADING_ACTIVE_PLAYER_UPPER.getColor().getBlue() >= b;
         }
         return ACTIVE_PLAYER_LOWER.getColor().getRed() > r && ACTIVE_PLAYER_UPPER.getColor().getRed() <= r
                 && ACTIVE_PLAYER_LOWER.getColor().getGreen() < g && ACTIVE_PLAYER_UPPER.getColor().getGreen() > g

@@ -51,12 +51,13 @@ public record ActionProducer(GameAction gameAction) {
             log.info("KeyRelease: " + controls);
         }
         else {
-            if (GameHistory.isPossessionChanged()) {
+            if (GameHistory.isPossessionChangedOnTrue()) {
 				// cancel prev action 
 				List<Integer> cancelCodes = CONTROLS_ENUM_KEY_CODE_MAP.get(CANCEL);
 				cancelCodes.forEach(ROBOT::keyPress);
 				ROBOT.delay(CANCEL.getDelay().get()); 
-				cancelCodes.forEach(ROBOT::keyRelease);	
+				cancelCodes.forEach(ROBOT::keyRelease);
+                log.info("CANCEL KeyPress !");
 			}
             log.info("KeyPress: " + controls);
         }

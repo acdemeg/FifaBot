@@ -13,7 +13,7 @@ import static org.bot.GameInfo.WIDTH;
 @Getter
 public enum GameConstantsEnum {
     PLAYER_DIAMETER(10),
-    INIT_DELAY(50),
+    INIT_DELAY(100),
     LEFT_TOP_CORNER(new Point(0, 0)),
     LEFT_BOTTOM_CORNER(new Point(0, HEIGHT)),
     RIGHT_TOP_CORNER(new Point(WIDTH, 0)),

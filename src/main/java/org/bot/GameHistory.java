@@ -32,11 +32,16 @@ public class GameHistory {
     private static boolean isContinuousAction;
 	@Getter
     @Setter
-    private static boolean isPossessionChanged;
+    private static boolean isPossessionChangedOnTrue;
+    @Getter
+    @Setter
+    private static int ballPossessionChecksCount;
 
     public static String toStringStatic() {
         GameAction mock = new GameAction(Collections.emptyList(), null);
         return "isContinuousAction=" + isContinuousAction + ", "
+                + "isPossessionChangedOnTrue=" + isPossessionChangedOnTrue + ", "
+                + "ballPossessionRepeatCount=" + ballPossessionChecksCount + ", "
                 + "actionRepeats=" + actionRepeats + ", "
                 + "notReleasedGameAction=" + Optional.ofNullable(notReleasedGameAction).orElse(mock) + ", "
                 + "prevGameAction=" + Optional.ofNullable(prevGameAction).orElse(mock) + ", "
