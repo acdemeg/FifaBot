@@ -51,4 +51,15 @@ public class GameHistory {
                         Optional.ofNullable(prevGameInfo).orElse(new GameInfo()).toString(), 0) + ", ";
 
     }
+
+    public static void reset() {
+        prevGameInfo = null;
+        prevActionTarget = null;
+        prevGameAction = null;
+        actionRepeats = 0;
+        notReleasedGameAction = null;
+        isContinuousAction = false;
+        isPossessionChangedOnTrue = false;
+        ballPossessionChecksCount = 0;
+    }
 }

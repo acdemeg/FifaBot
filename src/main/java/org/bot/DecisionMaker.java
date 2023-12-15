@@ -31,7 +31,7 @@ public class DecisionMaker {
 
     private static final double OPPOSITE_DISTANCE_LOW_SHOT_DISTANCE_RATIO = 0.25;
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
-    private static final int MAX_ACTIONS_REPEAT = 5;
+    private static final int MAX_ACTIONS_REPEAT = 3;
     private static final int BALL_POSSESSION_CHECKS_COUNT = 3;
     private static final int MAX_LOW_SHOT_DISTANCE = 70;
     private final Set<GameAction> gameActions = new HashSet<>();
@@ -90,15 +90,16 @@ public class DecisionMaker {
 
     private GameAction getDefenceAction() {
         Point ball = gameInfo.getBall();
-        Rectangle penaltyArea = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE) ? LEFT_PENALTY_AREA.getRectangle()
-                : RIGHT_PENALTY_AREA.getRectangle();
+        boolean isLeftSide = gameInfo.getPlaymateSide().equals(LEFT_PLAYMATE_SIDE);
+        Rectangle penaltyArea = isLeftSide ? LEFT_PENALTY_AREA.getRectangle() : RIGHT_PENALTY_AREA.getRectangle();
         if (ball != null && penaltyArea.contains(gameInfo.getActivePlayer()) && gameInfo.getActivePlayer()
                 .distance(ball) < PLAYER_DIAMETER.getValue()) {
             return new GameAction(List.of(DEFENCE_TACKLE_PUSH_OR_PULL), gameInfo.getActivePlayer());
         }
         PlaymatesMap playmatesMap = getShotCandidatesMaps();
         if (playmatesMap.candidateAreaMap().isEmpty()) {
-            return new GameAction(List.of(DEFENCE_CONTAIN), gameInfo.getActivePlayer());
+            List<ControlsEnum> controls = List.of(MOVE_UP, DEFENCE_CONTAIN);
+            return new GameAction(controls, gameInfo.getActivePlayer());
         }
         Direction direction = getDirection(playmatesMap);
         ArrayList<ControlsEnum> controls = new ArrayList<>(direction.direction().getControlsList());
@@ -150,6 +151,10 @@ public class DecisionMaker {
             priorityGameActionMap.put(0, gameAction);
         } else {
             int priority = (int) penaltyPoint.distance(gameAction.actionTargetPlayer());
+            // for attack moving priority will be higher
+            if (ControlsEnum.attackMovingControlsSet().containsAll(gameAction.controls())) {
+                priority = priority / 2;
+            }
             priorityGameActionMap.put(priority, gameAction);
         }
     }

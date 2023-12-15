@@ -5,7 +5,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.stream.Stream;
 
 class ImageAnalysisTest {
 
@@ -17,7 +16,7 @@ class ImageAnalysisTest {
     private final Set<Integer> nobodyBallPossessionSet = Set.of(5, 11, 19, 20, 21, 26);
 
     @ParameterizedTest
-    @MethodSource("provideImageNumbers")
+    @MethodSource("TestUtils#provideImageNumbers")
     void analyseTest(Integer number) throws IOException {
         GameInfo gameInfo = TestUtils.getGameInfo(number);
         if (notValidImageSet.contains(number)) {
@@ -49,9 +48,5 @@ class ImageAnalysisTest {
             Assertions.assertFalse(gameInfo.isPlaymateBallPossession());
             Assertions.assertTrue(gameInfo.isNobodyBallPossession());
         }
-    }
-
-    private static Stream<Integer> provideImageNumbers() {
-        return Stream.iterate(1, x -> x + 1).limit(100);
     }
 }

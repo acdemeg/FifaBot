@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 
 public class TestUtils {
@@ -15,4 +16,8 @@ public class TestUtils {
         ImageAnalysis imageAnalysis = new ImageAnalysis(bufferedImage);
         return imageAnalysis.analyse();
     }
+    public static Stream<Integer> provideImageNumbers() {
+        return Stream.iterate(1, x -> x + 1).limit(100);
+    }
+
 }
