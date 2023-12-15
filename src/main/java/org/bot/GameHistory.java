@@ -1,6 +1,7 @@
 package org.bot;
 
 import lombok.*;
+import org.bot.utils.ImageUtils;
 
 import java.awt.*;
 import java.util.Collections;
@@ -46,7 +47,8 @@ public class GameHistory {
                 + "notReleasedGameAction=" + Optional.ofNullable(notReleasedGameAction).orElse(mock) + ", "
                 + "prevGameAction=" + Optional.ofNullable(prevGameAction).orElse(mock) + ", "
                 + "prevActionTarget=" + Optional.ofNullable(prevActionTarget).orElse(new Point()) + ", "
-                + "prevGameInfo=" + Optional.ofNullable(prevGameInfo).orElse(new GameInfo()) + ", ";
+                + "prevGameInfo=" + ImageUtils.pinchLogs(
+                        Optional.ofNullable(prevGameInfo).orElse(new GameInfo()).toString(), 0) + ", ";
 
     }
 }

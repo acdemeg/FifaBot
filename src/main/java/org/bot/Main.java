@@ -26,6 +26,7 @@ public class Main {
     public static final Robot ROBOT = createRobot();
     public static final File LOG_IMAGES = new File(USER_HOME + "/logs/TestImages");
     public static final File LOG_ACTIONS = new File(USER_HOME + "/logs/fifa_bot.log");
+    private static long sleepTime = 300;
     private static boolean isReplayerMode;
     private static boolean isLoggingMode;
     private static boolean isProductionMode;
@@ -45,6 +46,9 @@ public class Main {
         }
         if (isProductionMode) {
             LogManager.getLogManager().reset();
+        }
+        if (isLoggingMode) {
+            sleepTime = 150;
         }
         if (isReplayerMode) {
             LogManager.getLogManager().reset();
@@ -69,7 +73,7 @@ public class Main {
             if (isLoggingMode) {
                 logging(bufferedImage, gameInfo);
             }
-            Thread.sleep(300);
+            Thread.sleep(sleepTime);
         }
         // release all keys on exit
         ActionProducer.releaseAll();

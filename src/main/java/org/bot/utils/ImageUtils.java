@@ -68,7 +68,12 @@ public class ImageUtils {
     }
 
     public static String pinchLogs(String line, int beginIndex) {
-        return line.substring(beginIndex).replace("java.awt.Point", "").replace("x=", "").replace("y=", "");
+        return line.substring(beginIndex)
+                .replace("java.awt.Point", "")
+                .replace("x=", "")
+                .replace("y=", "")
+                .replace("delay=", "")
+                .replace("dela", "");
     }
 
     @SneakyThrows

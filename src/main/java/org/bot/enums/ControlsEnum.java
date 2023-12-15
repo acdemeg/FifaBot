@@ -1,6 +1,7 @@
 package org.bot.enums;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +13,7 @@ import static org.bot.enums.GameConstantsEnum.INIT_DELAY;
  * for 'Keyboard only' control type.
  * Here list for Attack and Defence actions
  */
+@ToString
 public enum ControlsEnum {
     // One key actions
     SPRINT(new AtomicInteger(INIT_DELAY.getValue())),

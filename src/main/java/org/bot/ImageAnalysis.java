@@ -7,6 +7,7 @@ import org.bot.utils.ImageUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -103,11 +104,14 @@ public class ImageAnalysis {
                             .collect(Collectors.toSet())
             ));
             // remove potentialCandidates from playmates
-            playmates.retainAll(potentialCandidates);
+            playmates.removeAll(potentialCandidates);
             // if empty then set closest for ball
-            activePlayer = potentialCandidates.stream().findAny()
-                    .orElse(playmates.stream().min(Comparator.comparing(player -> player.distance(ball)))
-                    .orElse(null));
+            Optional<Point> candidate = potentialCandidates.stream().findFirst();
+            if (candidate.isEmpty() || candidate.get().distance(ball) > ((double) HEIGHT / 2)) {
+                activePlayer = playmates.stream().min(Comparator.comparing(player -> player.distance(ball)))
+                        .orElse(null);
+            }
+            else activePlayer = candidate.get();
         }
     }
 

@@ -7,6 +7,7 @@ import lombok.extern.java.Log;
 import org.bot.enums.ControlsEnum;
 import org.bot.enums.GameConstantsEnum;
 import org.bot.enums.GeomEnum;
+import org.bot.utils.ImageUtils;
 
 import java.awt.*;
 import java.util.List;
@@ -32,6 +33,7 @@ public class DecisionMaker {
     private static final int FREE_FIELD_PART_SCAN_DISTANCE = 30;
     private static final int MAX_ACTIONS_REPEAT = 5;
     private static final int BALL_POSSESSION_CHECKS_COUNT = 3;
+    private static final int MAX_LOW_SHOT_DISTANCE = 70;
     private final Set<GameAction> gameActions = new HashSet<>();
     @NonNull
     private GameInfo gameInfo;
@@ -45,7 +47,7 @@ public class DecisionMaker {
         boolean repeatableAction = shadingFieldHandle();
         gameActionsFilling();
         GameAction gameAction = pickActionWithBestPriority(repeatableAction);
-        log.info(gameAction.toString());
+        log.info(ImageUtils.pinchLogs(gameAction.toString(), 0));
         setGameHistory(gameAction.actionTargetPlayer(), gameAction);
 
         return new ActionProducer(gameAction);
@@ -105,7 +107,7 @@ public class DecisionMaker {
     }
 
     private GameAction pickActionWithBestPriority(boolean repeatableAction) {
-        log.info(gameActions.toString());
+        log.info(ImageUtils.pinchLogs(gameActions.toString(), 0));
         if (gameInfo.getPlaymateSide() == null) {
             return new GameAction(List.of(NONE), gameInfo.getActivePlayer());
         }
@@ -245,7 +247,7 @@ public class DecisionMaker {
     }
 
     private boolean shadingFieldHandle() {
-        log.info(gameInfo.toString());
+        log.info(ImageUtils.pinchLogs(gameInfo.toString(), 0));
         log.info("GameHistory: " + GameHistory.toStringStatic());
         if (gameInfo.getPlaymates().isEmpty() && GameHistory.getPrevGameInfo() != null) {
             gameInfo = GameHistory.getPrevGameInfo();
@@ -303,7 +305,8 @@ public class DecisionMaker {
                     .filter(rectangleBetweenPlayers::contains)
                     .filter(opposite -> existThreatInterceptionOfBall(lowShotDistance, gameInfo.getActivePlayer(),
                                                                       playmate, opposite)).collect(Collectors.toSet());
-            if (threateningOppositesIntoSquare.isEmpty() && !playmate.equals(gameInfo.getActivePlayer())) {
+            if (threateningOppositesIntoSquare.isEmpty() && !playmate.equals(
+                    gameInfo.getActivePlayer()) && lowShotDistance < MAX_LOW_SHOT_DISTANCE) {
                 shotCandidateAreaMap.put(playmate, rectangleBetweenPlayers);
                 shotCandidateDistanceMap.put(playmate, lowShotDistance);
             }

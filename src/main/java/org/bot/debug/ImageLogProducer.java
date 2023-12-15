@@ -80,10 +80,10 @@ public class ImageLogProducer {
         g2d.setColor(Color.RED);
         addLogField(logs.gameActions(), g2d, x, y);
         g2d.setColor(Color.GREEN);
-        y += FONT_SIZE * 4;
+        y += FONT_SIZE * 5;
         addLogField(logs.decision(), g2d, x, y);
         g2d.setColor(Color.ORANGE);
-        y += FONT_SIZE * 2;
+        y += FONT_SIZE * 3;
         addLogField("ImageId: " + imageId, g2d, x, y);
         g2d.dispose();
         return image;
