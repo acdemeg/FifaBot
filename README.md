@@ -91,7 +91,7 @@ unchangeable over time (coordinates of the center of the field, penalty area, in
 <details>
   <summary>Collapse/Expand</summary>
 
-The main game loop starts and the bot takes a screenshot of the field as `BufferedImage`, for example:soccer::
+The main game loop starts and the bot takes a screenshot of the field as `BufferedImage`, for example⚽:
 
 <p align="center">
     <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169000811800.png" alt="state_1">
@@ -136,7 +136,7 @@ From a set of actions, the bot selects the highest priority:
        actionTargetPlayer=[x=65,y=53]
     ]
 
-After executing the action, we get a new state:soccer::
+After executing the action, we get a new state⚽:
 
 <p align="center">
     <img style="display: block; margin-left: auto; margin-right: auto; width: 60%" src="files/2027169766038500.png" alt="state_2">
@@ -152,7 +152,7 @@ active player in the previous screenshot, then the cycle repeats.
 <details>
   <summary>Collapse/Expand</summary>
 
-This is what part of the log looks like with the described states:file_folder::
+This is what part of the log looks like with the described states📁:
 
 <p align="center">
     <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/log.png" alt="log">
@@ -162,7 +162,7 @@ For the purpose of debugging and analyzing the behavior of the bot, a class was 
 [ImageLogProducer](src/main/java/org/bot/debug/ImageLogProducer.java)
 allowing you to link a text log with an image of the game state.
 
-An example of a visual log for the states described above:mag_right::
+An example of a visual log for the states described above🔎:
 
 <p align="center">
     <img style="display: block; margin-left: auto; margin-right: auto; width: 90%" src="files/full_game.png" alt="full_game">
@@ -177,7 +177,7 @@ An example of a visual log for the states described above:mag_right::
 
 ### Managing and setting up the game client
 
-The bot uses the following gameplay control scheme:wrench::
+The bot uses the following gameplay control scheme🔧:
 
 <details>
   <summary>Collapse/Expand</summary>
@@ -268,7 +268,7 @@ The bot uses the following gameplay control scheme:wrench::
 
 </details>
 
-You need to create the appropriate configuration in the game client:video_game::
+You need to create the appropriate configuration in the game client🎮:
 
 <details>
   <summary>Collapse/Expand</summary>
@@ -285,7 +285,7 @@ You need to create the appropriate configuration in the game client:video_game::
 
 The 2D field layout must be turned on and the players' colors must be `red` - for you,
 `blue` - for the enemy, control device - `Keyboard only`,
-FullHD resolution, 100% scaling:computer::
+FullHD resolution, 100% scaling🖥️:
 
 <details>
   <summary>Collapse/Expand</summary>
